@@ -1,0 +1,1055 @@
+﻿@model Ecommerce.Models.ModelClasses.PostProductModel_Web
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+
+}
+<!-- breadcrumb area start -->
+<!-- breadcrumb area start -->
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb-wrap">
+                    <nav aria-label="breadcrumb">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="~/Home/Index"><i class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item"><a href="~/Home/Listing?did=@Model.DetailCategoryId">Items Page</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Product details</li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<input type="hidden" id="currentPId" value="@Model.ProductId" />
+<!-- breadcrumb area end -->
+<!-- page main wrapper start -->
+<div class="shop-main-wrapper section-padding pb-0">
+    <div class="container">
+        <div class="row">
+            <!-- product details wrapper start -->
+            <div class="col-lg-12 order-1 order-lg-2">
+                <!-- product details inner end -->
+                <div class="product-details-inner">
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="product-large-slider">
+                                @if (Model.ProductDetails.Count > 0)
+                                {
+                                    foreach (var im in Model.ProductDetails[0].ProductDetailImages_List)
+                                    {
+                                        int sIndex = im.IndexOf(@".");
+                                        string fType = im.Substring(sIndex);
+                                        if (fType == ".gif" || fType == ".png" || fType == ".jpeg" || fType == ".jpg")
+                                        {
+                                            <div class="pro-large-img img-zoom">
+                                                <img src="~/ProductImages/@im" alt="product-details" />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="pro-large-img img-zoom">
+                                                <video width="445" height="445" controls autoplay>
+                                                    <source src="~/ProductImages/@im" type="video/mp4">
+                                                    <source src="movie.ogg" type="video/ogg">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
+                                        }
+
+                                    }
+                                }
+
+                            </div>
+                            <div class="pro-nav slick-row-10 slick-arrow-style">
+                                @if (Model.ProductDetails.Count > 0)
+                                {
+                                    foreach (var im in Model.ProductDetails[0].ProductDetailImages_List)
+                                    {
+                                        int SsIndex = im.IndexOf(@".");
+                                        string SfType = im.Substring(SsIndex);
+                                        if (SfType == ".gif" || SfType == ".png" || SfType == ".jpeg" || SfType == ".jpg")
+                                        {
+                                            <div class="pro-nav-thumb">
+                                                <img src="~/ProductImages/@im" alt="product-details" />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="pro-nav-thumb">
+                                                <video width="100%">
+                                                    <source src="~/ProductImages/@im" type="video/mp4">
+                                                    <source src="movie.ogg" type="video/ogg">
+                                                    Your browser does not support the video tag.
+                                                </video>
+
+                                            </div>
+
+                                        }
+
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="product-details-des">
+                                <div class="manufacturer-name">
+                                    <a href="#">@Model.CategoryId_name > @Model.SubCategoryId_name > @Model.DetailCategoryId_name </a>
+                                </div>
+                                <h3 class="product-name">@Model.ProductTitle</h3>
+                                <div class="ratings d-flex">
+                                    <span><i class="fa fa-star-o"></i></span>
+                                    <span><i class="fa fa-star-o"></i></span>
+                                    <span><i class="fa fa-star-o"></i></span>
+                                    <span><i class="fa fa-star-o"></i></span>
+                                    <span><i class="fa fa-star-o"></i></span>
+                                    <div class="pro-review">
+                                        <span>1 Reviews</span>
+                                    </div>
+                                </div>
+                                <div class="price-box">
+                                    <span class="price-regular">
+                                        Rs. @(Model.priceBreakup.totalAmount.ToString("#,##0.00"))
+
+                                        <span id="talkbubble">
+                                            @Model.DiscountMaster_IdName
+                                        </span>
+                                    </span>
+                                    <div class="price-old"><del>Rs.@(Model.priceBreakup.oldAmount.ToString("#,##0.00"))</del></div>
+                                </div>
+                                <div class="pincodeBox">
+                                    <div>
+                                        Your picode
+                                        <span class="example">
+                                            <input type="text" placeholder="500025" value="500025" name="search">
+                                            <button type="submit" class="btn btn-update">update</button>
+                                        </span>
+                                    </div>
+                                    <p>Delivery By @Model.MaxDelivaryDays days</p>
+                                </div>
+                                <div class="clearfix"></div>
+                                <div class="availability">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span>@Model.ProductDescription</span>
+                                </div>
+                                <div class="custmize mt-1">
+                                    @if (Model.IsCustomizable == true)
+                                    {
+
+                                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading" role="tab" id="headingOne">
+                                                    <h4 class="panel-title">
+                                                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                            <i class="more-less fa fa-plus"></i>
+                                                            Customize this product
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseOne" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne">
+                                                    <div class="panel-body">
+                                                        <form>
+                                                            <div class="d-flex">
+                                                                <div>
+                                                                    <div class="form-group">
+                                                                        <select class="form-control" id="sel1">
+                                                                            <option>White</option>
+                                                                            <option>Yellow</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="radiokt">
+                                                                    <label class="radio-inline"><input type="radio" name="optradio" checked>14 kt</label>
+                                                                    <label class="radio-inline"><input type="radio" name="optradio">18 kt</label>
+                                                                    <label class="radio-inline"><input type="radio" name="optradio">22 kt</label>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+
+                                </div>
+
+                                <div class="clearfix"></div>
+
+                                <div class="availability">
+                                    <i class="fa fa-check-circle"></i>
+                                    <span>In stock</span>
+                                </div>
+                                <div class="quantity-cart-box d-flex align-items-center">
+                                    <h6 class="option-title">qty:</h6>
+                                    <div class="quantity">
+                                        <div class="pro-qty"><input type="text" id="prdQty" value="1"></div>
+                                    </div>
+                                    <div class="action_link">
+                                        <a class="btn btn-cart2" href="javascript:void(0);" onclick="AddToCart(@Model.ProductId,@Model.ProductDetails[0].ProductDetailId,-1)">Add to cart</a>
+                                    </div>
+                                </div>
+                                @if (Model.MySizes != null)
+                                {
+                                    if (Model.MySizes.Count > 0)
+                                    {
+                                        <div class="pro-size">
+                                            <h6 class="option-title">size :</h6>
+                                            <select class="nice-select" onchange="GetProduct()" id="MySizeId">
+                                                @foreach (var si in Model.MySizes)
+                                                {
+                                                    <option value="@si.ProductDetailId">@si.SizeName</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    }
+
+
+                                }
+
+                                @*<div class="color-option">
+                                        <h6 class="option-title">color :</h6>
+                                        <ul class="color-categories">
+                                            <li>
+                                                <a class="c-lightblue" href="#" title="LightSteelblue"></a>
+                                            </li>
+                                            <li>
+                                                <a class="c-darktan" href="#" title="Darktan"></a>
+                                            </li>
+                                            <li>
+                                                <a class="c-grey" href="#" title="Grey"></a>
+                                            </li>
+                                            <li>
+                                                <a class="c-brown" href="#" title="Brown"></a>
+                                            </li>
+                                        </ul>
+                                    </div>*@
+                                <div class="useful-links">
+
+                                    <a href="#" data-toggle="tooltip" title="Wishlist">
+                                        <i class="pe-7s-like"></i>wishlist
+                                    </a>
+                                </div>
+                                <div class="s2">
+                                    <div class="action_link">
+                                        <a class="btn btn-cart" href="javascript:void(0);" onclick="ShowCustomize(@Model.ProductId,@Model.ProductDetails[0].ProductDetailId,-1)">Want to Customize? </a>
+                                    </div>
+                                </div>
+                                <div class="like-icon">
+                                    <a class="facebook" href="#"><i class="fa fa-facebook"></i>like</a>
+                                    <a class="twitter" href="#"><i class="fa fa-twitter"></i>tweet</a>
+                                    <a class="pinterest" href="#"><i class="fa fa-pinterest"></i>save</a>
+                                    <a class="google" href="#"><i class="fa fa-google-plus"></i>share</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product details inner end -->
+
+                <div class="bg-white mt-3 pt-3 p-3">
+                    <div class="row">
+                        <div class="col-md-7">
+                            <div class="productDetail">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="detailBlock">
+                                            <div class="head">
+                                                Product Details
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Product Code
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    @Model.ProductDetails[0].ProductCode
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Height
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    @Model.ProductDetails[0].Height @Model.ProductDetails[0].HeightMeasurementId_name
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Width
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    @Model.ProductDetails[0].Width @Model.ProductDetails[0].WeightMeasurementId_Name
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Product Weight
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    @Model.ProductDetails[0].ProductWeight gm
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="detailBlock">
+                                            <div class="head">
+                                                Metal Details
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Metal Type
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    @Model.ProductDetails[0].MetalMasterId_Name
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Weight
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    @Model.ProductDetails[0].MetalWeight @Model.ProductDetails[0].MetailWeightMesuremetnId_Name
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    @if (Model.ProductDetails[0].SolitaireDetails != null)
+                                    {
+                                        if (@Model.ProductDetails[0].SolitaireDetails.Count > 0)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="detailBlock">
+                                                    <div id="no-more-tables">
+                                                        <div class="head">
+                                                            Solitaire Details
+                                                        </div>
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Total Stones
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].SolitaireMain.TotalSolitaires
+                                                            </div>
+                                                        </div>
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Total Number of Stones
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].SolitaireMain.TotalSolitaires
+                                                            </div>
+                                                        </div>
+
+                                                        <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                            <thead class="cf">
+                                                                <tr>
+
+
+                                                                    <th>Clarity</th>
+                                                                    <th>Color</th>
+                                                                    <th>Symmetry</th>
+                                                                    <th>Shape</th>
+                                                                    <th>Fluorescence</th>
+                                                                    <th>Certification</th>
+                                                                    <th>Total</th>
+                                                                    <th>Weight</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var dd in @Model.ProductDetails[0].SolitaireDetails)
+                                                                {
+                                                                    <tr>
+
+                                                                        <td data-title="Clarity">@dd.ClarityId_Nme
+                                                                        <td data-title="Color">@dd.ColorId_Name</td>
+                                                                        <td data-title="Symmetry">@dd.Symmetry_Name</td>
+                                                                        <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                        <td data-title="FluorescenceId_Name">@dd.FluorescenceId_Name</td>
+                                                                        <td data-title="Type">@dd.CertificationId_Name</td>
+                                                                        <td data-title="Total" class="text-right">@dd.NoofSolitaire</td>
+                                                                        <td data-title="Total Waight" class="text-right">@dd.TotalWaight</td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+                                    @if (Model.ProductDetails[0].DaimondsDetail != null)
+                                    {
+                                        @if (@Model.ProductDetails[0].DaimondsDetail.Count > 0)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="detailBlock">
+                                                    <div id="no-more-tables">
+                                                        <div class="head">
+                                                            Daimond Details
+                                                        </div>
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Total Weight
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].DaimondsMain.TotalWeight Ct
+                                                            </div>
+                                                        </div>
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Total Number of Daimonds
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].DaimondsMain.TotalDaimonds
+                                                            </div>
+                                                        </div>
+
+                                                        <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                            <thead class="cf">
+                                                                <tr>
+
+
+                                                                    <th>Clarity</th>
+                                                                    <th>Color</th>
+                                                                    <th>Setting</th>
+                                                                    <th>Shape</th>
+                                                                    <th>Type</th>
+                                                                    <th>Total</th>
+                                                                    <th>Weight</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var dd in @Model.ProductDetails[0].DaimondsDetail)
+                                                                {
+                                                                    <tr>
+
+                                                                        <td data-title="Clarity">@dd.ClarityId_Name
+                                                                        <td data-title="Color">@dd.ColorId_Name</td>
+                                                                        <td data-title="Setting">@dd.SettingTypeId_Name</td>
+                                                                        <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                        <td data-title="Type">@dd.DaimondTypeId_Name</td>
+                                                                        <td data-title="Total" class="text-right">@dd.NoofDaimonds</td>
+                                                                        <td data-title="Total Waight" class="text-right">@dd.TotalWaight</td>
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+
+                                    @if (Model.ProductDetails[0].SRubyDetails != null)
+                                    {
+                                        if (@Model.ProductDetails[0].SRubyDetails.Count > 0)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="detailBlock">
+                                                    <div id="no-more-tables">
+                                                        <div class="head">
+                                                            Synthetic Ruby Details
+                                                        </div>
+
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Total Number of Stones
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].SRubyMain.TotalStones
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Weight
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].SRubyMain.TotalWeight
+                                                            </div>
+                                                        </div>
+                                                        <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                            <thead class="cf">
+                                                                <tr>
+
+
+                                                                    <th>Shape</th>
+                                                                    <th>Size</th>
+                                                                    <th>Setting</th>
+                                                                    <th>Number of Stones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var dd in @Model.ProductDetails[0].SRubyDetails)
+                                                                {
+                                                                    <tr>
+
+
+                                                                        <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                        <td> @dd.Size</td>
+                                                                        <td>@dd.SettingId_Name</td>
+                                                                        <td data-title="Total" class="text-right">@dd.NoofStones</td>
+
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+                                    @if (Model.ProductDetails[0].PerlDetails != null)
+                                    {
+                                        if (@Model.ProductDetails[0].PerlDetails.Count > 0)
+                                        {
+                                            <div class="col-md-12">
+                                                <div class="detailBlock">
+                                                    <div id="no-more-tables">
+                                                        <div class="head">
+                                                            Perl Details
+                                                        </div>
+
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Total Number of Stones
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].PerlMain.TotalStones
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="productBody">
+                                                            <div class="probodylt">
+                                                                Weight
+                                                            </div>
+                                                            <div class="probodyrt text-right">
+                                                                @Model.ProductDetails[0].PerlMain.TotalWeight
+                                                            </div>
+                                                        </div>
+                                                        <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                            <thead class="cf">
+                                                                <tr>
+
+
+                                                                    <th>Shape</th>
+                                                                    <th>Size</th>
+                                                                    <th>Setting</th>
+                                                                    <th>Number of Stones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach (var dd in @Model.ProductDetails[0].PerlDetails)
+                                                                {
+                                                                    <tr>
+
+
+                                                                        <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                        <td> @dd.Size</td>
+                                                                        <td>@dd.SettingId_Name</td>
+                                                                        <td data-title="Total" class="text-right">@dd.NoofStones</td>
+
+                                                                    </tr>
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        }
+                                    }
+
+
+
+
+                                    <div class="col-md-12">
+                                        <div class="detailBlock">
+                                            <div class="head">
+                                                Price Breakup
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Gold
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    Rs. @(Model.priceBreakup.GoldRate.ToString("#,##0.00"))/-
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Diamond
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    Rs. @(Model.priceBreakup.DaimondRate.ToString("#,##0.00"))/-
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Making Charges
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    Rs. @(Model.priceBreakup.MakingCharges.ToString("#,##0.00"))/-
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    GST
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    Rs. @(Model.priceBreakup.GST.ToString("#,##0.00"))/-
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Discount
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    Rs. @(Model.priceBreakup.discount.ToString("#,##0.00"))/-
+                                                </div>
+                                            </div>
+                                            <div class="productBody">
+                                                <div class="probodylt">
+                                                    Total
+                                                </div>
+                                                <div class="probodyrt text-right">
+                                                    <del>Rs. @(Model.priceBreakup.oldAmount.ToString("#,##0.00"))</del> Rs. @(Model.priceBreakup.totalAmount.ToString("#,##0.00"))/-
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @*<div class="customerSpeek">
+                                    <section class="regular slider">
+                                        <div>
+                                            <div class="customerBpx">
+                                                <div>
+                                                    <img src="~/WebApp/assets/img/product/product-5.jpg" />
+                                                </div>
+                                                <p>This leaf style earrings is very much special for me as it is a surprise gift from my husband on our second marriage anniversary and secondly it is very well made and uniquely designed. I even couldn't have imagined that these unique design earrings would be mine.</p>
+                                                <h4>Mr Ashok Agarwal</h4>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="customerBpx">
+                                                <div>
+                                                    <img src="~/WebApp/assets/img/product/product-6.jpg" />
+                                                </div>
+                                                <p>This leaf style earrings is very much special for me as it is a surprise gift from my husband on our second marriage anniversary and secondly it is very well made and uniquely designed. I even couldn't have imagined that these unique design earrings would be mine.</p>
+                                                <h4>Mr Ashok Agarwal</h4>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="customerBpx">
+                                                <div>
+                                                    <img src="~/WebApp/assets/img/product/product-7.jpg" />
+                                                </div>
+                                                <p>This leaf style earrings is very much special for me as it is a surprise gift from my husband on our second marriage anniversary and secondly it is very well made and uniquely designed. I even couldn't have imagined that these unique design earrings would be mine.</p>
+                                                <h4>Mr Ashok Agarwal</h4>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="customerBpx">
+                                                <div>
+                                                    <img src="~/WebApp/assets/img/product/product-8.jpg" />
+                                                </div>
+                                                <p>This leaf style earrings is very much special for me as it is a surprise gift from my husband on our second marriage anniversary and secondly it is very well made and uniquely designed. I even couldn't have imagined that these unique design earrings would be mine.</p>
+                                                <h4>Mr Ashok Agarwal</h4>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="customerBpx">
+                                                <div>
+                                                    <img src="~/WebApp/assets/img/product/product-1.jpg" />
+                                                </div>
+                                                <p>This leaf style earrings is very much special for me as it is a surprise gift from my husband on our second marriage anniversary and secondly it is very well made and uniquely designed. I even couldn't have imagined that these unique design earrings would be mine.</p>
+                                                <h4>Mr Ashok Agarwal</h4>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>*@
+                        </div>
+
+                        <div class="col-md-5">
+                            <div class="promiseBox">
+                                <h4 class="title-9">Heeranyam Promise</h4>
+                                <div class="bs-promise">
+                                    <ul>
+                                        <li class="d-flex">
+                                            <a href="#">
+                                                <i class="fa fa-sign-out"></i>
+                                                <span> 30-Day Money Back</span>
+                                            </a>
+                                        </li>
+                                        <li class="d-flex">
+                                            <a href="#">
+                                                <i class="fa fa-retweet"></i>
+                                                <span>Lifetime Exchange<br>&amp; Buy-Back Policy</span>
+                                            </a>
+                                        </li>
+                                        <li class="d-flex">
+                                            <a href="#">
+                                                <i class="fa fa-sign-out"></i>
+                                                <span> Certified Jewellery</span>
+                                            </a>
+                                        </li>
+                                        <li class="d-flex">
+                                            <a href="#">
+                                                <i class="fa fa-sign-out"></i>
+                                                <span> 30-Day Money Back</span>
+                                            </a>
+                                        </li>
+                                        <li class="d-flex">
+                                            <a href="#">
+                                                <i class="fa fa-sign-out"></i>
+                                                <span> Certified Jewellery</span>
+                                            </a>
+                                        </li>
+                                    </ul> <div class="clear"></div>
+                                </div>
+                            </div>
+
+                            <div class="certificaton">
+                                <div>
+                                    <h4>Certificate of Authenticity</h4>
+                                    <p>
+                                        Every piece of jewellery that we
+                                        make is certified for authenticity by
+                                        third-party international laboratories
+                                        like SGL, IGI, BIS, GIA, and HKD.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- product details reviews start -->
+                <div class="product-details-reviews section-padding pb-0">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="product-review-info">
+                                <ul class="nav review-tab">
+
+                                    <li>
+                                        <a data-toggle="tab" href="#tab_three">reviews (0)</a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content reviews-tab">
+
+                                    <div class="tab-pane fade show active" id="tab_three">
+                                        <!--<form action="#" class="review-form">
+                                            <h5>1 review for <span>Chaz Kangeroo</span></h5>
+                                            <div class="total-reviews">
+                                                <div class="rev-avatar">
+                                                    <img src="~/WebApp/assets/img/about/avatar.jpg" alt="">
+                                                </div>
+                                                <div class="review-box">
+                                                    <div class="ratings">
+                                                        <span class="good"><i class="fa fa-star"></i></span>
+                                                        <span class="good"><i class="fa fa-star"></i></span>
+                                                        <span class="good"><i class="fa fa-star"></i></span>
+                                                        <span class="good"><i class="fa fa-star"></i></span>
+                                                        <span><i class="fa fa-star"></i></span>
+                                                    </div>
+                                                    <div class="post-author">
+                                                        <p><span>admin -</span> 30 Mar, 2019</p>
+                                                    </div>
+                                                    <p>
+                                                        Aliquam fringilla euismod risus ac bibendum. Sed sit
+                                                        amet sem varius ante feugiat lacinia. Nunc ipsum nulla,
+                                                        vulputate ut venenatis vitae, malesuada ut mi. Quisque
+                                                        iaculis, dui congue placerat pretium, augue erat
+                                                        accumsan lacus
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col">
+                                                    <label class="col-form-label">
+                                                        <span class="text-danger">*</span>
+                                                        Your Name
+                                                    </label>
+                                                    <input type="text" class="form-control" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col">
+                                                    <label class="col-form-label">
+                                                        <span class="text-danger">*</span>
+                                                        Your Email
+                                                    </label>
+                                                    <input type="email" class="form-control" required>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col">
+                                                    <label class="col-form-label">
+                                                        <span class="text-danger">*</span>
+                                                        Your Review
+                                                    </label>
+                                                    <textarea class="form-control" required></textarea>
+                                                    <div class="help-block pt-10">
+                                                        <span class="text-danger">Note:</span>
+                                                        HTML is not translated!
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <div class="col">
+                                                    <label class="col-form-label">
+                                                        <span class="text-danger">*</span>
+                                                        Rating
+                                                    </label>
+                                                    &nbsp;&nbsp;&nbsp; Bad&nbsp;
+                                                    <input type="radio" value="1" name="rating">
+                                                    &nbsp;
+                                                    <input type="radio" value="2" name="rating">
+                                                    &nbsp;
+                                                    <input type="radio" value="3" name="rating">
+                                                    &nbsp;
+                                                    <input type="radio" value="4" name="rating">
+                                                    &nbsp;
+                                                    <input type="radio" value="5" name="rating" checked>
+                                                    &nbsp;Good
+                                                </div>
+                                            </div>
+                                            <div class="buttons">
+                                                <button class="btn btn-sqr" type="submit">Continue</button>
+                                            </div>
+                                        </form>-->
+                                        <!-- end of review-form -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- product details reviews end -->
+            </div>
+            <!-- product details wrapper end -->
+        </div>
+    </div>
+</div>
+<!-- page main wrapper end -->
+<!-- related products area start -->
+<section class="related-products section-padding">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- section title start -->
+                <div class="section-title text-center">
+                    <h2 class="title">Related Products</h2>
+                    <p class="sub-title">Related products to weekly lineup</p>
+                </div>
+                <!-- section title start -->
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="product-carousel-4 slick-row-10 slick-arrow-style">
+                    <!-- product item start -->
+                    <!--<div class="product-item">
+                        <figure class="product-thumb">
+                            <a href="#">
+                                <img class="pri-img" src="~/WebApp/assets/img/product/product-11.jpg" alt="product">
+                                <img class="sec-img" src="~/WebApp/assets/img/product/product-8.jpg" alt="product">
+                            </a>
+                            <div class="product-badge">
+                                <div class="product-label new">
+                                    <span>new</span>
+                                </div>
+                                <div class="product-label discount">
+                                    <span>10%</span>
+                                </div>
+                            </div>
+                            <div class="button-group">
+                                <a href="#" data-toggle="tooltip" data-placement="left" title="Add to wishlist"><i class="pe-7s-like"></i></a>
+                                <a href="#" data-toggle="tooltip" data-placement="left" title="Add to Compare"><i class="pe-7s-refresh-2"></i></a>
+                                <a href="#" data-toggle="modal" data-target="#quick_view"><span data-toggle="tooltip" data-placement="left" title="Quick View"><i class="pe-7s-search"></i></span></a>
+                            </div>
+                            <div class="cart-hover">
+                                <button class="btn btn-cart">add to cart</button>
+                            </div>
+                        </figure>
+                        <div class="product-caption text-center">
+                            <div class="product-identity">
+                                <p class="manufacturer-name"><a href="#">Gold</a></p>
+                            </div>
+                            <ul class="color-categories">
+                                <li>
+                                    <a class="c-lightblue" href="#" title="LightSteelblue"></a>
+                                </li>
+                                <li>
+                                    <a class="c-darktan" href="#" title="Darktan"></a>
+                                </li>
+                                <li>
+                                    <a class="c-grey" href="#" title="Grey"></a>
+                                </li>
+                                <li>
+                                    <a class="c-brown" href="#" title="Brown"></a>
+                                </li>
+                            </ul>
+                            <h6 class="product-name">
+                                <a href="#">Perfect Diamond Jewelry</a>
+                            </h6>
+                            <div class="price-box">
+                                <span class="price-regular">Rs. 350000</span>
+                                <span class="price-old"><del>Rs. 390000</del></span>
+                            </div>
+                        </div>
+                    </div>-->
+                    <!-- product item end -->
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function GetProduct() {
+        var cpid = $('#currentPId').val();
+        var detailid = $('#MySizeId option:selected').val();
+        var url = GlobalUrl + "/Home/Product?pid=" + cpid + "&pdid=" + detailid;
+        window.location.href = url;
+
+    }
+    function ShowCustomize() {
+        $('#customize').modal('show');
+
+    }
+</script>
+
+<div class="modal fade" id="customize" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header modal-header-info">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h1><i class="glyphicon glyphicon-thumbs-up"></i> Customize Your Product</h1>
+            </div>
+            <div class="modal-body">
+                <h5>Give some more information to customize</h5>
+                
+                <div style="padding:20px;">
+                    <form id="frmCust">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Your Name</label>
+                                    <input type="text" class="form-control" name="CustomerName" />
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label>Mobile</label>
+                                    <input type="text" class="form-control" name="MobileNumber" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <textarea class="form-control" rows="5" name="Address">
+                                    </textarea>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label>Give us your requirements</label>
+                                    <textarea class="form-control" rows="5" name="CustmerRequirements">
+                                    </textarea>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<style>
+    .modal-header-success {
+        color: #fff;
+        padding: 9px 15px;
+        border-bottom: 1px solid #eee;
+        background-color: #5cb85c;
+        -webkit-border-top-left-radius: 5px;
+        -webkit-border-top-right-radius: 5px;
+        -moz-border-radius-topleft: 5px;
+        -moz-border-radius-topright: 5px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .modal-header-warning {
+        color: #fff;
+        padding: 9px 15px;
+        border-bottom: 1px solid #eee;
+        background-color: #f0ad4e;
+        -webkit-border-top-left-radius: 5px;
+        -webkit-border-top-right-radius: 5px;
+        -moz-border-radius-topleft: 5px;
+        -moz-border-radius-topright: 5px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .modal-header-danger {
+        color: #fff;
+        padding: 9px 15px;
+        border-bottom: 1px solid #eee;
+        background-color: #d9534f;
+        -webkit-border-top-left-radius: 5px;
+        -webkit-border-top-right-radius: 5px;
+        -moz-border-radius-topleft: 5px;
+        -moz-border-radius-topright: 5px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .modal-header-info {
+        color: #fff;
+        padding: 9px 15px;
+        border-bottom: 1px solid #eee;
+        background-color: #5bc0de;
+        -webkit-border-top-left-radius: 5px;
+        -webkit-border-top-right-radius: 5px;
+        -moz-border-radius-topleft: 5px;
+        -moz-border-radius-topright: 5px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+
+    .modal-header-primary {
+        color: #fff;
+        padding: 9px 15px;
+        border-bottom: 1px solid #eee;
+        background-color: #428bca;
+        -webkit-border-top-left-radius: 5px;
+        -webkit-border-top-right-radius: 5px;
+        -moz-border-radius-topleft: 5px;
+        -moz-border-radius-topright: 5px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+</style>

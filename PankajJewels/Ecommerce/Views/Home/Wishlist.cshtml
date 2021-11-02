@@ -1,0 +1,165 @@
+﻿@model IEnumerable<Ecommerce.Models.ModelClasses.WishListModel>  
+@{
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+   
+    int rCnt = 1;
+    
+}
+
+
+<!-- breadcrumb area start -->
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb-wrap">
+                    <nav aria-label="breadcrumb">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="~/Home/Index"><i class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item active" aria-current="page">My Wishlist</li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- breadcrumb area end -->
+<!-- login register wrapper start -->
+<div class="login-register-wrapper section-padding loginBanner">
+    <div class="container">
+        <div class="member-area-from-wrap">
+            <div class="row">
+                <!-- Login Content Start -->
+                <div class="offset-md-12 col-lg-12">
+                    <div class="login-reg-form-wrap">
+                        <h5>My Wishlist</h5>
+                        <div class="table-responsive table-desi">
+                            <div class="minicart-item-wrapper">
+                                @if (Model != null)
+                                {
+                                    @if (Model.Count() > 0)
+                                    {
+                                        <table class="table table-responsive">
+                                            <thead>
+                                                <tr>
+                                                    <td>
+                                                        #
+                                                    </td>
+                                                    <td> Image</td>
+                                                    <td>Title</td>
+                                                    <td>Gold Weight</td>
+                                                    <td>Gold Price</td>
+                                                    <td>Making Charges</td>
+                                                    <td>Total Price</td>
+                                                    <td></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if (Model != null)
+                                                {
+                                                    if (Model.Count() > 0)
+                                                    {
+                                                        foreach (var v in Model)
+                                                        {
+                                                            <tr>
+                                                                <td>@(rCnt++)</td>
+                                                                <td><img src="~/ProductImages/@v.ProductImage" width="100px;" /></td>
+                                                                <td>
+                                                                    <strong>@v.ProductTitle</strong>
+
+
+                                                                </td>
+
+                                                                <td>@v.GoldWeight</td>
+                                                                <td>@v.GoldRate</td>
+
+                                                                <td>@v.MakingCharges</td>
+
+
+                                                                <td>@v.TotalPrice</td>
+                                                                <td>
+                                                                    <a href="javascript:void(0);" onclick="ShowDeleteCart(@v.WishListId)" class="btn btn-danger">Remove</a>
+                                                                </td>
+
+                                                            </tr>
+                                                        }
+                                                    }
+                                                }
+
+                                            </tbody>
+                                        </table>
+                                    }
+                                }else
+                                { 
+                            <table class="table table-responsive">
+                                <thead>
+                                    <tr>
+                                        <td>
+                                            #
+                                        </td>
+                                        <td> Image</td>
+                                        <td>Title</td>
+                                        <td>Gold Weight</td>
+                                        <td>Gold Price</td>
+                                        <td>Making Charges</td>
+                                        <td>Total Price</td>
+                                        <td></td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                     <tr>
+                                         <td colspan="9"> You have no items in wishlist!</td>
+                                     </tr>
+
+                                </tbody>
+                            </table>
+                                }
+                                 
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- login register wrapper end -->
+<script>
+
+    function ShowDeleteCart(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/Home/DeleteWishlist?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+
+    }
+
+</script>

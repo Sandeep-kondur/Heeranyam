@@ -1,0 +1,472 @@
+﻿@model Ecommerce.Models.ModelClasses.ProductDisplayForAdmin
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+    int fcnt = 1;
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#"><i class="fa fa-home"></i></a></li>
+            <li class="breadcrumb-item"><a href="#">Orders</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Order details</li>
+        </ul>
+    </div>
+
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <h4>@Model.product.ProductTitle</h4>
+                        <p>@Model.product.CategoryId_name > @Model.product.SubCategoryId_name > @Model.product.DetailCategoryId_name </p>
+                        <p>Current status : @Model.po.OrderStatus</p>
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <td>Order Id</td>
+                                        <td>Delivary Date</td>
+                                        <td>Total Amount</td>
+                                        <td>Metal</td>
+                                        <td>Metal Weight</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            @Model.po.PONumber
+                                        </td>
+                                        <td>@(Convert.ToDateTime(Model.po.CreatedOn).AddDays((double)Model.product.MaxDelivaryDays))</td>
+                                        <td> Rs. @(Model.pd.TotalPrice)</td>
+                                        <td>
+                                            @Model.product.ProductDetails[0].MetalMasterId_Name
+                                        </td>
+                                        <td>@Model.product.ProductDetails[0].MetalWeight @Model.product.ProductDetails[0].MetailWeightMesuremetnId_Name</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <td>Product Code</td>
+                                        <td>Height</td>
+                                        <td>Width</td>
+                                        <td>Product Weight</td>
+                                        <td>Size</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            @Model.product.ProductDetails[0].ProductCode
+                                        </td>
+                                        <td> @Model.product.ProductDetails[0].Height @Model.product.ProductDetails[0].HeightMeasurementId_name</td>
+                                        <td> @Model.product.ProductDetails[0].Width @Model.product.ProductDetails[0].WeightMeasurementId_Name</td>
+                                        <td>   @Model.product.ProductDetails[0].ProductWeight gm</td>
+                                        <td>@Model.product.ProductDetails[0].SizeMasterId_name</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            @if (Model.product.ProductDetails[0].SolitaireDetails != null)
+                            {
+                                if (@Model.product.ProductDetails[0].SolitaireDetails.Count > 0)
+                                {
+                                    <div class="col-md-12">
+                                        <div class="detailBlock">
+                                            <div id="no-more-tables">
+                                                <div class="head">
+                                                    Solitaire Details
+                                                </div>
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Total Stones
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].SolitaireMain.TotalSolitaires
+                                                    </div>
+                                                </div>
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Total Number of Stones
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].SolitaireMain.TotalSolitaires
+                                                    </div>
+                                                </div>
+
+                                                <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                    <thead class="cf">
+                                                        <tr>
+
+
+                                                            <th>Clarity</th>
+                                                            <th>Color</th>
+                                                            <th>Symmetry</th>
+                                                            <th>Shape</th>
+                                                            <th>Fluorescence</th>
+                                                            <th>Certification</th>
+                                                            <th>Total</th>
+                                                            <th>Weight</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var dd in @Model.product.ProductDetails[0].SolitaireDetails)
+                                                        {
+                                                            <tr>
+
+                                                                <td data-title="Clarity">@dd.ClarityId_Nme
+                                                                <td data-title="Color">@dd.ColorId_Name</td>
+                                                                <td data-title="Symmetry">@dd.Symmetry_Name</td>
+                                                                <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                <td data-title="FluorescenceId_Name">@dd.FluorescenceId_Name</td>
+                                                                <td data-title="Type">@dd.CertificationId_Name</td>
+                                                                <td data-title="Total" class="text-right">@dd.NoofSolitaire</td>
+                                                                <td data-title="Total Waight" class="text-right">@dd.TotalWaight</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+                            @if (Model.product.ProductDetails[0].DaimondsDetail != null)
+                            {
+                                @if (@Model.product.ProductDetails[0].DaimondsDetail.Count > 0)
+                                {
+                                    <div class="col-md-12">
+                                        <div class="detailBlock">
+                                            <div id="no-more-tables">
+                                                <div class="head">
+                                                    Daimond Details
+                                                </div>
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Total Weight
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].DaimondsMain.TotalWeight Ct
+                                                    </div>
+                                                </div>
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Total Number of Daimonds
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].DaimondsMain.TotalDaimonds
+                                                    </div>
+                                                </div>
+
+                                                <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                    <thead class="cf">
+                                                        <tr>
+
+
+                                                            <th>Clarity</th>
+                                                            <th>Color</th>
+                                                            <th>Setting</th>
+                                                            <th>Shape</th>
+                                                            <th>Type</th>
+                                                            <th>Total</th>
+                                                            <th>Weight</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var dd in @Model.product.ProductDetails[0].DaimondsDetail)
+                                                        {
+                                                            <tr>
+
+                                                                <td data-title="Clarity">@dd.ClarityId_Name
+                                                                <td data-title="Color">@dd.ColorId_Name</td>
+                                                                <td data-title="Setting">@dd.SettingTypeId_Name</td>
+                                                                <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                <td data-title="Type">@dd.DaimondTypeId_Name</td>
+                                                                <td data-title="Total" class="text-right">@dd.NoofDaimonds</td>
+                                                                <td data-title="Total Waight" class="text-right">@dd.TotalWaight</td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+
+                            @if (Model.product.ProductDetails[0].SRubyDetails != null)
+                            {
+                                if (@Model.product.ProductDetails[0].SRubyDetails.Count > 0)
+                                {
+                                    <div class="col-md-12">
+                                        <div class="detailBlock">
+                                            <div id="no-more-tables">
+                                                <div class="head">
+                                                    Synthetic Ruby Details
+                                                </div>
+
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Total Number of Stones
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].SRubyMain.TotalStones
+                                                    </div>
+                                                </div>
+
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Weight
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].SRubyMain.TotalWeight
+                                                    </div>
+                                                </div>
+                                                <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                    <thead class="cf">
+                                                        <tr>
+
+
+                                                            <th>Shape</th>
+                                                            <th>Size</th>
+                                                            <th>Setting</th>
+                                                            <th>Number of Stones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var dd in @Model.product.ProductDetails[0].SRubyDetails)
+                                                        {
+                                                            <tr>
+
+
+                                                                <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                <td> @dd.Size</td>
+                                                                <td>@dd.SettingId_Name</td>
+                                                                <td data-title="Total" class="text-right">@dd.NoofStones</td>
+
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+                            @if (Model.product.ProductDetails[0].PerlDetails != null)
+                            {
+                                if (@Model.product.ProductDetails[0].PerlDetails.Count > 0)
+                                {
+                                    <div class="col-md-12">
+                                        <div class="detailBlock">
+                                            <div id="no-more-tables">
+                                                <div class="head">
+                                                    Perl Details
+                                                </div>
+
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Total Number of Stones
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].PerlMain.TotalStones
+                                                    </div>
+                                                </div>
+
+                                                <div class="productBody">
+                                                    <div class="probodylt">
+                                                        Weight
+                                                    </div>
+                                                    <div class="probodyrt text-right">
+                                                        @Model.product.ProductDetails[0].PerlMain.TotalWeight
+                                                    </div>
+                                                </div>
+                                                <table class="col-md-12 table-bordered table-striped table-condensed cf">
+                                                    <thead class="cf">
+                                                        <tr>
+
+
+                                                            <th>Shape</th>
+                                                            <th>Size</th>
+                                                            <th>Setting</th>
+                                                            <th>Number of Stones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var dd in @Model.product.ProductDetails[0].PerlDetails)
+                                                        {
+                                                            <tr>
+
+
+                                                                <td data-title="Shape">@dd.ShapeId_Name</td>
+                                                                <td> @dd.Size</td>
+                                                                <td>@dd.SettingId_Name</td>
+                                                                <td data-title="Total" class="text-right">@dd.NoofStones</td>
+
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                }
+                            }
+                        </div>
+
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <h4 class="mt-10">Price Breakup</h4>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <td>Gold</td>
+                                        <td>Daimond</td>
+                                        <td>Making Charges</td>
+                                        <td>GST</td>
+                                        <td>Discount</td>
+                                        <td>Total</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>@Model.pd.GoldRate</td>
+                                        <td>@Model.pd.DaimondPrice </td>
+                                        <td>@Model.pd.MakingCharges </td>
+                                        <td>@Model.pd.GST </td>
+                                        <td>@Model.pd.Discount </td>
+                                        <td>@Model.pd.TotalPrice</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <h4 class="mt-10">Images</h4>
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        @foreach (var i in Model.product.ProductDetails[0].ProductDetailImages_List)
+                                        {
+                                            <td><img src="~/ProductImages/@i" width="200px;" /></td>
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <h4 class="mt-10">Order History</h4>
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <td>#</td>
+                                        <td>Date </td>
+                                        <td>Remarks</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <tr>
+                                        @foreach (var i in Model.folloup)
+                                        {
+                                        <tr>
+                                            <td>@(fcnt ++)</td>
+                                            <td>@i.FollowUpOn</td>
+                                            <td>@i.FollowUpRemarks</td>
+                                        </tr>
+                                    }
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        @if (Model.po.OrderStatus != "Closed" || Model.po.OrderStatus != "Cancelled")
+                        {
+                            <div class="tab-inn">
+                                <div class="table-responsive table-desi">
+                                    <h4 class="mt-10">Update Status</h4>
+                                    <table class="table table-hover">
+                                        <tbody>
+                                            <tr>
+                                                <td>Enter Remarks</td>
+                                                <td colspan="3">
+                                                    <input type="text" name="statusRemarks" id="statusRemarks" />
+                                                    <input type="hidden" value="@Model.po.POId" id="currentPOId" />
+                                                    <input type="hidden" value="@ViewBag.LoggedUser.userId" id="currentUserId" />
+                                                    <span class="text-danger" id="statusRemarksError"></span>
+                                                </td>
+
+                                            </tr>
+                                            <tr>
+                                                <td widht="10%"><button class="btn btn-primary" onclick="ShowUpdate('Making in Progress')"> Making in Progress</button></td>
+                                                <td widht="10%"><button class="btn btn-primary" onclick="ShowUpdate('Packing in Progress')"> Packing in Progress</button></td>
+                                                <td widht="10%"><button class="btn btn-primary" onclick="ShowUpdate('Dispatched')"> Dispatached</button></td>
+                                                <td widht="10%"><button class="btn btn-primary" onclick="ShowUpdate('Delivered')"> Delivered</button></td>
+                                                @if (Model.po.CurrentStatus == "Unpaid")
+                                                {
+                                                    <td widht="10%">
+                                                        <a href="~/User/CODPayment?pid=@Model.po.POId" class="btn btn-primary"> Recieve Payment</a>
+                                                    </td>
+                                                }
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4"><img id="loading" src="~/AdminPanel/images/loading.gif" height="100px;" /></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        }
+
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#loading').hide();
+    });
+    function ShowUpdate(status) {
+        var remarks = $('#statusRemarks').val();
+        if (remarks == null || remarks == undefined || remarks == '') {
+            $('#statusRemarksError').html('Remarks required');
+        }
+        else
+        {
+            var poid = $('#currentPOId').val();
+            var cuser = $('#currentUserId').val();
+            $('#loading').show();
+            $.ajax({
+                url: GlobalUrl + '/User/UpdatePOStaus?&orderId=' + poid + '&status=' + status + '&remarks=' + remarks + '&userid=' + cuser,
+                type: 'post',
+                data: '{}',
+                success: function (result) {
+                    toastr["success"]("Successuflly updated!");
+                    window.location.href = window.location.href;
+                }
+
+            })
+        }
+
+       
+
+         
+    }
+</script> 

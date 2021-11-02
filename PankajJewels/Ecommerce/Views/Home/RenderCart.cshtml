@@ -1,0 +1,114 @@
+﻿@model Ecommerce.Models.ModelClasses.UserCartModel
+@{ 
+    decimal totalPrice = 0;
+    if(Model != null)
+    {
+        if (Model.CartDetails != null)
+        {
+            if (Model.CartDetails.Count > 0)
+            {
+                totalPrice = (decimal)Model.CartDetails.Sum(b => b.TotalPrice);
+            }
+        }
+    }
+
+
+}
+@if (Model != null && Model.CartDetails != null && Model.CartDetails.Count>0)
+{
+    <div class="minicart-item-wrapper">
+        <ul>
+            @foreach (var v in Model.CartDetails)
+            {
+                <li class="minicart-item">
+                    <div class="minicart-thumb">
+                        <a href="~/Home/Product?pid=@v.ProductId&pdid=@v.ProductDetailId">
+                            <img src="~/ProductImages/@v.ProductImage" width="50px;" alt="product">
+                        </a>
+                    </div>
+                    <div class="minicart-content">
+                        <h3 class="product-name">
+                            <a href="~/Home/Product?pid=@v.ProductId&pdid=@v.ProductDetailId">@v.ProductTitle</a>
+                        </h3>
+                        <p>
+                            <span class="cart-quantity">@v.NumberOfItems <strong>&times;</strong></span>
+                            <span class="cart-price">Rs. @v.TotalPrice</span>
+                        </p>
+                    </div>
+                    <button class="minicart-remove" onclick="ShowDeleteCart(@v.CartDetailId)" href="javascript:void(0);" ><i class="pe-7s-close"></i></button>
+                </li>
+            }
+
+
+
+
+        </ul>
+    </div>
+
+    <div class="minicart-pricing-box">
+        <ul>
+            
+            
+            @*<li>
+                <span>Taxes </span>
+                <span><strong>Rs. </strong></span>
+            </li>*@
+            <li class="total">
+                <span>total</span>
+                <span><strong>Rs @totalPrice.ToString("#,##0.00")</strong></span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="minicart-button">
+        <a href="~/Home/MyCart"><i class="fa fa-shopping-cart"></i> View Cart</a>
+        <a href="~/Home/MyCart"><i class="fa fa-share"></i> Checkout</a>
+    </div>
+}
+else
+{
+    <div class="minicart-button">
+       
+        <a href="#"><i class="fa fa-share"></i> You have no items in the cart</a>
+    </div>
+}
+
+<script>
+    function ShowDeleteCart(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/Home/DeleteFromCart?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                        var cuid = $('#cuid').val();
+                        GetCart(cuid);
+
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+
+    }
+  
+</script>

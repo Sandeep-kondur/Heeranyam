@@ -1,0 +1,64 @@
+﻿@model Ecommerce.Models.Entity.GoldRateMasterEntity
+
+
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Add-Edit</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <div class="row">
+                            <h4>Today Gold Rate</h4>
+                            <p>Master data management</p>
+                            <a href="~/Masters/Dashboard"><h5 class="pull-right">Back to list</h5></a>
+                        </div>
+
+                    </div>
+                    <div class="tab-inn">
+                        <form action="~/Masters/TodayGoldRate" method="post">
+                            @Html.HiddenFor(b => b.MasterId)
+
+                            <div class="row">
+                                <div class="input-field col s4">
+                                    @Html.Label("Gold Rate (for GRAM)")
+                                    @Html.TextBoxFor(a => a.Rate, null, new { @class = "validate", @placeholder = "Gold Rate" })
+                                    @Html.ValidationMessageFor(b => b.Rate, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s2">
+                                    @Html.Label("Last Updated at :")
+                                    
+                                </div>
+                                <div class="input-field col s2">
+
+                                    @(Convert.ToDateTime(Model.DateOfLastUpdate).ToString("dd-MMM-yyyy"))
+                                    @(Convert.ToDateTime(Model.DateOfLastUpdate).ToShortTimeString())
+                                </div>
+                            </div>
+                             
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <i class="waves-effect waves-light btn-large waves-input-wrapper" style=""><input type="submit" class="waves-button-input"></i>
+                                </div>
+                            </div>
+                            <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

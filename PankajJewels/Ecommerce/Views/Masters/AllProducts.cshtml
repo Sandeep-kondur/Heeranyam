@@ -1,0 +1,147 @@
+﻿@model IEnumerable<Ecommerce.Models.ModelClasses.ProductListDisplay>
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> All Products</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <h4>Products </h4>
+                        <p>All products posted</p>
+                        <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                        <ul id="dr-users" class="dropdown-content">
+                            <li>
+                                <a href="~/Masters/AddProduct">Add New</a>
+                            </li>
+                        </ul>
+
+                        <!-- Dropdown Structure -->
+
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product Title</th>
+                                        <th>Poted on</th>
+                                        <th>Image</th>
+
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @(rowCount++)
+                                            </td>
+                                            <td>
+
+                                                <span class="list-enq-name">@r.ProductTitle</span>
+                                                <span class="list-enq-city">@r.CategoryId_name > @r.SubCategoryId_name > @r.DetailCategoryId_name</span>
+
+                                            </td>
+                                            <td>
+                                                @r.PostedOn
+                                            </td>
+                                            
+                                            <td>
+                                                <span class="list-enq-name"><img src="~/ProductImages/@r.ProductMainImages_List[0]" width="80px;"/></span>
+                                            </td>
+
+
+                                            <td>
+                                                <a href="~/Masters/AddProduct?pid=@r.ProductId" title="Edit">
+                                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                                </a>
+                                                <a href="~/Masters/AllSubProducts?pid=@r.ProductId" title="View">
+                                                    <i class="fa fa-eye" aria-hidden="true"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" onclick="ShowDelete(@r.ProductId)" title="Delete">
+                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ShowDelete(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/Masters/DeleteProduct?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+
+        //swal.fire({
+        //    title: 'Do you want to Delete?',
+        //    showDenyButton: true,
+        //    showCancelButton: true,
+        //    confirmButtonText: `Delete`,
+        //}).then((result) => {
+        //    /* Read more about isConfirmed, isDenied below */
+        //    if (result.isConfirmed) {
+
+
+        //        toastr["success"]("Successuflly deleted!")
+        //    } else if (result.isDenied) {
+
+        //        toastr["error"]("You have cancelled!")
+        //    }
+        //});
+    }
+</script>

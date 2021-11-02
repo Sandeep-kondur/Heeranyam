@@ -1,0 +1,83 @@
+﻿@model Ecommerce.Models.ModelClasses.CODPaymentUpdateModel
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> COD Payment</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <div class="row">
+                            <h4>Payments</h4>
+                            <p>
+                                Order Deails
+                                <br />
+                                Order Amount : Rs. @ViewBag.PM.OrderAmount.00/-
+                            </p>
+                            <a href="~/User/ViewOrder?id=@ViewBag.PM.POId"><h5 class="pull-right">Back to Order</h5></a>
+                        </div>
+
+                    </div>
+                    <div class="tab-inn">
+                        <form action="~/User/CODPayment" method="post" enctype="multipart/form-data">
+                            <input type="hidden" value="@ViewBag.PM.POId" name="POId" />
+                             
+                            <div class="row">
+                                <div class="input-field col s2">
+                                    @Html.Label("Paid Amount")
+                                    @Html.TextBoxFor(a => a.PaidAmount, null, new { @class = "validate", @placeholder = "Amount" })
+                                    @Html.ValidationMessageFor(b => b.PaidAmount, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s2">
+                                    @Html.Label("Paid Date")
+                                </div>
+                                <div class="input-field col s3">
+
+                                    @Html.EditorFor(model => model.PaidDate, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(b => b.PaidDate, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s2">
+                                    @Html.Label("Charges if any ?")
+                                    @Html.TextBoxFor(a => a.Charges, null, new { @class = "validate", @placeholder = "Charges" })
+                                    @Html.ValidationMessageFor(b => b.Charges, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                
+                                <div class="input-field col s2">
+                                    @Html.Label("Remarks / Notes")
+                                </div>
+                                <div class="input-field col s10">
+                                    @Html.TextAreaFor(a => a.Remarks, new { @class = "validate", @placeholder = "Remarks", @rows="4" })
+                                    @Html.ValidationMessageFor(x => x.Remarks, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <i class="waves-effect waves-light btn-large waves-input-wrapper" style=""><input type="submit" class="waves-button-input"></i>
+                                    </div>
+                                </div>
+                                <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+</form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+ >

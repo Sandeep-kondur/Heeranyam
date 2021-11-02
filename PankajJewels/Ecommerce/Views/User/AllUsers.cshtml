@@ -1,0 +1,143 @@
+﻿@model IEnumerable<Ecommerce.Models.ModelClasses.UserMasterDisplay>
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> All Users </a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <h4>Users registered </h4>
+                        <p></p>
+                        <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                        <ul id="dr-users" class="dropdown-content">
+                            @*<li>
+                                <a href="~/User/UserTypeData">Add New</a>
+                            </li>*@
+                        </ul>
+
+                        <!-- Dropdown Structure -->
+
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>User Name</th>
+                                        <th>Mobile</th>
+                                        <th>User Type</th>
+                                        <th>Joined ON</th>
+                                        <th>No of Orders</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @(rowCount++)
+                                            </td>
+                                            <td>
+
+                                                <span class="list-enq-name">@r.UserName</span>
+                                                <span class="list-enq-city"></span>
+
+                                            </td>
+                                            <td>
+                                              @r.MobileNumber
+                                            </td>
+                                            <td>@r.UserTypeName</td>
+                                            <td>
+                                                @r.RegisteredOn
+                                            </td>
+                                            <td>
+                                                @r.TotalOrders
+                                            </td>
+                                            <td>
+                                                <a href="javascript:void(0);" onclick="ShowDelete(@r.UserId)">
+                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ShowDelete(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/User/DeleteUser?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+
+        //swal.fire({
+        //    title: 'Do you want to Delete?',
+        //    showDenyButton: true,
+        //    showCancelButton: true,
+        //    confirmButtonText: `Delete`,
+        //}).then((result) => {
+        //    /* Read more about isConfirmed, isDenied below */
+        //    if (result.isConfirmed) {
+
+
+        //        toastr["success"]("Successuflly deleted!")
+        //    } else if (result.isDenied) {
+
+        //        toastr["error"]("You have cancelled!")
+        //    }
+        //});
+    }
+</script>

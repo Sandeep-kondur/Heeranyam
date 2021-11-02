@@ -1,0 +1,212 @@
+﻿@model Ecommerce.Models.ModelClasses.UserMasterProfile
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> My Profile</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <h4>My Profile</h4>
+                        <p>Defines different type of users</p>
+                        <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                        <ul id="dr-users" class="dropdown-content">
+                            <li>
+                                <a href="~/User/UpdateAddress">Add New Address</a>
+                            </li>
+                        </ul>
+
+                        <!-- Dropdown Structure -->
+
+                    </div>
+                     
+                    
+                    <div class="inn-title">
+                        
+                        <p>
+                            Name :<div class="info-list">
+                                <h4>
+                                    @Model.UserName
+                                </h4>
+                            </div>
+                            Mobile :<div class="info-list">
+                                <h4>
+                                    @Model.MobileNumber
+                                </h4>
+                            </div>
+                            Email :<div class="info-list">
+                                <h4>
+                                    @Model.EmailId
+                                </h4>
+                            </div>
+                            Registered On :<div class="info-list">
+                                <h4>
+                                    @Model.RegisteredOn
+                                </h4>
+                            </div>
+                        </p>
+                        <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                        <ul id="dr-users" class="dropdown-content">
+                            <li>
+                                <a href="~/User/UserTypeData">Add New</a>
+                            </li>
+                        </ul>
+
+                        <!-- Dropdown Structure -->
+
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <table class="table-responsive table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <td>#</td>
+                                            <td>Address 1</td>
+                                            <td>Address 2</td>
+                                            <td>Location</td>
+                                            <td>Landmark</td>
+                                            <td>City</td>
+                                            <td>Is Delivary Address ?</td>
+                                            <td>Action</td>
+                                        </tr>
+                                    </thead>
+                               
+                                <tbody>
+                                    @foreach (var r in Model.addressList)
+            {
+                                    <tr>
+                                        <td>
+                                            @(rowCount++)
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.Address1</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.Address2</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.LocationStreet</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.LandMark</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.CityId_Name</span>
+                                            <span class="list-enq-city">@r.StateId_Name, @r.CountryId_Name, @r.ZipCode</span>
+
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.IsDeliverAddress</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+                                            <a href="javascript:void(0);" onclick="ShowDelete(@r.Id)">
+                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="~/User/UpdateAddress?id=@r.Id">
+                                                <i class="fa fa-pencil" aria-hidden="true"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+            }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+        
+             
+            
+            
+         
+    </div>
+    
+       
+    </div>
+
+    <script>
+        function ShowDelete(id) {
+
+            swal("Are you sure?", {
+                buttons: {
+                    yes: {
+                        text: "Yes",
+                        value: "yes"
+                    },
+                    no: {
+                        text: "No",
+                        value: "no"
+                    }
+                }
+            }).then((value) => {
+                if (value === "yes") {
+                    $.ajax({
+                        url: GlobalUrl + "/User/DeleteAddress?id=" + id,
+                        type: 'post',
+                        data: '{}',
+                        success: function (result) {
+                            toastr["success"]("Successuflly deleted!");
+                            window.location.href = window.location.href;
+                        }
+                    });
+                }
+                else {
+                    toastr["error"]("Delete cancelled!")
+                }
+                return false;
+            });
+
+
+            //swal.fire({
+            //    title: 'Do you want to Delete?',
+            //    showDenyButton: true,
+            //    showCancelButton: true,
+            //    confirmButtonText: `Delete`,
+            //}).then((result) => {
+            //    /* Read more about isConfirmed, isDenied below */
+            //    if (result.isConfirmed) {
+
+
+            //        toastr["success"]("Successuflly deleted!")
+            //    } else if (result.isDenied) {
+
+            //        toastr["error"]("You have cancelled!")
+            //    }
+            //});
+        }
+    </script>

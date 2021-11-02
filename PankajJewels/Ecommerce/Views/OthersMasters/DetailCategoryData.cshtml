@@ -1,0 +1,124 @@
+﻿@model Ecommerce.Models.Entity.DetailCategoryMasterEntity
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Add-Edit Detail Category Master</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <div class="row">
+                            <h4>Detail Category Master</h4>
+                            <p>Master data management</p>
+                            <a href="~/OthersMasters/SubCategories"><h5 class="pull-right">Back to list</h5></a>
+                        </div>
+
+                    </div>
+                    <div class="tab-inn">
+                        <form action="~/OthersMasters/DetailCategoryData" method="post">
+                            @Html.HiddenFor(b => b.DetailCategoryId)
+                            <div class="row">
+                                <div class="input-field col s4">
+                                    <select id="CategoryId" name="CategoryId">
+                                        @foreach (var v in ViewBag.cats)
+                                        {
+                                            if (ViewBag.currentcatid == v.CategoryId)
+                                            {
+                                                <option value="@v.CategoryId" selected>@v.CategoryName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@v.CategoryId">@v.CategoryName</option>
+                                            }
+                                        }
+                                    </select>
+                                    @Html.ValidationMessageFor(b => b.CategoryId, null, new { @class = "text-danger" })
+                                </div>
+
+                                <div class="input-field col s4">
+                                    <select id="SubCategoryId" name="SubCategoryId">
+                                        @foreach (var v in ViewBag.subcats)
+                                        {
+                                            if (ViewBag.currentCatId == v.SubCategoryId)
+                                            {
+                                                <option value="@v.SubCategoryId" selected>@v.SubCategoryName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@v.SubCategoryId">@v.SubCategoryName</option>
+                                            }
+                                        }
+                                    </select>
+                                    @Html.ValidationMessageFor(b => b.SubCategoryId, null, new { @class = "text-danger" })
+
+                                </div>
+
+                                <div class="input-field col s4">
+                                    @Html.TextBoxFor(a => a.DetailCategoryName, null, new { @class = "validate", @placeholder = "Detail Category Name" })
+                                    @Html.ValidationMessageFor(b => b.DetailCategoryName, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s4">
+                                    @Html.TextBoxFor(a => a.DetailCategoryCode, null, new { @class = "validate", @placeholder = "Detail Category Code" })
+                                    @Html.ValidationMessageFor(b => b.DetailCategoryCode, null, new { @class = "text-danger" })
+                                </div>
+
+
+                            
+
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <i class="waves-effect waves-light btn-large waves-input-wrapper" style=""><input type="submit" class="waves-button-input"></i>
+                                </div>
+                            </div>
+                            <br /><br /><br /><br /><br /><br /><br /><br /><br />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+       
+        $("select[name=CategoryId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetAllSubCatsDrop?catid=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+                    
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].subCategoryId + '">' + res.result[i].subCategoryName + '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#SubCategoryId').html('');
+                    $('#SubCategoryId').html(row);
+                    $('#SubCategoryId').material_select();
+                }
+            });
+        });
+    });
+
+
+</script>

@@ -1,0 +1,188 @@
+﻿@model IEnumerable<Ecommerce.Models.Entity.CountryMasterEntity>
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+    int curentPage = ViewBag.pageNumber;
+    int totalPages = (ViewBag.TotalCount / ViewBag.pageSize) + 1;
+    int pageSize = ViewBag.pageSize;
+
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Countries</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <h4>Countries Master</h4>
+                        <p>Defines countries</p>
+                        <form action="~/OthersMasters/Countries">
+                            <div class="row">
+                                <div class="input-field col s4">
+                                    <input type="text" placeholder="Search country" name="search" />
+                                </div>
+                                <div class="input-field col s4">
+                                    <button type="submit"><i class="material-icons dp48">search</i></button>
+                                </div>
+                            </div>
+                        </form>
+                            <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                            <ul id="dr-users" class="dropdown-content">
+                                <li>
+                                    <a href="~/OthersMasters/CountryData">Add New</a>
+                                </li>
+                            </ul>
+
+                            <!-- Dropdown Structure -->
+
+                        </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="striped">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Country Name</th>
+                                        <th>Country Code</th>
+                                        <th>Currency Code</th>
+                                        <th>Phone Code</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @(((curentPage - 1) * pageSize) + rowCount++)
+                                            </td>
+                                            <td>
+
+                                                <span class="list-enq-name">@r.CountryName</span>
+                                                <span class="list-enq-city"></span>
+
+                                            </td>
+                                            <td>
+                                                <span class="list-enq-name">@r.CountryCode</span>
+                                            </td>
+                                            <td>
+                                                <span class="list-enq-name">@r.CurrenceString</span>
+                                            </td>
+                                            <td>
+                                                <span class="list-enq-name">@r.PhoneCode</span>
+                                            </td>
+
+                                            <td>
+                                                <a href="~/OthersMasters/CountryData?id=@r.Id" title="Edit">
+                                                    <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                                </a>
+                                                <a href="javascript:void(0);" onclick="ShowDelete(@r.Id)" title="Delete">
+                                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <form action="~/OthersMasters/Countries" method="post">
+                            <span >Total @ViewBag.TotalCount records</span>
+                            <ul class="pagination">
+                                <li class="waves-effect"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+                                @for (int cnt = 1; cnt <= totalPages; cnt++)
+                                {
+                                    if (cnt == curentPage)
+                                    {
+                                        <li class="active">
+                                            <a href="~/OthersMasters/Countries?pageNumber=@cnt&pageSize=@ViewBag.pageSize&search=@ViewBag.search">
+                                                @cnt
+                                            </a>
+                                        </li>
+                                    }
+                                    else
+                                    {
+                                        <li class="waves-effect">
+                                            <a href="~/OthersMasters/Countries?pageNumber=@cnt&pageSize=@ViewBag.pageSize&search=@ViewBag.search">
+                                                @cnt
+                                            </a>
+                                        </li>
+                                    }
+
+
+                                }
+                                <li class="waves-effect"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+                            </ul>
+                        </form>
+                    </div>
+
+                    <br /><br /><br /><br /><br /><br /> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ShowDelete(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/OthersMasters/DeleteCountryMaster?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+
+        //swal.fire({
+        //    title: 'Do you want to Delete?',
+        //    showDenyButton: true,
+        //    showCancelButton: true,
+        //    confirmButtonText: `Delete`,
+        //}).then((result) => {
+        //    /* Read more about isConfirmed, isDenied below */
+        //    if (result.isConfirmed) {
+
+
+        //        toastr["success"]("Successuflly deleted!")
+        //    } else if (result.isDenied) {
+
+        //        toastr["error"]("You have cancelled!")
+        //    }
+        //});
+    }
+</script>

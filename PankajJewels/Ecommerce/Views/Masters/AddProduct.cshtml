@@ -1,0 +1,388 @@
+﻿@model Ecommerce.Models.ModelClasses.PostProduct_Ver1
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Add-Edit</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <div class="row">
+                            <h4>Product Management</h4>
+                            <p>Master data management</p>
+                            <a href="~/Masters/AllProducts"><h5 class="pull-right">Back to list</h5></a>
+                        </div>
+
+                    </div>
+                    <div class="tab-inn">
+                        <form action="~/Masters/AddProduct" method="post" enctype="multipart/form-data">
+                            @Html.HiddenFor(b => b.ProductId)
+                            <div class="row">
+                                <div class="input-field col s4">
+
+                                    @Html.DropDownListFor(x => Model.CategoryId, new SelectList(Model.catMaster, "CategoryId", "CategoryName", Model.CategoryId), htmlAttributes: new { id = "CatId", onchange = "GetSubCats()" })
+                                    @Html.ValidationMessageFor(x => x.CategoryId, "", new { @class = "text-danger" })
+
+                                </div>
+                                <div class="input-field col s4">
+                                    @Html.DropDownListFor(x => Model.SubCategoryId, new SelectList(Model.subCatMaster, "SubCategoryId", "SubCategoryName", Model.CategoryId), htmlAttributes: new { id = "SubCatId", onchange = "GetDetCats()" })
+                                    @Html.ValidationMessageFor(x => x.SubCategoryId, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s4">
+                                    @Html.DropDownListFor(x => Model.DetailCategoryId, new SelectList(Model.detCatMaster, "DetailCategoryId", "DetailCategoryName", Model.CategoryId), htmlAttributes: new { id = "DetCatId" })
+                                    @Html.ValidationMessageFor(x => x.DetailCategoryId, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s4">
+                                    @Html.Label("Product Title")
+                                    @Html.TextBoxFor(a => a.ProductTitle, null, new { @class = "validate", @placeholder = "Product Tittle" })
+                                    @Html.ValidationMessageFor(b => b.ProductTitle, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s8">
+                                    @Html.Label("Product Description")
+                                    @Html.TextBoxFor(a => a.ProductDescription, null, new { @class = "validate", @placeholder = "Product Description" })
+                                    @Html.ValidationMessageFor(b => b.ProductDescription, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s4">
+                                    @Html.Label("Max Delivary Days")
+                                    @Html.TextBoxFor(a => a.MaxDelivaryDays, null, new { @class = "validate", @placeholder = "Max Delivary Days" })
+                                    @Html.ValidationMessageFor(b => b.MaxDelivaryDays, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s4">
+                                    @Html.DropDownListFor(x => Model.DiscountApplicableId, new SelectList(Model.discountMaster, "DMasterId", "DicountTitile", Model.DiscountApplicableId), htmlAttributes: new { id = "DiscId" })
+                                    @Html.ValidationMessageFor(x => x.DiscountApplicableId, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="input-field col s4">
+                                    <label>Tags (Gold ring, solitaire, daimond jwellery)</label>
+                                    @Html.TextBoxFor(a => a.Tags, null, new { @class = "validate", @placeholder = "Add Tags here comma seperated" })
+                                    @Html.ValidationMessageFor(x => x.Tags, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s2">
+                                    <label>Product Ideal For</label>
+                                </div>
+                                <div class="input-field col s2">
+                                    <select name="PrefferedGender">
+                                        @if (Model.PrefferedGender == "For all")
+                                        {
+                                            <option value="For All" selected>For all</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Kids">Kids</option>
+                                        }
+                                        else if (Model.PrefferedGender == "Male")
+                                        {
+                                            <option value="For All">For all</option>
+                                            <option value="Male" selected>Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Kids">Kids</option>
+                                        }
+                                        else if (Model.PrefferedGender == "Female")
+                                        {
+                                            <option value="For All">For all</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female" selected>Female</option>
+                                            <option value="Kids">Kids</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="For All">For all</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Kids" selected>Kids</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="input-field col s2">
+                                    <label>Is Product Pure Gold ?</label>
+                                </div>
+                                <div class="input-field col s2">
+                                    <select name="IsAllGold">
+                                        @if (Model.IsAllGold == "Yes")
+                                        {
+                                            <option value="No">No</option>
+                                            <option value="Yes" selected>Yes</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="No" selected>No</option>
+                                            <option value="Yes">Yes</option>
+                                        }
+
+                                    </select>
+                                </div>
+                                <div class="input-field col s2">
+                                    <label>Is Hot Deal ?</label>
+                                </div>
+                                <div class="input-field col s2">
+                                    <select name="IsHotDeal">
+                                        @if (Model.IsHotDeal == "Yes")
+                                        {
+                                            <option value="No">No</option>
+                                            <option value="Yes" selected>Yes</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="No" selected>No</option>
+                                            <option value="Yes">Yes</option>
+                                        }
+
+                                    </select>
+                                </div>
+                                <div class="col s2">
+                                    <label>Uploaded Main Image</label>
+                                </div>
+                                <div class="input-field col s4">
+                                    <input type="file" accept="image/*" name="ProductMainImages" onchange="loadFile(event)" />
+                                    @Html.ValidationMessageFor(x => x.ProductMainImages, "", new { @class = "text-danger" })
+                                    <script>
+                                        var loadFile = function (event) {
+                                            var image = document.getElementById('output');
+                                            image.src = URL.createObjectURL(event.target.files[0]);
+                                        };
+                                    </script>
+                                </div>
+                                <div class="input-field col s2">
+                                    <img id="output" width="150" />
+                                </div>
+                                <div class="input-field col s2">
+                                    @if (Model.mainImages != null)
+                                    {
+                                        foreach (var v in Model.mainImages)
+                                        {
+                                            <div class="form-group">
+                                                <img width="150" src="~/ProductImages/@v.ImageUrl" />
+                                                <a href="javascript:void(0);" onclick="DeleteImage(@v.PrImageId)" title="Delete"><i class="fa fa-recycle"></i></a>
+                                            </div>
+
+
+
+                                        }
+                                    }
+
+
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <i class="waves-effect waves-light btn-large waves-input-wrapper" style=""><input type="submit" class="waves-button-input"></i>
+                                </div>
+                            </div>
+                            <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function GetSubCats() {
+        var catid = $('#CatId option:selected').val();
+        $.ajax({
+            url: GlobalUrl + "/api/MasterMgmt/GetSubCategories_V1?Id=" + catid,
+            type: 'post',
+            data: '{}',
+            success: function (res) {
+                var r = res.response.length;
+                var row = '';
+
+                if (r > 0) {
+
+                    for (var i = 0; i < r; i++) {
+                        row = row + '<option value="' + res.response[i].subCategoryId + '">' + res.response[i].subCategoryName + '</option>';
+                        //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                    }
+                }
+                $('#SubCatId').html('');
+                $('#SubCatId').html(row);
+                $('#SubCatId').material_select();
+                GetDetCats();
+
+            }
+        });
+    }
+    function GetDetCats() {
+        var catid = $('#SubCatId option:selected').val();
+        $.ajax({
+            url: GlobalUrl + "/api/MasterMgmt/GetDetailCategories_V1?Id=" + catid,
+            type: 'post',
+            data: '{}',
+            success: function (res) {
+                var r = res.response.length;
+                var row = '';
+
+                if (r > 0) {
+
+                    for (var i = 0; i < r; i++) {
+                        row = row + '<option value="' + res.response[i].detailCategoryId + '">' + res.response[i].detailCategoryName + '</option>';
+                        //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                    }
+                }
+                $('#DetCatId').html('');
+                $('#DetCatId').html(row);
+                $('#DetCatId').material_select();
+            }
+        });
+    }
+    $(document).ready(function () {
+
+        $("select[name=CatId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/MasterMgmt/GetSubCategories",
+                type: 'post',
+                data: {
+                    'Id': catid,
+                    'pageNumber': 1,
+                    'pageSize': 1000
+                },
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].SubCategoryId + '">' + res.result[i].SubCategoryName + '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#SubCatId').html('');
+                    $('#SubCatId').html(row);
+                    $('#SubCatId').material_select();
+                }
+            });
+        });
+
+
+
+
+        // states
+        $("select[name=CounryId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetStatesDrop?id=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].id + '">' + res.result[i].stateName + '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#StateId').html('');
+                    $('#StateId').html(row);
+                    $('#StateId').material_select();
+                }
+            });
+        });
+
+
+        // cities
+        $("select[name=StateId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetCitiesDrop?id=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].id + '">' + res.result[i].cityName + '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#CityId').html('');
+                    $('#CityId').html(row);
+                    $('#CityId').material_select();
+                }
+            });
+        });
+
+
+        // cities
+        $("select[name=CityId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetZonesDrop?id=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].masterId + '">' + res.result[i].zoneName + '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#ZoneId').html('');
+                    $('#ZoneId').html(row);
+                    $('#ZoneId').material_select();
+                }
+            });
+        });
+    });
+
+    function DeleteImage(id) {
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/Masters/DeleteProductMainImage?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+    }
+
+</script>

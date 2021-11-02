@@ -1,0 +1,206 @@
+﻿
+@model IEnumerable<Ecommerce.Models.Entity.DiscountMasterEntity>
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Discounts</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <h4>Discounts Master</h4>
+                        <p>Defines Discounts for products</p>
+                        <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                        <ul id="dr-users" class="dropdown-content">
+                            <li>
+                                <a href="~/OthersMasters/DiscountsData">Add New</a>
+                            </li>
+                        </ul>
+
+                        <!-- Dropdown Structure -->
+
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Discount Title</th>
+                                        <th>Discount Type</th>
+                                        <th>Discount %</th>
+                                        <th>Enabled ?</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model)
+                                    {
+                                    <tr>
+                                        <td>
+                                            @(rowCount++)
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.DicountTitile</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.DiscountType</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+                                            <span class="list-enq-name text-right">@r.DiscountAmount %</span>
+                                        </td>
+                                        <td>
+                                            <span class="list-enq-name">
+                                                @if (r.IsApplicable == true)
+                                                {
+                                                    <lable class="label-info">Yes</lable>
+                                                }
+                                                else
+                                                {
+                                                    <lable class="label-danger">No</lable>
+                                                }
+
+                                            </span>
+                                        </td>
+
+                                        <td>
+                                            <a href="~/OthersMasters/DiscountsData?id=@r.DMasterId" title="Edit">
+                                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0);" onclick="ShowDelete(@r.DMasterId)" title="Delete">
+                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                            </a>
+                                            @if (r.IsApplicable == true)
+                                            {
+                                                <a href="javascript:void(0);" onclick="ShowEnable(@r.DMasterId)" title="Disable">
+                                                    <i class="fa fa-hand-o-down" aria-hidden="true"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <a href="javascript:void(0);" onclick="ShowEnable(@r.DMasterId)" title="Enable">
+                                                    <i class="fa fa-hand-o-up" aria-hidden="true"></i>
+                                                </a>
+                                            }
+
+                                        </td>
+                                    </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ShowEnable(id) {
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/OthersMasters/EnableDisbleDiscount?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly Updated!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+    }
+    function ShowDelete(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/OthersMasters/DeleteDiscount?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+       
+
+
+        
+        //swal.fire({
+        //    title: 'Do you want to Delete?',
+        //    showDenyButton: true,
+        //    showCancelButton: true,
+        //    confirmButtonText: `Delete`,
+        //}).then((result) => {
+        //    /* Read more about isConfirmed, isDenied below */
+        //    if (result.isConfirmed) {
+
+
+        //        toastr["success"]("Successuflly deleted!")
+        //    } else if (result.isDenied) {
+
+        //        toastr["error"]("You have cancelled!")
+        //    }
+        //});
+    }
+</script>

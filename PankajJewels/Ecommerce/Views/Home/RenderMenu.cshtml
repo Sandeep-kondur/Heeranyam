@@ -1,0 +1,55 @@
+﻿@model IEnumerable<Ecommerce.Models.ModelClasses.MainMenuDropModel>
+@{ 
+    int vRowCnt = 1;
+}
+<div class="main-menu-area sticky">
+    <div class="main-menu">
+        <!-- main menu navbar start -->
+        <nav class="desktop-menu">
+            <ul class="header-style-4">
+                <li class="logoIcon">
+                    <a href="~/Home/Index">
+                        <img src="~/WebApp/assets/img/logo/icon.png" alt="Brand Logo" width="20">
+                    </a>
+                </li>
+                @foreach (var c in Model)
+                {
+
+
+                    <li class="position-static">
+                        <a href="~/Home/Listing?cid=@c.CatId">@c.CatName<i class="fa fa-angle-down"></i></a>
+                        <ul class="megamenu dropdown">
+
+                            @foreach (var s in c.subCats)
+                            {
+                                <li class='mega-title'>
+                                    <span>@s.SubCatName</span>
+                                    <ul>
+                                        @foreach (var d in s.detCats)
+                                        {
+                                            <li><a href="~/Home/Listing?did=@d.DetCatId">@d.DetCatName</a></li>
+                                        }
+                                    </ul>
+                                </li>
+                            }
+
+
+
+
+                            @*<li class="megamenu-banners d-none d-lg-block">
+                        <a href="product-details.html">
+                            <img src="~/WebApp/assets/img/banner/img1-static-menu.jpg" alt="">
+                        </a>
+                    </li>*@
+
+
+                        </ul>
+                    </li>
+                }
+                <li><a href="~/Home/AllGold">All Gold</a></li>
+                <li><a href="~/Home/Listing">Contact us</a></li>
+            </ul>
+        </nav>
+        <!-- main menu navbar end -->
+    </div>
+</div>

@@ -1,0 +1,217 @@
+﻿@model IEnumerable<Ecommerce.Models.Entity.DetailCategoryMasterEntity>
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Detail Categories</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+
+                    <div class="tab-inn">
+                        <form action="~/OthersMasters/DetailCategories" method="post">
+
+                            <div class="row">
+                                <div class="col s4">
+                                    <select id="catid" name="catid">
+                                        @foreach (var v in ViewBag.cats)
+                                        {
+                                            if (ViewBag.currentCatId == v.CategoryId)
+                                            {
+                                                <option value="@v.CategoryId" selected>@v.CategoryName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@v.CategoryId">@v.CategoryName</option>
+                                            }
+
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col s4">
+                                    <select id="subcatid" name="subcatid">
+                                        @foreach (var v in ViewBag.subcats)
+                                        {
+                                            if (ViewBag.currentSubCatId == v.SubCategoryId)
+                                            {
+                                                <option value="@v.SubCategoryId" selected>@v.SubCategoryName</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@v.SubCategoryId">@v.SubCategoryName</option>
+                                            }
+
+                                        }
+                                    </select>
+                                </div>
+                                <div class="input-field col s4">
+                                    <button type="submit" class="btn btn-success">Search</button>
+                                </div>
+
+
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sb2-2-3">
+
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="box-inn-sp">
+
+                    <div class="inn-title">
+                        <div class="row">
+                            <div class="col-4">
+                                <h4>Detail Categories Master</h4>
+                                <p>Defines Categories of products</p>
+                            </div>
+
+
+                            <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                            <ul id="dr-users" class="dropdown-content">
+                                <li>
+                                    <a href="~/OthersMasters/DetailCategoryData">Add New</a>
+                                </li>
+                            </ul>
+
+                            <!-- Dropdown Structure -->
+
+                        </div>
+                        <div class="tab-inn">
+                            <div class="table-responsive table-desi">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Detail  Category Name</th>
+                                            <th>Category Code</th>
+
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var r in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @(rowCount++)
+                                                </td>
+                                                <td>
+
+                                                    <span class="list-enq-name">@r.DetailCategoryName</span>
+                                                    <span class="list-enq-city"></span>
+
+                                                </td>
+                                                <td>
+                                                    <span class="list-enq-name">@r.DetailCategoryCode</span>
+                                                </td>
+                                                <td>
+                                                    <a href="~/OthersMasters/DetailCategoryData?id=@r.DetailCategoryId" title="Edit">
+                                                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" onclick="ShowDelete(@r.DetailCategoryId)" title="Delete">
+                                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function ShowDelete(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/OthersMasters/DeleteCategoryMaster?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+    }
+</script>
+<script>
+    $(document).ready(function () {
+
+        $("select[name=catid]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetAllSubCatsDrop?catid=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].subCategoryId + '">' + res.result[i].subCategoryName + '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#subcatid').html('');
+                    $('#subcatid').html(row);
+                    $('#subcatid').material_select();
+                }
+            });
+        });
+    });
+
+
+</script>

@@ -1,0 +1,259 @@
+﻿@model Ecommerce.Models.ModelClasses.HomeProductsModels
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_MasterLayout.cshtml";
+    int rowCount = 1;
+    int curentPage = ViewBag.pageNumber;
+    int totalPages = (ViewBag.TotalCount / ViewBag.pageSize) + 1;
+    int pageSize = ViewBag.pageSize;
+    bool isFilterApplied = false;
+}
+<div class="breadcrumb-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb-wrap">
+                    <nav aria-label="breadcrumb">
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/Home/Index"><i class="fa fa-home"></i></a></li>
+                            <li class="breadcrumb-item active" aria-current="page">All Gold</li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- breadcrumb area end -->
+<!-- page main wrapper start -->
+<div class="shop-main-wrapper section-padding">
+    <div class="container">
+        <div class="row">
+            <!-- shop main wrapper start -->
+            <div class="col-lg-12">
+                <div class="shop-product-wrapper">
+                    <!-- shop product top wrap start -->
+                    <div class="shop-top-bar">
+                        <div class="row align-items-center">
+                            <div class="col-lg-7 col-md-6 order-2 order-md-1">
+                                <div class="top-bar-left">
+                                    <div class="product-view-mode">
+                                        <a class="active" href="#" data-target="grid-view" data-toggle="tooltip" title="Grid View"><i class="fa fa-th"></i></a>
+                                        @* <a href="#" data-target="list-view" data-toggle="tooltip" title="List View"><i class="fa fa-list"></i></a>*@
+                                    </div>
+                                    <div class="product-amount">
+                                        @*<p>Showing 1–16 of 21 results</p>*@
+                                        <p>Total @Model.totalRecords products found</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 col-md-6 order-1 order-md-2">
+                                @*<div class="top-bar-right">
+                                        <div class="product-short">
+                                            <p>Sort By : </p>
+                                            <select class="nice-select" name="sortby">
+                                                <option value="trending">Relevance</option>
+                                                <option value="sales">Name (A - Z)</option>
+                                                <option value="sales">Name (Z - A)</option>
+                                                <option value="rating">Price (Low &gt; High)</option>
+                                                <option value="date">Rating (Lowest)</option>
+                                                <option value="price-asc">Model (A - Z)</option>
+                                                <option value="price-asc">Model (Z - A)</option>
+                                            </select>
+                                        </div>
+                                    </div>*@
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- shop product top wrap start -->
+                    <form action="~/Home/Listing">
+                        <input type="hidden" name="cid" value="@ViewBag.cid" />
+                        <input type="hidden" name="sid" value="@ViewBag.sid" />
+                        <input type="hidden" name="cid" value="@ViewBag.cid" />
+                        <input type="hidden" name="did" value="@ViewBag.did" />
+                        <input type="hidden" name="pageNumber" value="@curentPage" />
+                        <input type="hidden" name="pageSize" value="@ViewBag.pageSize" />
+                        <input type="hidden" name="search" value="@ViewBag.search" />
+                        <input type="hidden" name="isFA" value="true" />
+                        <div class="filterBtns">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-2">
+                                            @Html.DropDownList("price", new SelectList(Model.staticDrops.priceDrop, "key", "value", ViewBag.price), htmlAttributes: new { id = "clarityDD" })
+                                        </div>
+                                        <div class="col-md-2">
+                                            @Html.DropDownList("gender", new SelectList(Model.staticDrops.genderDrop, "key", "value", ViewBag.price), htmlAttributes: new { id = "clarityDD" })
+                                        </div>
+                                        <div class="col-md-2">
+                                            @if (ViewBag.cid > 0)
+                                            {
+                                                @Html.DropDownList("sid", new SelectList(Model.subCateDrop, "SubCategoryId", "SubCategoryName", ViewBag.sid), htmlAttributes: new { id = "clarityDD" })
+                                            }
+                                            else if (ViewBag.sid > 0)
+                                            {
+                                                @Html.DropDownList("did", new SelectList(Model.detCatDrops, "DetailCategoryId", "DetailCategoryName", ViewBag.did), htmlAttributes: new { id = "clarityDD" })
+                                            }
+                                            else
+                                            {
+                                                @Html.DropDownList("cid", new SelectList(Model.catDrops, "CategoryId", "CategoryName", ViewBag.cid), htmlAttributes: new { id = "clarityDD" })
+                                            }
+
+                                        </div>
+                                        <div class="col-md-2">
+                                            @Html.DropDownList("metalid", new SelectList(Model.metalDrop, "MasterId", "MetalCode", ViewBag.metalid), htmlAttributes: new { id = "clarityDD" })
+                                        </div>
+                                        <div class="col-md-3">
+                                            @Html.DropDownList("discountid", new SelectList(Model.discDrops, "DMasterId", "DicountTitile", ViewBag.discountid), htmlAttributes: new { id = "clarityDD" })
+                                        </div>
+                                        @*<div class="col-md-2">
+                                                <select class="select-dropdown">
+                                                    <option value="-1">Category</option>
+                                                    <option value="1">Category 1</option>
+                                                    <option value="2">Category 2</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="select-dropdown">
+                                                    <option value="-1">Metal</option>
+                                                    <option value="1">White Gold</option>
+                                                    <option value="2">Yellow Gold</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="select-dropdown">
+                                                    <option value="-1">Gender</option>
+                                                    <option value="1">For All</option>
+                                                    <option value="2">Male</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <select class="select-dropdown">
+                                                    <option value="-1">Discounts</option>
+                                                    <option value="1">For All</option>
+                                                    <option value="2">Male</option>
+                                                </select>
+                                            </div>*@
+                                        <div class="dropdownBg">
+                                            <div class="dropdown">
+                                                <button class="dropbtn" type="submit">Apply</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+
+                </div>
+
+                <div class="filteredBy">
+
+                    @if (isFilterApplied)
+                    {
+                        <p>Filtered By</p>
+                        <ul>
+                            <li>10000-20000 <i class="fa fa-close"></i> </li>
+                            <li>Rings<i class="fa fa-close"></i></li>
+                            <li>Male<i class="fa fa-close"></i></li>
+                            <li>10% Discount<i class="fa fa-close"></i></li>
+                            <li>25% Discount<i class="fa fa-close"></i></li>
+                        </ul>
+                    }
+
+                </div>
+
+                <!-- product item list wrapper start -->
+                <div class="shop-product-wrap grid-view row mbn-30">
+                    <!-- product single item start -->
+                    @if (Model.listProducts != null)
+                    {
+                        foreach (var p in Model.listProducts)
+                        {
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <!-- product grid start -->
+                                <div class="product-item">
+                                    <figure class="product-thumb">
+                                        <a href="~/Home/Product?pid=@p.ProductId">
+
+                                            <img class="pri-img" src="~/ProductImages/@p.ProductMainImages_List" alt="product">
+                                            <img class="sec-img" src="~/ProductImages/@p.ProductMainImages_List" alt="product">
+
+
+
+
+                                        </a>
+                                        <div class="product-badge">
+                                            @*<div class="product-label new">
+                                                    <span>new</span>
+                                                </div>*@
+                                            <div class="product-label discount">
+                                                <span>10%</span>
+                                            </div>
+                                        </div>
+                                        <div class="button-group">
+                                            <a href="#" onclick="AddToWishList(@p.ProductId,@ViewBag.LoggedUser.userId,0)" data-placement="left" title="Add to wishlist"><i class="pe-7s-like"></i></a>
+                                        </div>
+                                        <div class="cart-hover">
+                                            <button class="btn btn-cart">add to cart</button>
+                                        </div>
+                                    </figure>
+                                    <div class="product-caption text-center">
+                                        <div class="product-identity">
+                                            <p class="manufacturer-name"><a href="~/Home/Product?pid=@p.ProductId">@p.CategoryId_name</a></p>
+                                        </div>
+
+                                        <h6 class="product-name">
+                                            <a href="~/Home/Product?pid=@p.ProductId">@p.ProductTitle</a>
+                                        </h6>
+                                        <div class="price-box">
+                                            <span class="price-regular">Rs. @p.SellingPrice</span>
+                                            <span class="price-old"><del>Rs. @p.ActualPrice</del></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- product grid end -->
+                                <!-- product list item end -->
+
+                            </div>
+                        }
+                    }
+                    <!-- product single item start -->
+                </div>
+                <div class="row  mt-5">
+                    <div class="tab-inn">
+                        <form action="~/Inventory/All" method="post">
+                            <span>Total @ViewBag.TotalCount records</span>
+                            <ul class="pagination">
+                                <!--<li class="waves-effect"><a href="#!"><i class="material-icons"><</i></a></li>-->
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#!" tabindex="-1">Previous</a>
+                                </li>
+                                @for (int cnt = 1; cnt <= totalPages; cnt++)
+                                {
+                                    if (cnt == curentPage)
+                                    {
+                                        <li class="page-item active"><a class="page-link" href="~/Home/AllGold?cid=@ViewBag.cid&sid=@ViewBag.sid&did=@ViewBag.did&pageNumber=@cnt&pageSize=@ViewBag.pageSize&search=@ViewBag.search">@cnt</a></li>
+
+                                    }
+                                    else
+                                    {
+                                        <li class="page-item"><a class="page-link" href="~/Home/AllGold?cid=@ViewBag.cid&sid=@ViewBag.sid&did=@ViewBag.did&pageNumber=@cnt&pageSize=@ViewBag.pageSize&search=@ViewBag.search">@cnt</a></li>
+                                    }
+                                }
+                                <li class="page-item">
+                                    <a class="page-link" href="#!">Next</a>
+                                </li>
+                            </ul>
+                        </form>
+                    </div>
+                </div>
+                <!-- end pagination area -->
+            </div>
+        </div>
+        <!-- shop main wrapper end -->
+    </div>
+</div>

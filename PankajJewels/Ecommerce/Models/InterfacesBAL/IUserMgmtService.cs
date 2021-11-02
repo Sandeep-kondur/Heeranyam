@@ -1,0 +1,70 @@
+﻿using Ecommerce.Models.Entity;
+using Ecommerce.Models.ModelClasses;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace Ecommerce.Models.InterfacesBAL
+{
+    public interface IUserMgmtService
+    {
+        ProcessResponse UpdateCODPayment(CODPaymentUpdateModel request);
+        ProcessResponse SaveRazorPaymentResult(RazorPaymentResultEntity request);
+        PODetailsEntity GetPoDetailByMasterIdId(int id);
+        UserMasterProfile GetMyProfile(int id);
+        List<WishListModel> GetMyWishList(int userid);
+        ProcessResponse AddToWishList(WishListEntity request);
+        ProcessResponse DeleteWishList(int id);
+        ProcessResponse UpdateCartDetails(CartDetailsEntity request);
+        CartMasterEntity GetCartById(int id);
+        PODetailsEntity GetPoDetailById(int id);
+        CartDetailsEntity GetCartDetailById(int id);
+        ProcessResponse UpdateCartMaster(CartMasterEntity request);
+        bool EmailAvailablityCheck(string emailId);
+        bool MobileAvailablityCheck(string mobileNumber);
+        List<UserMasterDisplay> GetAllUsers(string type);
+        void UpdatePassword(UserMasterEntity request);
+        UserMasterEntity GetUserByEmail(string email);
+        IQueryable<UserTypeMasterEnity> GetUserTypes();
+        UserTypeMasterEnity GetUserTypeById(int id);
+
+        ProcessResponse RegisterUser(UserMasterEntity userMaster);
+
+        UserMasterEntity GetUserById(int userId);
+
+        ApiResponse<LoginResponse> LoginCheck(LoginRequest request);
+
+        OtpTransactionsEntity GetOTPInformation(int userId);
+        ProcessResponse SaveOtpInformation(OtpTransactionsEntity request);
+        ProcessResponse UpdateOtpInformation(OtpTransactionsEntity request);
+        ProcessResponse SendRegistrationEmail(string moduleName, string toEamil, string userName,
+           int userId);
+        ProcessResponse SaveUserVerification(UserVerificationEntity request);
+
+
+        ProcessResponse InitiateResetPassword(string emailId);
+        ProcessResponse CompletePasswordRequest(string key);
+
+        ProcessResponse UpdatePassword(LoginCheckRequest request);
+
+        int GetUserCartCount(int userId);
+
+        ProcessResponse AddToCart(CartDetailsModel requst, int userId);
+        ProcessResponse DeleteFromCart(int detId);
+
+        ProcessResponse UpdateCart(CartDetailsModel request);
+
+        UserCartModel GetMyCart(int userId);
+
+        ProcessResponse SavePOMaster(POMasterEntity request);
+        POMasterEntity GetPoMasterById(int id);
+
+        ProcessResponse SavePODetails(PODetailsEntity request);
+
+        ProcessResponse SaveAddress(AddressEntity userMaster);
+        ProcessResponse UpdateAddress(AddressEntity userMaster);
+        List<UserAddressListModel> GetAllAddress(int userId);
+        AddressModel GetAddressbyId(int id);
+    }
+}

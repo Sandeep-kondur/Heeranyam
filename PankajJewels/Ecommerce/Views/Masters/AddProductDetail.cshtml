@@ -1,0 +1,817 @@
+﻿@model Ecommerce.Models.ModelClasses.ProductDetails_V1
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Add-Edit</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <div class="row">
+                            <h4>Product Management : @ViewBag.PM.ProductTitle</h4>
+                            <p>Add Product Details</p>
+                            <p>Today gold rate : @Model.currentGoldRate per Gram</p>
+                            <a href="~/Masters/AllSubProducts?pid=@Model.ProductId"><h5 class="pull-right">Back to list</h5></a>
+                        </div>
+
+                    </div>
+                    <div class="tab-inn">
+                        <form action="~/Masters/AddProductDetail" method="post" enctype="multipart/form-data">
+                            @Html.HiddenFor(b => b.ProductId)
+                            @Html.HiddenFor(b => b.ProductDetailId)
+                            @*<div class="row">
+            <div class="input-field col s4">
+
+                @Html.DropDownListFor(x => Model.ProductCode, new SelectList(Model.catMaster, "CategoryId", "CategoryName", Model.CategoryId), htmlAttributes: new { id = "CatId", onchange = "GetSubCats()" })
+                @Html.ValidationMessageFor(x => x.CategoryId, "", new { @class = "text-danger" })
+
+            </div>
+            <div class="input-field col s4">
+                @Html.DropDownListFor(x => Model.SubCategoryId, new SelectList(Model.subCatMaster, "SubCategoryId", "SubCategoryName", Model.CategoryId), htmlAttributes: new { id = "SubCatId", onchange = "GetDetCats()" })
+                @Html.ValidationMessageFor(x => x.SubCategoryId, "", new { @class = "text-danger" })
+            </div>
+            <div class="input-field col s4">
+                @Html.DropDownListFor(x => Model.DetailCategoryId, new SelectList(Model.detCatMaster, "DetailCategoryId", "DetailCategoryName", Model.CategoryId), htmlAttributes: new { id = "DetCatId" })
+                @Html.ValidationMessageFor(x => x.DetailCategoryId, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+                            <div class="row">
+                                <div class="input-field col s4">
+                                    @Html.Label("Product Code")
+                                    @Html.TextBoxFor(a => a.ProductCode, null, new { @class = "validate", @placeholder = "Product Code" })
+                                    @Html.ValidationMessageFor(b => b.ProductCode, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s8">
+                                    @Html.Label("Product Sub Title")
+                                    @Html.TextBoxFor(a => a.SubTitleText, null, new { @class = "validate", @placeholder = "Sub Title" })
+                                    @Html.ValidationMessageFor(b => b.SubTitleText, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s2">
+                                    @Html.Label("Product Height")
+                                    @Html.TextBoxFor(a => a.Height, null, new { @class = "validate", @placeholder = "Height" })
+                                    @Html.ValidationMessageFor(b => b.Height, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s1">
+                                    @Html.DropDownListFor(x => Model.HeightMeasurementId, new SelectList(Model.measureMaster, "MeasurementId", "MeasurementName", Model.HeightMeasurementId), htmlAttributes: new { id = "mmId" })
+                                    @Html.ValidationMessageFor(x => x.HeightMeasurementId, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s2">
+                                    @Html.Label("Product width")
+                                    @Html.TextBoxFor(a => a.Width, null, new { @class = "validate", @placeholder = "width" })
+                                    @Html.ValidationMessageFor(b => b.Width, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s1">
+                                    @Html.DropDownListFor(x => Model.WeightMeasurementId, new SelectList(Model.measureMaster, "MeasurementId", "MeasurementName", Model.WeightMeasurementId), htmlAttributes: new { id = "mmId" })
+                                    @Html.ValidationMessageFor(x => x.WeightMeasurementId, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s2">
+                                    @Html.Label("Weight")
+                                    @Html.TextBoxFor(a => a.ProductWeight, null, new { @class = "validate", @placeholder = "Weight" })
+                                    @Html.ValidationMessageFor(b => b.ProductWeight, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s1">
+                                    @Html.DropDownListFor(x => Model.ProductWeightMeasurement, new SelectList(Model.measureMaster, "MeasurementId", "MeasurementName", 2), htmlAttributes: new { id = "mmId" })
+                                    @Html.ValidationMessageFor(x => x.ProductWeightMeasurement, "", new { @class = "text-danger" })
+                                </div>
+
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s3">
+                                    <InputLabel>Metal Type</InputLabel>
+                                    @Html.DropDownListFor(x => Model.MetalMasterId, new SelectList(Model.MetalMaster, "MasterId", "MetalCode", Model.HeightMeasurementId), htmlAttributes: new { id = "mmId" })
+                                    @Html.ValidationMessageFor(x => x.MetalMasterId, "", new { @class = "text-danger" })
+                                </div>
+
+                                <div class="input-field col s2">
+                                    @Html.Label("Metal Weight")
+                                    @Html.TextBoxFor(a => a.MetalWeight, null, new { @class = "validate", @placeholder = "Metal Weight" })
+                                    @Html.ValidationMessageFor(b => b.MetalWeight, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s1">
+                                    @Html.DropDownListFor(x => Model.MetailWeightMesuremetnId, new SelectList(Model.measureMaster, "MeasurementId", "MeasurementName", 2), htmlAttributes: new { id = "mmId" })
+                                    @Html.ValidationMessageFor(x => x.MetailWeightMesuremetnId, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s3">
+                                    @Html.DropDownListFor(x => Model.SizeMasterId, new SelectList(Model.Sizes, "SizeMasterId", "SizeName", Model.SizeMasterId), htmlAttributes: new { id = "mmId" })
+                                    @Html.ValidationMessageFor(x => x.SizeMasterId, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s3">
+                                    @Html.Label("Making Charges")
+                                    @Html.TextBoxFor(a => a.MakingCharges, null, new { @class = "validate", @placeholder = "Making Charges" })
+                                    @Html.ValidationMessageFor(b => b.MakingCharges, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s2">
+                                    <label>Product Images</label>
+                                </div>
+                                <div class="input-field col s2">
+                                    <input type="file" name="ProductDetailImages" id="fileupload" multiple />
+                                </div>
+                                <div class="input-field col s4">
+                                    <div id="dvPreview">
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <h5>Uploaded Images</h5>
+                                @if (Model.detImages != null)
+                                {
+                                    foreach (var v in Model.detImages)
+                                    {
+                                        <div class="input-field col s4">
+                                            <div class="form-group">
+                                                <img width="150" src="~/ProductImages/@v.ImageUrl" />
+                                                <a href="javascript:void(0);" onclick="DeleteImage(@v.PrDetailImageId)" title="Delete"><i class="fa fa-recycle"></i></a>
+                                            </div>
+                                        </div>
+
+
+
+
+                                    }
+                                }
+
+                            </div>
+                            <script>
+                                $(function () {
+                                    $("#fileupload").change(function () {
+                                        if (typeof (FileReader) != "undefined") {
+                                            var dvPreview = $("#dvPreview");
+                                             
+                                            var files = event.target.files;
+                                            for (var i = 0; i < files.length; i++) {
+                                                var f = files[i];
+                                                // Only process video files.
+                                                if (!f.type.match('video/mp4')) {
+
+                                                    var img = $("<img />");
+                                                    img.attr("style", "height:100px;width: 100px");
+                                                    img.attr("src", URL.createObjectURL(files[i]));
+                                                    dvPreview.append(img);
+
+                                                }
+                                                else {
+                                                    var source = document.createElement('video'); //added now
+
+                                                    source.width = 280;
+
+                                                    source.height = 240;
+
+                                                    source.controls = true;
+
+                                                    source.src = URL.createObjectURL(files[i]);
+                                                    dvPreview.append(source);
+                                                }
+
+                                               
+                                                //document.body.appendChild(source); // append `<video>` element
+                                            }
+                                        }
+                                    });
+                                   
+                                });
+                            </script>
+                             
+                            <!-- Daimonds section -->
+                            <div class="row">
+                                <hr />
+                            </div>
+                            <div class="row">
+                                <h4>Daimond Details</h4>
+                                <table id="daiomndsData" class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Clarity
+                                            </th>
+                                            <th>Color</th>
+                                            <th>Shape</th>
+                                            <th>Setting</th>
+                                            <th>Total</th>
+                                            <th>Weight</th>
+                                            <th>Type</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.daimondClarityId1, new SelectList(Model.dClarityMaster, "ClarityId", "ClarityName", Model.daimondClarityId1), htmlAttributes: new { id = "clarityDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.daimondColorId1, new SelectList(Model.dColorMaster, "ColorId", "ColorName", Model.daimondColorId1), htmlAttributes: new { id = "colorDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.daimondShapeId1, new SelectList(Model.dShapeMaster, "MasterId", "ShapeName", Model.daimondShapeId1), htmlAttributes: new { id = "shapeDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.daimondSettingId1, new SelectList(Model.dSettingMaster, "MasterId", "SettingName", Model.daimondSettingId1), htmlAttributes: new { id = "settingDD" })
+                                            </td>
+                                            <td>
+                                                @Html.TextBoxFor(a => a.daimondLineTotal1, null, new { @class = "validate", @placeholder = "Number of Daimonds", @id = "noofDaimonds" })
+                                            </td>
+                                            <td>
+                                                @Html.TextBoxFor(a => a.daimondLineWeight1, null, new { @class = "validate", @placeholder = "Total Weight", @id = "totalWeight" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.daimondTypeId1, new SelectList(Model.dTypeMaster, "MasterId", "TypeName", Model.daimondTypeId), htmlAttributes: new { id = "typeDD" })
+                                            </td>
+                                            <td>
+                                                <input type="button" id="btnAdd" value="Add" />
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                                <table id="addedDaimnondData" class="table">
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                                <h5>Added Diamonds</h5>
+                                <table class="table table-responsive">
+                                    @foreach(var rec in Model.DList)
+                                    {
+                                    <tr>
+                                        <td>@rec.ClarityName</td>
+                                        <td>@rec.ColorName</td>
+                                        <td>@rec.ShapeName</td>
+                                        <td>@rec.SettingName</td>
+                                        <td>@rec.NoofDaimonds</td>
+                                        <td>@rec.LineWaight</td>
+
+
+
+                                        <td>
+                                            <a href="javascript:void(0)" onclick="ShowDaimondDelete(@rec.DPPDId)">
+                                                Delete
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    }
+                                </table>
+                            </div>
+                            <!-- End daimonds section-->
+                            <!-- Solitaire section-->
+                            <div class="row">
+                                <hr />
+                            </div>
+                            <div class="row">
+                                <h4>Solitaire Details</h4>
+                                <table id="solitaireData" class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Clarity
+                                            </th>
+                                            <th>Color</th>
+                                            <th>Shape</th>
+                                            <th>Symmetry</th>
+                                            <th>Fluorescence</th>
+                                            <th>Total No</th>
+                                            <th>Total Weight</th>
+                                            <th>Certificate</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.daimondClarityId1, new SelectList(Model.dClarityMaster, "ClarityId", "ClarityName", Model.daimondClarityId1), htmlAttributes: new { id = "sclarityDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.daimondColorId1, new SelectList(Model.dColorMaster, "ColorId", "ColorName", Model.daimondColorId1), htmlAttributes: new { id = "scolorDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.solShapeId1, new SelectList(Model.sShapeMaster, "MasterId", "ShapeName", Model.solShapeId1), htmlAttributes: new { id = "sshapeDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.solSymmetryId1, new SelectList(Model.sSymmetryMaster, "MasterId", "SymmetryName", Model.solSymmetryId1), htmlAttributes: new { id = "ssymmetryDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.solFluorescenceId1, new SelectList(Model.sFluroMaster, "MasterId", "FluorescenceName", Model.solFluorescenceId1), htmlAttributes: new { id = "sFluroDD" })
+                                            </td>
+
+                                            <td>
+                                                @Html.TextBoxFor(a => a.solLineTotal1, null, new { @class = "validate", @placeholder = "Number of Solitaires", @id = "noofSolitaires" })
+                                            </td>
+                                            <td>
+                                                @Html.TextBoxFor(a => a.solLineWeight1, null, new { @class = "validate", @placeholder = "Total Weight", @id = "soltotalWeight" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.solCertificateId1, new SelectList(Model.sCertiMaster, "MasterId", "CertifycateName", Model.solFluorescenceId1), htmlAttributes: new { id = "sCertDD" })
+                                            </td>
+                                            <td>
+                                                <input type="button" id="btnAddSol" value="Add" />
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                                <table id="addedSolitaireData" class="table">
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                                <h5>Added Solitaires</h5>
+                                <table class="table table-responsive">
+                                    @foreach (var rec in Model.SList)
+                                    {
+                                        <tr>
+                                            <td>@rec.ClarityName</td>
+                                            <td>@rec.ColorName</td>
+                                            <td>@rec.ShapeName</td>
+                                            <td>@rec.SymmetryName</td>
+                                            <td>@rec.FluorescenceName</td>
+                                            <td>@rec.NoofSolitaire</td>
+                                            <td>@rec.TotalWaight</td>
+
+                                            <td>
+                                                <a href="javascript:void(0)" onclick="ShowSolDelete(@rec.SPPDId)">
+                                                    Delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                            <!-- Solitaire section-->
+                            <!-- Perl section-->
+                            <div class="row">
+                                <hr />
+                            </div>
+                            <div class="row">
+                                <h4>Perl Details</h4>
+                                <table id="perlData" class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Total Perls
+                                            </th>
+
+                                            <th>Size</th>
+                                            <th>Shape</th>
+                                            <th>Setting</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                @Html.TextBoxFor(a => a.perlLineTotal1, null, new { @class = "validate", @placeholder = "Number of perlitaires", @id = "noofperl" })
+                                            </td>
+                                            <td>
+                                                @Html.TextBoxFor(a => a.perlSize1, null, new { @class = "validate", @placeholder = "Size", @id = "perlSize" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => x.perlShapeId1, new SelectList(Model.sShapeMaster, "MasterId", "ShapeName", Model.perlShapeId1), htmlAttributes: new { id = "pshapeDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => x.perlSettingId1, new SelectList(Model.dSettingMaster, "MasterId", "SettingName", Model.perlSettingId1), htmlAttributes: new { id = "psettingId" })
+                                            </td>
+
+                                            <td>
+                                                <input type="button" id="btnAddPerl" value="Add" />
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                                <table id="addedPerlData" class="table">
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                                <h5>Added Perls</h5>
+                                <table class="table table-responsive">
+                                    @foreach (var rec in Model.PList)
+                                    {
+                                        <tr>
+                                            <td>@rec.NoofStones</td>
+                                            <td>@rec.Size</td>
+                                            <td>@rec.ShapeName</td>
+                                            <td>@rec.SettingName</td>
+
+                                            <td>
+                                                <a href="javascript:void(0)" onclick="ShowPerlDelete(@rec.PPPId)">
+                                                    Delete
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                            <!-- Perl section-->
+                            <!-- Perl section-->
+                            <div class="row">
+                                <hr />
+                            </div>
+                            <div class="row">
+                                <h4>Ruby Details</h4>
+                                <table id="rubyData" class="table table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Total Ruby
+                                            </th>
+                                            <th>Size</th>
+                                            <th>Shape</th>
+
+                                            <th>Setting</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                @Html.TextBoxFor(a => a.srubyLineTotal1, null, new { @class = "validate", @placeholder = "Number of srubyitaires", @id = "noofsruby" })
+                                            </td>
+                                            <td>
+                                                @Html.TextBoxFor(a => a.srubySize1, null, new { @class = "validate", @placeholder = "Size", @id = "srubySize" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.srubyShapeId1, new SelectList(Model.sShapeMaster, "MasterId", "ShapeName", Model.srubyShapeId1), htmlAttributes: new { id = "srubyshapeDD" })
+                                            </td>
+                                            <td>
+                                                @Html.DropDownListFor(x => Model.srubySettingId1, new SelectList(Model.dSettingMaster, "MasterId", "SettingName", Model.srubySettingId1), htmlAttributes: new { id = "srubysettingId" })
+                                            </td>
+
+                                            <td>
+                                                <input type="button" id="btnAddSruby" value="Add" />
+                                            </td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                                <table id="addedRubyData" class="table">
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- Perl section-->
+
+
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <button type="submit" class="btn btn-success">Save</button>
+                                </div>
+                            </div>
+                            <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("body").on("click", "#btnAdd", function () {
+        var clarityId = $('#clarityDD option:selected').val();
+        var clarityText = $('#clarityDD option:selected').text();
+
+        var colorId = $('#colorDD option:selected').val();
+        var colorText = $('#colorDD option:selected').text();
+        var settingId = $('#settingDD option:selected').val();
+        var settingText = $('#settingDD option:selected').text();
+        var shapeId = $('#shapeDD option:selected').val();
+        var shapeText = $('#shapeDD option:selected').text();
+        var typeId = $('#typeDD option:selected').val();
+        var typeText = $('#typeDD option:selected').text();
+        var totalDaimonds = $('#noofDaimonds').val();
+        var totalDWeight = $('#totalWeight').val();
+        var str = "<tr><td>" + clarityText + " <input type='hidden' name='daimondClarityId[]' value='" + clarityId + "'/></td>";
+        str += "<td>" + colorText + " <input type='hidden' name='daimondColorId[]' value='" + colorId + "'/></td>";
+        str += "<td>" + shapeText + " <input type='hidden' name='daimondShapeId[]' value='" + shapeId + "'/></td>";
+        str += "<td>" + settingText + " <input type='hidden' name='daimondSettingId[]' value='" + settingId + "'/></td>";
+        str += "<td>" + totalDaimonds + " <input type='hidden' name='daimondLineTotal[]' value='" + totalDaimonds + "'/></td>";
+        str += "<td>" + totalDWeight + " <input type='hidden' name='daimondLineWeight[]' value='" + totalDWeight + "'/></td>";
+        str += "<td>" + typeText + " <input type='hidden' name='daimondTypeId[]' value='" + typeId + "'/></td>";
+        str += "<td><input type='button' value='Remove' onclick='Remove(this)'<td/></tr>";
+        
+        $('#addedDaimnondData').append(str);
+    });
+
+    function Remove(button) {
+        var row = $(button).closest("TR");
+        var name = $("TD", row).eq(0).html();
+        if (confirm("Do you want to delete: ")) {
+            var table = $("#addedDaimnondData")[0];
+            table.deleteRow(row[0].rowIndex);
+        }
+    };
+
+
+
+    $("body").on("click", "#btnAddSol", function () {
+        var clarityId = $('#sclarityDD option:selected').val();
+        var clarityText = $('#sclarityDD option:selected').text();
+
+        var colorId = $('#scolorDD option:selected').val();
+        var colorText = $('#scolorDD option:selected').text();
+
+        var shapeId = $('#sshapeDD option:selected').val();
+        var shapeText = $('#sshapeDD option:selected').text();
+
+        var symmetryId = $('#ssymmetryDD option:selected').val();
+        var symmetryText = $('#ssymmetryDD option:selected').text();
+
+        var solFluoroId = $('#sFluroDD option:selected').val();
+        var solFluoroText = $('#sFluroDD  option:selected').text();
+
+        var sCertId = $('#sCertDD option:selected').val();
+        var sCertText = $('#sCertDD  option:selected').text();
+
+        var noofSolitaires = $('#noofSolitaires').val();
+        var soltotalWeight = $('#soltotalWeight').val();
+
+
+        var str = "<tr><td>" + clarityText + " <input type='hidden' name='solClarityId[]' value='" + clarityId + "'/></td>";
+        str += "<td>" + colorText + " <input type='hidden' name='solColorId[]' value='" + colorId + "'/></td>";
+        str += "<td>" + shapeText + " <input type='hidden' name='solShapeId[]' value='" + shapeId + "'/></td>";
+        str += "<td>" + symmetryText + " <input type='hidden' name='solSymmetryId[]' value='" + symmetryId + "'/></td>";
+        str += "<td>" + solFluoroText + " <input type='hidden' name='solFluorescenceId[]' value='" + solFluoroId + "'/></td>";
+        str += "<td>" + noofSolitaires + " <input type='hidden' name='solLineTotal[]' value='" + noofSolitaires + "'/></td>";
+        str += "<td>" + soltotalWeight + " <input type='hidden' name='solLineWeight[]' value='" + soltotalWeight + "'/></td>";
+        str += "<td>" + sCertText + " <input type='hidden' name='solCertificateId[]' value='" + sCertId + "'/></td>";
+        str += "<td><input type='button' value='Remove' onclick='RemoveSol(this)'<td/></tr>";
+
+        $('#addedSolitaireData').append(str);
+    });
+
+    function RemoveSol(button) {
+        var row = $(button).closest("TR");
+        var name = $("TD", row).eq(0).html();
+        if (confirm("Do you want to delete: ")) {
+            var table = $("#addedSolitaireData")[0];
+            table.deleteRow(row[0].rowIndex);
+        }
+    };
+
+
+    $("body").on("click", "#btnAddPerl", function () {
+      
+        var shapeId = $('#pshapeDD option:selected').val();
+        var shapeText = $('#pshapeDD option:selected').text();
+
+        var settingId = $('#psettingId option:selected').val();
+        var settingText = $('#psettingId option:selected').text();
+     
+        var noofperls = $('#noofperl').val();
+        var psize = $('#perlSize').val();
+
+
+        var str = "<tr><td>" + noofperls + " <input type='hidden' name='perlLineTotal[]' value='" + noofperls + "'/></td>";
+        str += "<td>" + psize + " <input type='hidden' name='perlSize[]' value='" + psize+ "'/></td>";
+        str += "<td>" + shapeText + " <input type='hidden' name='perlShapeId[]' value='" + shapeId + "'/></td>";
+        str += "<td>" + settingText + " <input type='hidden' name='perlSettingId[]' value='" + settingId + "'/></td>";
+        str += "<td><input type='button' value='Remove' onclick='RemovePerl(this)'<td/></tr>";
+
+        $('#addedPerlData').append(str);
+    });
+
+    function RemovePerl(button) {
+        var row = $(button).closest("TR");
+        var name = $("TD", row).eq(0).html();
+        if (confirm("Do you want to delete: ")) {
+            var table = $("#addedPerlData")[0];
+            table.deleteRow(row[0].rowIndex);
+        }
+    };
+
+
+    $("body").on("click", "#btnAddSruby", function () {
+
+        var shapeId = $('#srubyshapeDD option:selected').val();
+        var shapeText = $('#srubyshapeDD option:selected').text();
+
+        var settingId = $('#srubysettingId option:selected').val();
+        var settingText = $('#srubysettingId option:selected').text();
+
+        var noofperls = $('#noofsruby').val();
+        var psize = $('#srubySize').val();
+
+
+        var str = "<tr><td>" + noofperls + " <input type='hidden' name='srubylLineTotal[]' value='" + noofperls + "'/></td>";
+        str += "<td>" + psize + " <input type='hidden' name='srubySize[]' value='" + psize + "'/></td>";
+        str += "<td>" + shapeText + " <input type='hidden' name='srubyShapeId[]' value='" + shapeId + "'/></td>";
+        str += "<td>" + settingText + " <input type='hidden' name='srubySettingId[]' value='" + settingId + "'/></td>";
+        str += "<td><input type='button' value='Remove' onclick='RemoveSruby(this)'<td/></tr>";
+
+        $('#addedRubyData').append(str);
+    });
+
+    function RemoveSruby(button) {
+        var row = $(button).closest("TR");
+        var name = $("TD", row).eq(0).html();
+        if (confirm("Do you want to delete: ")) {
+            var table = $("#addedRubyData")[0];
+            table.deleteRow(row[0].rowIndex);
+        }
+    };
+
+</script>
+<script>
+    function GetSubCats() {
+        var catid = $('#CatId option:selected').val();
+        $.ajax({
+            url: GlobalUrl + "/api/MasterMgmt/GetSubCategories_V1?Id=" + catid,
+            type: 'post',
+            data: '{}',
+            success: function (res) {
+                var r = res.response.length;
+                var row = '';
+
+                if (r > 0) {
+
+                    for (var i = 0; i < r; i++) {
+                        row = row + '<option value="' + res.response[i].subCategoryId + '">' + res.response[i].subCategoryName + '</option>';
+                        //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                    }
+                }
+                $('#SubCatId').html('');
+                $('#SubCatId').html(row);
+                $('#SubCatId').material_select();
+                GetDetCats();
+
+            }
+        });
+    }
+    function GetDetCats() {
+        var catid = $('#SubCatId option:selected').val();
+        $.ajax({
+            url: GlobalUrl + "/api/MasterMgmt/GetDetailCategories_V1?Id=" + catid,
+            type: 'post',
+            data: '{}',
+            success: function (res) {
+                var r = res.response.length;
+                var row = '';
+
+                if (r > 0) {
+
+                    for (var i = 0; i < r; i++) {
+                        row = row + '<option value="' + res.response[i].detailCategoryId + '">' + res.response[i].detailCategoryName + '</option>';
+                        //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                    }
+                }
+                $('#DetCatId').html('');
+                $('#DetCatId').html(row);
+                $('#DetCatId').material_select();
+            }
+        });
+    }
+    $(document).ready(function () {
+
+        $("select[name=CatId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/MasterMgmt/GetSubCategories",
+                type: 'post',
+                data: {
+                    'Id': catid,
+                    'pageNumber': 1,
+                    'pageSize' : 1000
+                },
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].SubCategoryId+ '">' + res.result[i].SubCategoryName+ '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#SubCatId').html('');
+                    $('#SubCatId').html(row);
+                    $('#SubCatId').material_select();
+                }
+            });
+        });
+
+
+
+
+        // states
+        $("select[name=CounryId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetStatesDrop?id=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].id + '">' + res.result[i].stateName+ '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#StateId').html('');
+                    $('#StateId').html(row);
+                    $('#StateId').material_select();
+                }
+            });
+        });
+
+
+        // cities
+        $("select[name=StateId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetCitiesDrop?id=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].id + '">' + res.result[i].cityName + '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#CityId').html('');
+                    $('#CityId').html(row);
+                    $('#CityId').material_select();
+                }
+            });
+        });
+
+
+        // cities
+        $("select[name=CityId]").change(function () {
+            var catid = this.value;
+            $.ajax({
+                url: GlobalUrl + "/OthersMasters/GetZonesDrop?id=" + catid,
+                type: 'post',
+                data: '{}',
+                success: function (res) {
+                    var r = res.result.length;
+                    var row = '';
+
+                    if (r > 0) {
+
+                        for (var i = 0; i < r; i++) {
+                            row = row + '<option value="' + res.result[i].masterId + '">' + res.result[i].zoneName+ '</option>';
+                            //$('#SubCategoryId').append('<option value="' + res.result[i].subCategryId + '">' + res.result[i].subCategoryName + '</option>');
+                        }
+                    }
+                    $('#ZoneId').html('');
+                    $('#ZoneId').html(row);
+                    $('#ZoneId').material_select();
+                }
+            });
+        });
+    });
+
+    function DeleteImage(id) {
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/Masters/DeleteProductDetailImage?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+    }
+</script>

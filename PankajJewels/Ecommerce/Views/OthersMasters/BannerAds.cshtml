@@ -1,0 +1,178 @@
+﻿@model Ecommerce.Models.ModelClasses.BannerAdsDisplayModelBase
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+}
+
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Banner Ads</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+
+                    <div class="tab-inn">
+                        <form action="~/OthersMasters/BannerAds" method="post">
+                            
+                            <div class="row">
+                                <div class="col s2">
+                                    Select Page
+                                </div>
+                                <div class="col s4">
+                                    @Html.DropDownList("Page", new SelectList(Model.pageDrop, "PageName", "PageName", ViewBag.Page), htmlAttributes: new { id = "CatId" })
+                                </div>
+                                <div class="input-field col s4">
+                                    <button type="submit" class="btn btn-success">Search</button>
+                                </div>
+
+
+                            </div>
+
+                            <div class="row">
+                                <div class="input-field col s12">
+
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sb2-2-3">
+
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="box-inn-sp">
+
+                    <div class="inn-title">
+                        <div class="row">
+                            <div class="col-4">
+                                <h4>Banner Ads</h4>
+                                <p>Ads management</p>
+                            </div>
+
+
+                            <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                            <ul id="dr-users" class="dropdown-content">
+                                <li>
+                                    <a href="~/OthersMasters/BannerAdData">Add New</a>
+                                </li>
+                            </ul>
+
+                            <!-- Dropdown Structure -->
+
+                        </div>
+                        <div class="tab-inn">
+                            <div class="table-responsive table-desi">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Section</th>
+                                            <th>Long Text</th>
+                                            <th>Short Text</th>
+                                            <th>Starts from</th>
+                                            <th>Ends at</th>
+                                            <th>Website</th>
+                                            <th>Image</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var r in Model.myAds)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    @(rowCount++)
+                                                </td>
+                                                <td>
+                                                    <span class="list-enq-name">@r.BannerSection</span>
+                                                    <span class="list-enq-city"></span>
+                                                </td>
+                                                <td>
+                                                    <span class="list-enq-name">@r.BannerTextBig</span>
+                                                </td>
+                                                <td>@r.BannerTextShort</td>
+                                                <td>@r.StartDate</td>
+                                                <td>@r.EndDate  </td>
+                                                <td>@r.BannerWebSite</td>
+                                                <td>
+                                                    @if (r.BannerType == "video/mp4")
+                                                    {
+                                                        <video class="homeVideo" src="~/ProductImages/@r.BannerUrl" loop muted autoplay width="200"></video>
+                                                    }
+                                                    else
+                                                    {
+                                                        <img width="100" src="~/ProductImages/@r.BannerUrl" />
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <a href="~/OthersMasters/BannerAdData?bid=@r.BannerId" title="Edit">
+                                                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0);" onclick="ShowDelete(@r.BannerId)" title="Delete">
+                                                        <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function ShowDelete(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/OthersMasters/DeleteBannerAd?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+    }
+</script>

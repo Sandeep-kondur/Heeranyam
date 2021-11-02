@@ -1,0 +1,135 @@
+﻿@model IEnumerable<Ecommerce.Models.ModelClasses.POMasterModel>
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+    int rowCount = 1;
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Closed Orders</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <h4>Order Management</h4>
+                        <p>Closed Orders</p>
+
+                        <!-- Dropdown Structure -->
+
+                    </div>
+                    <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>PO Number</th>
+                                        <th>On</th>
+                                        <th>Total Amount</th>
+                                        <th>Payment Method</th>
+                                        <th>TransactionId</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @(rowCount++)
+                                            </td>
+                                            <td>
+
+                                                <span class="list-enq-name">@r.PONumber</span>
+                                                <span class="list-enq-city">@r.UserName, @r.UserAddress</span>
+
+                                            </td>
+                                            <td>
+                                                @(Convert.ToDateTime(r.CreatedOn).ToShortDateString())
+                                            </td>
+                                            <td class="text-right">
+                                                @r.PaidAmount
+                                            </td>
+                                            <td>@r.PaymentMethod</td>
+                                            <td>@r.TransactionId</td>
+                                            <td>
+                                                <a href="~/User/ViewOrderC?id=@r.POId">
+                                                    <i class="fa fa-eye-slash" aria-hidden="true"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ShowDelete(id) {
+
+        swal("Are you sure?", {
+            buttons: {
+                yes: {
+                    text: "Yes",
+                    value: "yes"
+                },
+                no: {
+                    text: "No",
+                    value: "no"
+                }
+            }
+        }).then((value) => {
+            if (value === "yes") {
+                $.ajax({
+                    url: GlobalUrl + "/User/DeleteUserType?id=" + id,
+                    type: 'post',
+                    data: '{}',
+                    success: function (result) {
+                        toastr["success"]("Successuflly deleted!");
+                        window.location.href = window.location.href;
+                    }
+                });
+            }
+            else {
+                toastr["error"]("Delete cancelled!")
+            }
+            return false;
+        });
+
+
+        //swal.fire({
+        //    title: 'Do you want to Delete?',
+        //    showDenyButton: true,
+        //    showCancelButton: true,
+        //    confirmButtonText: `Delete`,
+        //}).then((result) => {
+        //    /* Read more about isConfirmed, isDenied below */
+        //    if (result.isConfirmed) {
+
+
+        //        toastr["success"]("Successuflly deleted!")
+        //    } else if (result.isDenied) {
+
+        //        toastr["error"]("You have cancelled!")
+        //    }
+        //});
+    }
+</script>
