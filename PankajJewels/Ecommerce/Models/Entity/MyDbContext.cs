@@ -11,12 +11,9 @@ namespace Ecommerce.Models.Entity
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
         {
-
-
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<UserMasterEntity>().ToTable("UserMaster");
             modelBuilder.Entity<UserTypeMasterEnity>().ToTable("UserTypeMaster");
@@ -49,7 +46,6 @@ namespace Ecommerce.Models.Entity
             modelBuilder.Entity<TagMasterEntity>().ToTable("TagMaster");
             modelBuilder.Entity<DaimondTypeMasterEntity>().ToTable("DaimondTypeMaster");
             modelBuilder.Entity<CertificateMasterEntity>().ToTable("CertificateMaster");
-
             modelBuilder.Entity<SizeMasterEntity>().ToTable("SizeMaster");
             modelBuilder.Entity<DiscountMasterEntity>().ToTable("DiscountMaster");
             modelBuilder.Entity<MeasurementMasterEntity>().ToTable("MeasurementMaster");
@@ -82,11 +78,13 @@ namespace Ecommerce.Models.Entity
             modelBuilder.Entity<BannerType>().ToTable("BannerType");
             modelBuilder.Entity<CustomizeOrderEntity>().ToTable("CustomizeOrder");
             modelBuilder.Entity<LoginTrack>().ToTable("LoginTrack");
+            modelBuilder.Entity<LoginTrack>().ToTable("ContactUs");
             modelBuilder.Entity<DaimondsPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<PerlPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SRubyPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SolPerPrdDisplayModel>().HasNoKey();
         }
+        public DbSet<ContactUs> contactUs { get; set; }
         public DbSet<LoginTrack> loginTracks { get; set; }
         public DbSet<CustomizeOrderEntity>  customizeOrderEntities { get; set; }
         public DbSet<BannerPageMaster> bannerPageMasters { get; set; }
@@ -131,7 +129,6 @@ namespace Ecommerce.Models.Entity
         public DbSet<TagMasterEntity> tagMasterEntities { get; set; }
         public DbSet<DaimondTypeMasterEntity> daimondTypeMasterEntities { get; set; }
         public DbSet<CertificateMasterEntity> certificateMasterEntities { get; set; }
-
         public DbSet<SizeMasterEntity> sizeMasterEntities { get; set; }
         public DbSet<DiscountMasterEntity> discountMasterEntities { get; set; }
         public DbSet<MeasurementMasterEntity> measurementMasterEntities { get; set; }
@@ -147,7 +144,6 @@ namespace Ecommerce.Models.Entity
         public DbSet<SolitairePerProductEntity> solitairePerProductEntities { get; set; }
         public DbSet<SRubyPerPrdDetailsEntity> sRubyPerPrdDetailsEntities { get; set; }
         public DbSet<SRubyPerProductEntity> sRubyPerProductEntities { get; set; }
-
         public DbSet<CartMasterEntity> cartMasterEntities { get; set; }
         public DbSet<CartDetailsEntity> cartDetailsEntities { get; set; }
     }

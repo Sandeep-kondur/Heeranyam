@@ -69,9 +69,10 @@ namespace Ecommerce.Controllers
         }
 
 
+        #region API End Points
 
-        public IActionResult APIAboutUS() {
-
+        public IActionResult APIAboutUS()
+        {
             string abouthtml = @"< section  > <div  >
         <div  ><div > <div ></div></div><div ><h4  >Who We Are?</h4>
                 <p>Heeranyam has been a fast-growing online e-commerce jewellery store that started its journey in 2021, under the patronage of Hiranya India Jewels Pvt Ltd.a leading brand in precious jewellery in India.With more than a decade of experience in the exquisite class of jewellery, Hiranya has become a renowned brand in India. </p>
@@ -82,10 +83,10 @@ namespace Ecommerce.Controllers
             < section  ><div  ><h4>Heeranyam Online Jewellery Store: </h4><p>A name to celebrate in the near future! Heeranyam has the potential to bring exclusive jewellery items in gold, silver, platinum, diamond, and other gemstones to those who love to adorn them with beautiful items.The idea of going online was not new! Rather, we had a long-term goal for everyone at Hiranya India Jewels Pvt Ltd. </p>
         <p>Our online store has numerous jewellery items that our clients can buy on their willpower.A fully automated website cannot embarrass customers at any point in time.We guarantee smooth deliveries after all the formalities are complete.We ensure successful deliveries to every order that we receive.Our deliveries reach the customers’ place through recognized courier agencies that have worldwide recognition for their deliveries. </p>
     </div></section>";
-           return Json(new {  status=1,message="aboutus",aboutus = abouthtml });
-    }
-        public IActionResult APITermsAndConditions() {
-
+            return Json(new { status = 1, message = "aboutus", aboutus = abouthtml });
+        }
+        public IActionResult APITermsAndConditions()
+        {
             string termsandconditions = @"<section class='about - us section - padding'>
         < div class='container'>
         <h4 class='about-sub-title'>HEERANYAM-PRIVACY POLICY</h4>
@@ -145,21 +146,32 @@ namespace Ecommerce.Controllers
 
     </div>
 </section>";
-            string tandc = "HEERANYAM-PRIVACY POLICY Privacy Policy:Heeranyam Jewellery Online Store hereby declares that we take the privacy matters of the " +
-                "customers very seriously.We request you to read this Privacy statement very carefully as it contains vital" +
-                " information about the things you should expect when we collect your personal information.We appreciate all your concerns,   " +
-                "             including how we will use your personal data and the steps that we take to ensure it is safe from any abuse.";
             return Json(new { status = 1, message = "aboutus", tandc = termsandconditions });
-
         }
 
         [HttpPost]
         public IActionResult APIContactus(ContactUs request)
         {
-
-            return Json(new { status = 1, message = "contactus" , notify= "Thank you "+request.Name +" for contacting us our " +
-                "team will be looking into it and reach out to you."});
-
+            try
+            {
+             var response=   _uService.SaveContactUs(request);
+            }
+            catch (Exception)
+            {
+                return StatusCode(501, new { statusCode = 0, statusMessage = "Request Failed" });
+            }
+            if (Response.StatusCode==1)
+            {
+                return StatusCode(200,new{
+                    status = 1,
+                    message = "Success Ma",
+                    notify = "Thank you " + request.Name + " for contacting us"
+                });
+            }
+            else
+            {
+                return StatusCode(401, new { statusCode = 0, statusMessage = "Request Failed" });
+            }
         }
 
         [HttpGet]
@@ -167,21 +179,33 @@ namespace Ecommerce.Controllers
         {
             var urlhost = HttpContext.Request.Host.Value;
             Categories categories = new Categories();
-            List<Category> lstCategory = new  List<Category>();
+            List<Category> lstCategory = new List<Category>();
             //string urlhost = Path.Combine(Directory.GetCurrentDirectory(), "WWWROOT\\icons");
-            lstCategory.Add(new Category() { Name = "Rings", ParentMenuId = 0, Id = 1, Permitted = true ,Image= urlhost + @"\icons\rings.png",
-                SubCategory= new List<SubCategory>(){
+            lstCategory.Add(new Category()
+            {
+                Name = "Rings",
+                ParentMenuId = 0,
+                Id = 1,
+                Permitted = true,
+                Image = urlhost + @"\icons\rings.png",
+                SubCategory = new List<SubCategory>(){
                     new SubCategory(){ Name = "Home Made Rings", ParentMenuId = 1, Id = 9, Permitted = true, Image = urlhost + @"\icons\rings.png" } ,
                     new SubCategory(){ Name = "Hookup Bands", ParentMenuId = 1, Id = 10, Permitted = true, Image = urlhost + @"\icons\rings.png" }
 
                 }
             });
-            lstCategory.Add(new Category() { Name = "EarRings", ParentMenuId = 0, Id = 2, Permitted = true, Image = urlhost  + @"\icons\earrings.png",
+            lstCategory.Add(new Category()
+            {
+                Name = "EarRings",
+                ParentMenuId = 0,
+                Id = 2,
+                Permitted = true,
+                Image = urlhost + @"\icons\earrings.png",
                 SubCategory = new List<SubCategory>(){
                     new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 2, Id = 11, Permitted = true, Image = urlhost + @"\icons\rings.png",
-                    SubCategories= new List<SubCategory>(){ 
+                    SubCategories= new List<SubCategory>(){
                     new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 11, Id = 12, Permitted = true, Image = urlhost + @"\icons\rings.png"}
-                    } } 
+                    } }
 
                 }
             });
@@ -190,21 +214,17 @@ namespace Ecommerce.Controllers
             lstCategory.Add(new Category() { Name = "Bracelets", ParentMenuId = 0, Id = 6, Permitted = true, Image = urlhost + @"\icons\bracelets.png" });
             lstCategory.Add(new Category() { Name = "All Gold", ParentMenuId = 0, Id = 7, Permitted = true, Image = urlhost + @"\icons\allgold.png" });
             lstCategory.Add(new Category() { Name = "Contact Us", ParentMenuId = 0, Id = 8, Permitted = true, Image = urlhost + @"\icons\contactus.png" });
-            //lstCategory.Add(new Category() { Name = "Home Made Rings", ParentMenuId = 1, Id = 9, Permitted = true, Image = urlhost + @"\rings.png" });
-            //lstCategory.Add(new Category() { Name = "Hookup Bands", ParentMenuId = 1, Id = 10, Permitted = true, Image = urlhost + @"\rings.png" });
-            //lstCategory.Add(new Category() { Name = "Fancy EarRings", ParentMenuId = 2, Id = 11, Permitted = true, Image = urlhost + @"\rings.png" });
-            //lstCategory.Add(new Category() { Name = "Fancy EarRings", ParentMenuId = 11, Id = 12, Permitted = true, Image = urlhost + @"\rings.png" });
             categories.Category = lstCategory;
 
-           return Json(new {  status=1,message="Menu" , category = lstCategory });
-            
+            return Json(new { status = 1, message = "Menu", category = lstCategory });
+
         }
 
-        public bool SaveProfilePicture(string emailId , string userName) 
+        public bool SaveProfilePicture(string emailId, string userName)
         {
             try
             {
-               string path=  HttpContext.Request.Host.Value + @"\UserImages\";//server path
+                string path = HttpContext.Request.Host.Value + @"\UserImages\";//server path
                 if (Request.Form.Files[0] != null)
                 {
                     var file = Request.Form.Files[0];
@@ -215,25 +235,25 @@ namespace Ecommerce.Controllers
                     if (file.Length > 0)
                     {
                         var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                        var fullPath = Path.Combine(pathToSave, userName+"."+ contenttype);
+                        var fullPath = Path.Combine(pathToSave, userName + "." + contenttype);
                         // var dbPath = Path.Combine(folderName, fileName);
 
                         if (System.IO.File.Exists(fullPath))
                         {
                             System.IO.File.Delete(fullPath);
                         }
-                            using (var stream = new FileStream(fullPath, FileMode.Create))
-                            {
-                                file.CopyTo(stream);
-                            }
-                            return true;
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            file.CopyTo(stream);
+                        }
+                        return true;
                     }
                     else
                     {
                         return true;
                     }
                 }
-              
+
             }
             catch (Exception ex)
             {
@@ -245,7 +265,6 @@ namespace Ecommerce.Controllers
         [HttpPost, DisableRequestSizeLimit]
         public IActionResult UploadProfilePicture()
         {
-
             try
             {
                 LoginResponse loginCheckResponse = new LoginResponse();
@@ -258,16 +277,17 @@ namespace Ecommerce.Controllers
                     return StatusCode(401, "Invalid User, Please try log in with proper User Details");
                 }
                 SaveProfilePicture(loginCheckResponse.emailId.Split('.')[0].ToString(), loginCheckResponse.userName);
-
             }
             catch (Exception)
             {
 
-                return StatusCode(501,"Error While Processing Upload Profile Picture");
+                return StatusCode(501, "Error While Processing Upload Profile Picture");
             }
-
             return Ok();
         }
+
+        #endregion
+
         public IActionResult Privacy()
         {
             return View();

@@ -185,7 +185,13 @@ namespace Ecommerce.Models.BAL
                 {
                     uma.DeviceId = request.DeviceId;
                 }
-                
+
+                if (!String.IsNullOrEmpty(request.Address)
+                    && request.Address.ToUpper() != uma.Address.ToUpper())
+                {
+                    uma.Address = request.Address;
+                }
+
 
                 // um.PWord = request.PWord;
                 context.Entry(uma).CurrentValues.SetValues(uma);
@@ -212,8 +218,6 @@ namespace Ecommerce.Models.BAL
             LoginResponse response = new LoginResponse();
             try
             {
-
-
                 var obj = (from um in context.userMasters
                            join ut in context.userTypeMasters on um.UserTypeId equals ut.TypeId into utTemp
                            from utype in utTemp.DefaultIfEmpty()
@@ -235,7 +239,6 @@ namespace Ecommerce.Models.BAL
                 {
                     response.statusCode = 0;
                     response.statusMessage = "Emailid / Mobile number not registered";
-
                 }
                 else
                 {
@@ -244,17 +247,14 @@ namespace Ecommerce.Models.BAL
                     {
                         response.statusCode = 0;
                         response.statusMessage = "Passowrd mismatch";
-
                     }
                     else if (obj.IsEmailVerified == false)
                     {
                         response.statusCode = 0;
                         response.statusMessage = "Account not verified";
-
                     }
                     else
                     {
-
                         LoginTrack lt = new LoginTrack();
                         lt.IsDeleted = false;
                         lt.LoginTime = DateTime.Now;
@@ -262,7 +262,6 @@ namespace Ecommerce.Models.BAL
                         lt.UserName = obj.UserName;
                         context.loginTracks.Add(lt);
                         context.SaveChanges();
-
                         response.statusCode = 1;
                         response.statusMessage = "Login success";
                         response.userId = obj.UserId;
@@ -272,7 +271,6 @@ namespace Ecommerce.Models.BAL
                         response.userImageURL = obj.ProfileImage!=null ?obj.ProfileImage:"";
                     }
                 }
-
                 return Transform.ConvertResultToApiResonse(response);
             }
             catch (Exception ex)
@@ -1179,6 +1177,23 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
-       
+        public ProcessResponse SaveContactUs(ContactUs contactUs)
+        {
+           ProcessResponse response = new ProcessResponse();
+            try
+            {
+                context.contactUs.Add(contactUs);
+                context.SaveChanges();
+                response.statusCode = 1;
+                response.statusMessage = "Success";
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed";
+            }
+            return response;
+
+        }
     }
 }

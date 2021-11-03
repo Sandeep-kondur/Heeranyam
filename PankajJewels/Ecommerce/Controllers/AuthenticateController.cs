@@ -499,46 +499,48 @@ namespace Ecommerce.Controllers
 
         #region API for Mobile Consumers
 
-
         [HttpPost]
         public IActionResult APILogin(  LoginRequest request)
         {
-            LoginResponse loginCheckResponse = new LoginResponse();
-            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
-            if (loginCheckResponse == null)
+            try
             {
-                loginCheckResponse = new LoginResponse();
-                loginCheckResponse.userId = 0;
-                loginCheckResponse.userName = "NA";
-            }
-            if (string.IsNullOrEmpty(request.emailid) || string.IsNullOrEmpty(request.pword))
-            {
-                return StatusCode(401, new { statusCode = 0, statusMessage = "Fill Mandatory Fields" });
-            }
-            else
-            {
-                if (ModelState.IsValid)
+                LoginResponse loginCheckResponse = new LoginResponse();
+                loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+                if (loginCheckResponse == null)
                 {
-                    var loginCheck = _uService.LoginCheck(request).Response;
-                    if (loginCheck.statusCode == 1)
-                    {
-                        SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
-                        _uService.UpdateUserMaster(new UserMasterEntity() { UserName    =loginCheck.userName,UserId=loginCheck.userId,DeviceId = request.deviceID,EmailId=request.emailid});
-                        return Ok(loginCheck);
-                    }
-                    else
-                    {
-                        //  ViewBag.CaptchaKey = "6LeplcYUAAAAAJlmUhStKiuJ6ucEqdotoWTYomZf";
-                        return StatusCode(401, new { statusCode = 0, statusMessage = "login failure" });
-                    }
+                    loginCheckResponse = new LoginResponse();
+                    loginCheckResponse.userId = 0;
+                    loginCheckResponse.userName = "NA";
+                }
+                if (string.IsNullOrEmpty(request.emailid) || string.IsNullOrEmpty(request.pword))
+                {
+                    return StatusCode(401, new { statusCode = 0, statusMessage = "Fill Mandatory Fields" });
                 }
                 else
                 {
-                    ViewBag.ErrorMessage = "Invalid emailid / mobile number or password";
-                    // ViewBag.CaptchaKey = "6LeplcYUAAAAAJlmUhStKiuJ6ucEqdotoWTYomZf";
-                    ViewBag.src = request.url;
-                    return Ok(request);
+                    if (ModelState.IsValid)
+                    {
+                        var loginCheck = _uService.LoginCheck(request).Response;
+                        if (loginCheck.statusCode == 1)
+                        {
+                            SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
+                            _uService.UpdateUserMaster(new UserMasterEntity() { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.deviceID, EmailId = request.emailid });
+                            return StatusCode(200, new { statusCode = 0, UserDetails =loginCheck,statusMessage = "Login Success" });
+                        }
+                        else
+                        {
+                            return StatusCode(401, new { statusCode = 0, statusMessage = "login failure" });
+                        }
+                    }
+                    else
+                    {
+                        return StatusCode(401, new { statusCode = 0, request= request,statusMessage = "Invalid emailid / mobile number or password" });
+                    }
                 }
+            }
+            catch (Exception)
+            {
+                return StatusCode(501, new { statusCode = 0, statusMessage = "User Login Failed" });
             }
         }
 
@@ -547,157 +549,167 @@ namespace Ecommerce.Controllers
         {
 
             LoginResponse loginCheckResponse = new LoginResponse();
-            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+            UserMasterEntity user;
+            try
+            {
+                loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
             if (loginCheckResponse == null)
             {
                 loginCheckResponse = new LoginResponse();
                 loginCheckResponse.userId = 0;
                 loginCheckResponse.userName = "NA";
-                return StatusCode(401, "Invalid User, Please try log in with proper User Details");
+                return StatusCode(401, new { statusCode = 0, statusMessage = "Invalid User, Please try log in with proper User Details" });
             }
-            var user = _uService.GetUserByEmail(request.EmailId);
-            return Json(new { status = 1, UserId= user.UserId, UserName= user.UserName, UserTypeId= user.UserTypeId,EmailId= user.EmailId,DeviceId=user.DeviceId
-            , ProfileImage= user.ProfileImage,MobileNumber= user.MobileNumber});
+           
+                  user = _uService.GetUserByEmail(request.EmailId);
+            }
+            catch (Exception)
+            {
+                return StatusCode(501, new { statusCode = 0, statusMessage = "Fetch User Failed" }); 
+            }
+            return Json(new
+            {
+                status = 1,
+                UserId = user.UserId,
+                UserName = user.UserName,
+                UserTypeId = user.UserTypeId,
+                EmailId = user.EmailId,
+                DeviceId = user.DeviceId,
+                ProfileImage = user.ProfileImage,
+                MobileNumber = user.MobileNumber,
+                Address = user.Address
+            });
 
         }
-
 
         [HttpPut]
         public IActionResult APIUpdateProfile(UserMasterEntity request)
         {
-            //what are to be updated
-            //image, mobile num , address ,add
-
-            //email username uniq
-            LoginResponse loginCheckResponse = new LoginResponse();
-            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
-            if (loginCheckResponse == null)
+            try
             {
-                loginCheckResponse = new LoginResponse();
-                loginCheckResponse.userId = 0;
-                loginCheckResponse.userName = "NA";
-                return StatusCode(401, "Invalid User, Please try log in with proper User Details");
+                LoginResponse loginCheckResponse = new LoginResponse();
+                loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+                if (loginCheckResponse == null)
+                {
+                    loginCheckResponse = new LoginResponse();
+                    loginCheckResponse.userId = 0;
+                    loginCheckResponse.userName = "NA";
+                    return StatusCode(401, new { statusCode = 0, statusMessage = "Invalid User, Please try log in with proper User Details" });
+                }
+                if (Request.Form.Files[0] != null)
+                {
+                    try
+                    {
+                        request.ProfileImage = SaveProfilePicture(request.EmailId, loginCheckResponse.userName);
+                    }
+                    catch (Exception)
+                    {
+                        return StatusCode(501, new { statusCode = 0, statusMessage = "Update Failed" });
+                    }
+                }
+                _uService.UpdateUserMaster(request);
             }
-            if  (Request.Form.Files[0] != null)
+            catch (Exception)
             {
-                try
-                {
-                    request.ProfileImage = SaveProfilePicture(request.EmailId, loginCheckResponse.userName);
-
-                }
-                catch (Exception ex)
-                {
-
-                    return StatusCode(501,"Internal Server Error"+ex.Message.ToString()+"  " +ex.StackTrace);
-                }
+                return StatusCode(501, new { statusCode = 0, statusMessage = "Update Failed" });
             }
-           
-            _uService.UpdateUserMaster(request);
-
-            return Ok();
-        
+            return StatusCode(200, new { statusCode = 1, statusMessage = "Update Successful" }); 
         }
+
         [HttpPost]
         public IActionResult APIRegister(  APIUserMasterModel request)
         {
-            LoginResponse loginCheckResponse = new LoginResponse();
-            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
-            if (loginCheckResponse == null)
+            try
             {
-                loginCheckResponse = new LoginResponse();
-                loginCheckResponse.userId = 0;
-                loginCheckResponse.userName = "NA";
-            }
-            string imagepath = string.Empty;
-            if (ModelState.IsValid)
-            {
-                bool isFine = true;
-                var emailCheck = _uService.EmailAvailablityCheck(request.EmailId);
-                if (emailCheck == false)
+                LoginResponse loginCheckResponse = new LoginResponse();
+                loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+                if (loginCheckResponse == null)
                 {
-                    ModelState.AddModelError("EmailId", "Email Id not avaialable");
-                    isFine = false;
+                    loginCheckResponse = new LoginResponse();
+                    loginCheckResponse.userId = 0;
+                    loginCheckResponse.userName = "NA";
                 }
-                var mobiblecheck = _uService.MobileAvailablityCheck(request.MobileNumber);
-                if (mobiblecheck == false)
+                string imagepath = string.Empty;
+                if (ModelState.IsValid)
                 {
-                    ModelState.AddModelError("MobileNumber", "Mobile number not available");
-                    isFine = false;
-                }
-                if (isFine == false)
-                {
-                    request.countryList = _cService.GetAllCountryies();
-                    request.stateList = _cService.GetAllStates((int)request.CountryId);
-                    request.cityList = _cService.GetallCities((int)request.StateId);
-                    request.addtypeList = _cService.GetAllAddressTypes();
-                    return Ok(request);
-                }
-                else
-                {
-                    UserMasterEntity um = new UserMasterEntity();
-                    request.CurrentStatus = "Active";
-                    request.IsDeleted = false;
-                    request.IsEmailVerified = true;
-                    request.RegisteredOn = DateTime.Now;
-                    if (Request.Form.Files[0] != null)
+                    bool isFine = true;
+                    var emailCheck = _uService.EmailAvailablityCheck(request.EmailId);
+                    if (emailCheck == false)
                     {
-                        //var file = Request.Form.Files[0];
-                        //string contenttype = file.FileName.Split('.').Count() > 1 ? file.FileName.Split('.')[1] : "";
-                        //var folderName = Path.Combine("WWWROOT", "UserImages");
-                        ////var pathToSave = Request.Host.Value +@"\UserImages";
-
-                        //var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-                        //var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                        //imagepath = Path.Combine(pathToSave,  request.UserName + "." + contenttype);
-
-                        //um.ProfileImage = imagepath;
-                        um.ProfileImage= SaveProfilePicture("" ,request.UserName) ;
+                        isFine = false;
                     }
-                    var usertypes = _uService.GetUserTypes().Where(a => a.TypeName == "Customer").FirstOrDefault();
-                    request.UserTypeId = usertypes.TypeId;
-                    CloneObjects.CopyPropertiesTo(request, um);
-                    var result = _uService.RegisterUser(um);
-                    if (result.statusCode == 1)
+                    var mobiblecheck = _uService.MobileAvailablityCheck(request.MobileNumber);
+                    if (mobiblecheck == false)
                     {
-                        LoginResponse lr = new LoginResponse();
-                        lr.userId = result.currentId;
-                        lr.userName = request.UserName;
-                        lr.userTypeName = usertypes.TypeName;
-                        lr.emailId = request.EmailId;
-                        SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", lr);
-                        AddressEntity ad = new AddressEntity();
-                        CloneObjects.CopyPropertiesTo(request, ad);
-                        ad.IsDeleted = false;
-                        ad.IsDeliverAddress = "Yes";
-                        ad.UserId = result.currentId;
-                        var aa = _uService.SaveAddress(ad);
-                        var ps = _nService.SendRegistrationEmail(EmailTemplateModules.RegistrationEmail,
-                           request.EmailId, request.UserName, loginCheckResponse.userId);
-
-                        return Json(new { status = 1, message = result.statusMessage,Emailid=request.EmailId, UserId = result.currentId,UserName=request.UserName,Mobile=request.MobileNumber ,profilePicUrl = HttpContext.Request.Host.Value + @"\UserImages\"+ imagepath});// Ok(result);
+                        isFine = false;
                     }
-                    if (result.statusCode == 0)
+                    if (isFine == false)
                     {
-                        ViewBag.ErrorMessage = "Unable to complete registration now, please try after some time.";
-
+                        request.countryList = _cService.GetAllCountryies();
+                        request.stateList = _cService.GetAllStates((int)request.CountryId);
+                        request.cityList = _cService.GetallCities((int)request.StateId);
+                        request.addtypeList = _cService.GetAllAddressTypes();
+                        return Ok(request);
                     }
                     else
                     {
+                        UserMasterEntity um = new UserMasterEntity();
+                        request.CurrentStatus = "Active";
+                        request.IsDeleted = false;
+                        request.IsEmailVerified = true;
+                        request.RegisteredOn = DateTime.Now;
+                        if (Request.Form.Files[0] != null)
+                        {
+                            um.ProfileImage = SaveProfilePicture("", request.UserName);
+                        }
+                        var usertypes = _uService.GetUserTypes().Where(a => a.TypeName == "Customer").FirstOrDefault();
+                        request.UserTypeId = usertypes.TypeId;
+                        CloneObjects.CopyPropertiesTo(request, um);
+                        var result = _uService.RegisterUser(um);
+                        if (result.statusCode == 1)
+                        {
+                            LoginResponse lr = new LoginResponse();
+                            lr.userId = result.currentId;
+                            lr.userName = request.UserName;
+                            lr.userTypeName = usertypes.TypeName;
+                            lr.emailId = request.EmailId;
+                            SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", lr);
+                            AddressEntity ad = new AddressEntity();
+                            CloneObjects.CopyPropertiesTo(request, ad);
+                            ad.IsDeleted = false;
+                            ad.IsDeliverAddress = "Yes";
+                            ad.UserId = result.currentId;
+                            var aa = _uService.SaveAddress(ad);
+                            var ps = _nService.SendRegistrationEmail(EmailTemplateModules.RegistrationEmail,
+                               request.EmailId, request.UserName, loginCheckResponse.userId);
 
-
-                        //send email
-
+                            return Json(new { status = 1, message = result.statusMessage, Emailid = request.EmailId, UserId = result.currentId, UserName = request.UserName, Mobile = request.MobileNumber, profilePicUrl = HttpContext.Request.Host.Value + @"\UserImages\" + imagepath });// Ok(result);
+                        }
+                        if (result.statusCode == 0)
+                        {
+                            return StatusCode(501, new { statusCode = 0, statusMessage = "Unable to complete registration now, please try after some time." });
+                        }
+                        else
+                        {
+                            //send email
+                        }
                     }
                 }
+                request.countryList = _cService.GetAllCountryies();
+                request.stateList = _cService.GetAllStates((int)request.CountryId);
+                request.cityList = _cService.GetallCities((int)request.StateId);
+                request.addtypeList = _cService.GetAllAddressTypes();
+                //return Ok(request);
+                return StatusCode(200, new { statusCode = 1, request= request, statusMessage = "Update Successful" });
+
             }
-            request.countryList = _cService.GetAllCountryies();
-            request.stateList = _cService.GetAllStates((int)request.CountryId);
-            request.cityList = _cService.GetallCities((int)request.StateId);
-            request.addtypeList = _cService.GetAllAddressTypes();
-            return Ok(request);
+            catch (Exception)
+            {
+                return StatusCode(501, new { statusCode = 0, statusMessage = "Registration Failed" });
+            }
         }
 
-        public string SaveProfilePicture(string emailId, string userName)
+        private string SaveProfilePicture(string emailId, string userName)
         {
             string fullPath = string.Empty;
             string contenttype= string.Empty;
@@ -749,24 +761,6 @@ namespace Ecommerce.Controllers
             return fullPath;
         }
 
-
-        //private async Task<bool> UploadFile(string fileName)
-        //{
-        //    if (ufile != null && ufile.Length > 0)
-        //    {
-        //        var fileName = Path.GetFileName(FileName);
-        //        var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
-        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
-        //        {
-        //            await ufile.CopyToAsync(fileStream);
-        //        }
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
         #endregion
-
-
     }
 }
