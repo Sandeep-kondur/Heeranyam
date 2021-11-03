@@ -20,6 +20,8 @@ namespace Ecommerce.Models.ModelClasses
 
     public class ContactUs
     {
+
+        [Key] 
         public string Name { get; set; }
         public string PhoneNumber { get; set; }
 

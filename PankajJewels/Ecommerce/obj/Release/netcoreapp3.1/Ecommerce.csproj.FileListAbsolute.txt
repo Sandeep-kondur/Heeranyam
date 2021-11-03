@@ -1265,7 +1265,6 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Release\netcoreapp3
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Release\netcoreapp3.1\runtimes\win-x86\native\Microsoft.Data.SqlClient.SNI.pdb
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Release\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Runtime.Caching.dll
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Release\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.csprojAssemblyReference.cache
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.AssemblyInfoInputs.cache
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.AssemblyInfo.cs
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.csproj.CoreCompileInputs.cache
