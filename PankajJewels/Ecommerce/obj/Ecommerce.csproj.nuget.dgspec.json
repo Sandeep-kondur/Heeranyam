@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Downloads\\PankajJewels\\Ecommerce\\Ecommerce.csproj": {}
+    "C:\\Users\\User\\Downloads\\Heeranyam\\PankajJewels\\Ecommerce\\Ecommerce.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Downloads\\PankajJewels\\Ecommerce\\Ecommerce.csproj": {
+    "C:\\Users\\User\\Downloads\\Heeranyam\\PankajJewels\\Ecommerce\\Ecommerce.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Downloads\\PankajJewels\\Ecommerce\\Ecommerce.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Downloads\\Heeranyam\\PankajJewels\\Ecommerce\\Ecommerce.csproj",
         "projectName": "Ecommerce",
-        "projectPath": "C:\\Users\\User\\Downloads\\PankajJewels\\Ecommerce\\Ecommerce.csproj",
+        "projectPath": "C:\\Users\\User\\Downloads\\Heeranyam\\PankajJewels\\Ecommerce\\Ecommerce.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Downloads\\PankajJewels\\Ecommerce\\obj\\",
+        "outputPath": "C:\\Users\\User\\Downloads\\Heeranyam\\PankajJewels\\Ecommerce\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",

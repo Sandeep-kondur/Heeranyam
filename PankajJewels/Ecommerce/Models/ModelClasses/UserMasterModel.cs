@@ -62,11 +62,13 @@ namespace Ecommerce.Models.ModelClasses
         public DateTime RegisteredOn { get; set; }
 
         [Required(ErrorMessage = "TermsAndConditions Must be Selected")]
-        public int TermsAndConditions { get; set; }
+        public string TermsAndConditions { get; set; }
 
         public string DeviceId { get; set; }
 
         public string ProfilePicUrl  { get; set; }
+
+        public string  Address { get; set; }
 
 
 

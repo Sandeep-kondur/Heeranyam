@@ -25,6 +25,8 @@ namespace Ecommerce.Models.InterfacesBAL
         bool MobileAvailablityCheck(string mobileNumber);
         List<UserMasterDisplay> GetAllUsers(string type);
         void UpdatePassword(UserMasterEntity request);
+        ProcessResponse UpdateUser(UserMasterEntity request);
+        void UpdateUserMaster(UserMasterEntity request);
         UserMasterEntity GetUserByEmail(string email);
         IQueryable<UserTypeMasterEnity> GetUserTypes();
         UserTypeMasterEnity GetUserTypeById(int id);

@@ -37,10 +37,12 @@ namespace Ecommerce.Models.Entity
         public bool? IsDeleted { get; set; }
 
         [Required(ErrorMessage = "TermsAndConditions Must be Selected")]
-        public int TermsAndConditions { get; set; }
+        public string TermsAndConditions { get; set; }
         public string DeviceId { get; set; }
 
         public string ProfileImage { get; set; }
+
+        public string Address { get; set; }
 
 
     }

@@ -165,12 +165,41 @@ namespace Ecommerce.Models.BAL
                 context.SaveChanges();
             }
         }
+
+        public void UpdateUserMaster(UserMasterEntity request)
+        {
+            var uma =context.userMasters.Where(a => a.UserId == request.UserId).FirstOrDefault();
+            if (uma != null)
+            {
+                if (!String.IsNullOrEmpty(request.MobileNumber)
+                     && request.MobileNumber.ToUpper() != uma.MobileNumber.ToUpper())
+                {
+                    uma.MobileNumber = request.MobileNumber;
+                }
+                if (!String.IsNullOrEmpty(request.ProfileImage))
+                {
+                    uma.ProfileImage = request.ProfileImage;
+                }
+                if (!String.IsNullOrEmpty(request.DeviceId) 
+                    && request.DeviceId.ToUpper()!=uma.DeviceId.ToUpper())
+                {
+                    uma.DeviceId = request.DeviceId;
+                }
+                
+
+                // um.PWord = request.PWord;
+                context.Entry(uma).CurrentValues.SetValues(uma);
+                context.SaveChanges();
+            }
+        }
+
         public UserMasterEntity GetUserByEmail(string email)
         {
             UserMasterEntity result = new UserMasterEntity();
             try
             {
                 result = context.userMasters.Where(a => a.EmailId == email || a.MobileNumber == email && a.IsDeleted == false).FirstOrDefault();
+                
             }
             catch (Exception ex)
             {
@@ -188,7 +217,7 @@ namespace Ecommerce.Models.BAL
                 var obj = (from um in context.userMasters
                            join ut in context.userTypeMasters on um.UserTypeId equals ut.TypeId into utTemp
                            from utype in utTemp.DefaultIfEmpty()
-                           where um.EmailId == request.emailid || um.MobileNumber == request.emailid && 
+                           where um.EmailId == request.emailid || um.MobileNumber == request.mobileNumber && 
                            um.IsDeleted == false
                            select new
                            {
@@ -240,7 +269,7 @@ namespace Ecommerce.Models.BAL
                         response.userName = obj.UserName;
                         response.userTypeName = obj.TypeName;
                         response.emailId = obj.EmailId;
-                        response.userImageURL = obj.ProfileImage;
+                        response.userImageURL = obj.ProfileImage!=null ?obj.ProfileImage:"";
                     }
                 }
 
@@ -1150,7 +1179,6 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
-        
-          
+       
     }
 }

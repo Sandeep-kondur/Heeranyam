@@ -499,6 +499,7 @@ namespace Ecommerce.Controllers
 
         #region API for Mobile Consumers
 
+
         [HttpPost]
         public IActionResult APILogin(  LoginRequest request)
         {
@@ -510,12 +511,9 @@ namespace Ecommerce.Controllers
                 loginCheckResponse.userId = 0;
                 loginCheckResponse.userName = "NA";
             }
-            ViewBag.LoggedUser = loginCheckResponse;
-
             if (string.IsNullOrEmpty(request.emailid) || string.IsNullOrEmpty(request.pword))
             {
-                ViewBag.ErrorMessage = "Fill Mandatory fields";
-                return Ok(request);
+                return StatusCode(401, new { statusCode = 0, statusMessage = "Fill Mandatory Fields" });
             }
             else
             {
@@ -525,14 +523,12 @@ namespace Ecommerce.Controllers
                     if (loginCheck.statusCode == 1)
                     {
                         SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
-                      //  _uService.update
+                        _uService.UpdateUserMaster(new UserMasterEntity() { UserName    =loginCheck.userName,UserId=loginCheck.userId,DeviceId = request.deviceID,EmailId=request.emailid});
                         return Ok(loginCheck);
                     }
                     else
                     {
-                        ViewBag.ErrorMessage = loginCheck.statusMessage;
                         //  ViewBag.CaptchaKey = "6LeplcYUAAAAAJlmUhStKiuJ6ucEqdotoWTYomZf";
-                        ViewBag.src = request.url;
                         return StatusCode(401, new { statusCode = 0, statusMessage = "login failure" });
                     }
                 }
@@ -549,20 +545,54 @@ namespace Ecommerce.Controllers
         [HttpGet]
         public IActionResult APIGetProfile(APIUserMasterModel request)
         {
-          // all are to be retrieved 
 
-            return Ok();
+            LoginResponse loginCheckResponse = new LoginResponse();
+            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+            if (loginCheckResponse == null)
+            {
+                loginCheckResponse = new LoginResponse();
+                loginCheckResponse.userId = 0;
+                loginCheckResponse.userName = "NA";
+                return StatusCode(401, "Invalid User, Please try log in with proper User Details");
+            }
+            var user = _uService.GetUserByEmail(request.EmailId);
+            return Json(new { status = 1, UserId= user.UserId, UserName= user.UserName, UserTypeId= user.UserTypeId,EmailId= user.EmailId,DeviceId=user.DeviceId
+            , ProfileImage= user.ProfileImage,MobileNumber= user.MobileNumber});
 
         }
 
 
         [HttpPut]
-        public IActionResult APIPUTProfile(APIUserMasterModel request)
+        public IActionResult APIUpdateProfile(UserMasterEntity request)
         {
             //what are to be updated
             //image, mobile num , address ,add
 
             //email username uniq
+            LoginResponse loginCheckResponse = new LoginResponse();
+            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+            if (loginCheckResponse == null)
+            {
+                loginCheckResponse = new LoginResponse();
+                loginCheckResponse.userId = 0;
+                loginCheckResponse.userName = "NA";
+                return StatusCode(401, "Invalid User, Please try log in with proper User Details");
+            }
+            if  (Request.Form.Files[0] != null)
+            {
+                try
+                {
+                    request.ProfileImage = SaveProfilePicture(request.EmailId, loginCheckResponse.userName);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return StatusCode(501,"Internal Server Error"+ex.Message.ToString()+"  " +ex.StackTrace);
+                }
+            }
+           
+            _uService.UpdateUserMaster(request);
 
             return Ok();
         
@@ -611,17 +641,17 @@ namespace Ecommerce.Controllers
                     request.RegisteredOn = DateTime.Now;
                     if (Request.Form.Files[0] != null)
                     {
-                        var file = Request.Form.Files[0];
-                        string contenttype = file.FileName.Split('.').Count() > 1 ? file.FileName.Split('.')[1] : "";
-                        var folderName = Path.Combine("WWWROOT", "UserImages");
-                        var pathToSave = Request.Host.Value +@"\UserImages";
+                        //var file = Request.Form.Files[0];
+                        //string contenttype = file.FileName.Split('.').Count() > 1 ? file.FileName.Split('.')[1] : "";
+                        //var folderName = Path.Combine("WWWROOT", "UserImages");
+                        ////var pathToSave = Request.Host.Value +@"\UserImages";
 
-                       // var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
-                        var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                        imagepath = Path.Combine(pathToSave,  request.UserName + "." + contenttype);
+                        //var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                        //var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                        //imagepath = Path.Combine(pathToSave,  request.UserName + "." + contenttype);
 
-                        um.ProfileImage = imagepath;
-                        SaveProfilePicture("" ,request.UserName) ;
+                        //um.ProfileImage = imagepath;
+                        um.ProfileImage= SaveProfilePicture("" ,request.UserName) ;
                     }
                     var usertypes = _uService.GetUserTypes().Where(a => a.TypeName == "Customer").FirstOrDefault();
                     request.UserTypeId = usertypes.TypeId;
@@ -667,47 +697,74 @@ namespace Ecommerce.Controllers
             return Ok(request);
         }
 
-        public bool SaveProfilePicture(string emailId, string userName)
+        public string SaveProfilePicture(string emailId, string userName)
         {
+            string fullPath = string.Empty;
+            string contenttype= string.Empty;
+            string pathToSave = string.Empty;
+                pathToSave= HttpContext.Request.Host.Value + @"\UserImages\";
+
             try
             {
-                string pathToSave = HttpContext.Request.Host.Value + @"\UserImages\";
                 if (Request.Form.Files[0] != null)
                 {
                     var file = Request.Form.Files[0];
-                    string contenttype = file.FileName.Split('.').Count() > 1 ? file.FileName.Split('.')[1] : "";
-                    var folderName = Path.Combine("WWWROOT", "UserImages");
-                    //var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                      contenttype = file.FileName.Split('.').Count() > 1 ? file.FileName.Split('.')[1] : "";
+                    var folderName = Path.Combine(@"\WWWROOT"+@"\UserImages");
+                    //  pathToSave = Path.Combine(Directory.GetCurrentDirectory()+ folderName);
                     if (file.Length > 0)
                     {
                         var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                        var fullPath = Path.Combine(pathToSave,  userName + "." + contenttype);
+                          fullPath = Path.Combine(pathToSave+@"\"+  userName + "." + contenttype);
                         // var dbPath = Path.Combine(folderName, fileName);
-
-                        if (System.IO.File.Exists(fullPath))
+                        if (System.IO.File.Exists(Path.Combine(Directory.GetCurrentDirectory()+ @"\wwwroot\WWWROOT\UserImages\" + userName + "." + contenttype)))
                         {
-                            System.IO.File.Delete(fullPath);
+                            System.IO.File.Delete(Path.Combine(Directory.GetCurrentDirectory()+ @"\wwwroot\WWWROOT\UserImages\" + userName + "." + contenttype));
                         }
-                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        _logger.LogDebug(pathToSave + userName + "." + contenttype);
+                        Console.WriteLine(pathToSave + userName + "." + contenttype);
+                        using (var stream = new FileStream(Path.Combine(Directory.GetCurrentDirectory()+ @"\WWWROOT\UserImages\" + userName+ "." + contenttype), FileMode.Create))
                         {
                             file.CopyTo(stream);
                         }
-                        return true;
+                        if (!string.IsNullOrEmpty(emailId))
+                        {
+                            _uService.UpdateUserMaster(new UserMasterEntity() { EmailId = emailId, ProfileImage = pathToSave });
+
+                        }
+                        return fullPath;
                     }
                     else
                     {
-                        return true;
+                        return fullPath;
                     }
                 }
 
             }
             catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
 
-            return true;
+            return fullPath;
         }
+
+
+        //private async Task<bool> UploadFile(string fileName)
+        //{
+        //    if (ufile != null && ufile.Length > 0)
+        //    {
+        //        var fileName = Path.GetFileName(FileName);
+        //        var filePath = Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot\images", fileName);
+        //        using (var fileStream = new FileStream(filePath, FileMode.Create))
+        //        {
+        //            await ufile.CopyToAsync(fileStream);
+        //        }
+        //        return true;
+        //    }
+        //    return false;
+        //}
+
         #endregion
 
 
