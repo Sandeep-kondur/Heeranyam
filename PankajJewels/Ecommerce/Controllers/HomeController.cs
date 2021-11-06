@@ -177,7 +177,9 @@ namespace Ecommerce.Controllers
         [HttpGet]
         public IActionResult APIGetMenu()
         {
-            var urlhost = HttpContext.Request.Host.Value;
+
+
+            var urlhost = HttpContext.Request.Scheme + ":\\" + HttpContext.Request.Host.Value; //HttpContext.Request.Host.Value; 
             Categories categories = new Categories();
             List<Category> lstCategory = new List<Category>();
             //string urlhost = Path.Combine(Directory.GetCurrentDirectory(), "WWWROOT\\icons");
@@ -213,7 +215,7 @@ namespace Ecommerce.Controllers
             lstCategory.Add(new Category() { Name = "Bangles", ParentMenuId = 0, Id = 5, Permitted = true, Image = urlhost + @"\icons\bangles.png" });
             lstCategory.Add(new Category() { Name = "Bracelets", ParentMenuId = 0, Id = 6, Permitted = true, Image = urlhost + @"\icons\bracelets.png" });
             lstCategory.Add(new Category() { Name = "All Gold", ParentMenuId = 0, Id = 7, Permitted = true, Image = urlhost + @"\icons\allgold.png" });
-            lstCategory.Add(new Category() { Name = "Contact Us", ParentMenuId = 0, Id = 8, Permitted = true, Image = urlhost + @"\icons\contactus.png" });
+          //  lstCategory.Add(new Category() { Name = "Contact Us", ParentMenuId = 0, Id = 8, Permitted = true, Image = urlhost + @"\icons\contactus.png" });
             categories.Category = lstCategory;
 
             return Json(new { status = 1, message = "Menu", category = lstCategory });
@@ -507,6 +509,7 @@ namespace Ecommerce.Controllers
         }
 
 
+         
         [HttpPost]
         public IActionResult AddToCart(int userId, int productId, int detailId, int qty, int numberOfItems = 1)
         {

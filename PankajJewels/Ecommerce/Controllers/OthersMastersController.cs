@@ -847,5 +847,43 @@ namespace Ecommerce.Controllers
             return Json(new { result = response });
         }
 
+
+        /// <summary>
+        /// banner  adds
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult APIGetBannerAds(string page = "")
+        {
+            //LoginResponse loginCheckResponse = new LoginResponse();
+            //loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+            //if (loginCheckResponse == null)
+            //{
+            //    loginCheckResponse = new LoginResponse();
+            //    loginCheckResponse.userId = 0;
+            //    loginCheckResponse.userName = "NA";// return RedirectToAction("Login", "Authenticate");
+            //}
+            BannerAdsDisplayModelBase obj = new BannerAdsDisplayModelBase();
+             obj.myAds = _oService.GetAllBanners(page);
+            List<BannerAdsDisplayModel> bannerAds = new List<BannerAdsDisplayModel>();
+          
+            //obj.pageDrop = _oService.GetBannerPages();
+            //obj.sectionDrop = _oService.GetBannerSections();
+            //ViewBag.Page = page;
+            return Json(new { status = 1, Message= "Success", BannerADs=obj.myAds }) ;
+        }
+
+        [HttpGet]
+
+        public IActionResult APIGetMMenuProducts(string menuId) {
+
+            BannerAdsDisplayModelBase obj = new BannerAdsDisplayModelBase();
+            obj.myAds = _oService.GetAllBanners(menuId);
+            List<BannerAdsDisplayModel> bannerAds = new List<BannerAdsDisplayModel>();
+
+            return Json(new { status = 1, Message = "Success", BannerADs = obj.myAds });
+
+        }
+
     }
 }

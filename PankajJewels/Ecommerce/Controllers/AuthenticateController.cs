@@ -514,7 +514,7 @@ namespace Ecommerce.Controllers
                 }
                 if (string.IsNullOrEmpty(request.emailid) || string.IsNullOrEmpty(request.pword))
                 {
-                    return StatusCode(401, new { statusCode = 0, statusMessage = "Fill Mandatory Fields" });
+                    return StatusCode(200, new { statusCode = 0, statusMessage = "Fill Mandatory Fields" });
                 }
                 else
                 {
@@ -525,22 +525,22 @@ namespace Ecommerce.Controllers
                         {
                             SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
                             _uService.UpdateUserMaster(new UserMasterEntity() { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.deviceID, EmailId = request.emailid });
-                            return StatusCode(200, new { statusCode = 0, UserDetails =loginCheck,statusMessage = "Login Success" });
+                            return StatusCode(200, new { statusCode = 1, UserDetails =loginCheck,statusMessage = "Login Success" });
                         }
                         else
                         {
-                            return StatusCode(401, new { statusCode = 0, statusMessage = "login failure" });
+                            return StatusCode(200, new { statusCode = 0, statusMessage = "login failure" });
                         }
                     }
                     else
                     {
-                        return StatusCode(401, new { statusCode = 0, request= request,statusMessage = "Invalid emailid / mobile number or password" });
+                        return StatusCode(200, new { statusCode = 0, request= request,statusMessage = "Invalid emailid / mobile number or password" });
                     }
                 }
             }
             catch (Exception)
             {
-                return StatusCode(501, new { statusCode = 0, statusMessage = "User Login Failed" });
+                return StatusCode(200, new { statusCode = 0, statusMessage = "User Login Failed" });
             }
         }
 
@@ -551,21 +551,22 @@ namespace Ecommerce.Controllers
             LoginResponse loginCheckResponse = new LoginResponse();
             UserMasterEntity user;
             try
-            {
-                loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
-            if (loginCheckResponse == null)
-            {
-                loginCheckResponse = new LoginResponse();
-                loginCheckResponse.userId = 0;
-                loginCheckResponse.userName = "NA";
-                return StatusCode(401, new { statusCode = 0, statusMessage = "Invalid User, Please try log in with proper User Details" });
-            }
-           
-                  user = _uService.GetUserByEmail(request.EmailId);
+            { 
+
+              var  loginCheck = _uService.IsValidUser(request.EmailId);
+                if (loginCheck.statusCode != 1)
+                {
+                    return StatusCode(200, new { statusCode = 0, request = request, statusMessage = "Invalid User" });
+                }
+                user = _uService.GetUserByEmail(request.EmailId);
+                if (user.ProfileImage != null && user.ProfileImage.Length > 0 && !user.ProfileImage.ToLower().Contains("http"))
+                {
+                    user.ProfileImage = HttpContext.Request.Scheme + ":\\" + user.ProfileImage;
+                }
             }
             catch (Exception)
             {
-                return StatusCode(501, new { statusCode = 0, statusMessage = "Fetch User Failed" }); 
+                return StatusCode(200, new { statusCode = 0, statusMessage = "Fetch User Failed" }); 
             }
             return Json(new
             {
@@ -574,10 +575,11 @@ namespace Ecommerce.Controllers
                 UserName = user.UserName,
                 UserTypeId = user.UserTypeId,
                 EmailId = user.EmailId,
-                DeviceId = user.DeviceId,
-                ProfileImage = user.ProfileImage,
+                DeviceId = user.DeviceId != null ? user.DeviceId : string.Empty,
+     
+                ProfileImage = user.ProfileImage!= null ? user.ProfileImage: string.Empty,
                 MobileNumber = user.MobileNumber,
-                Address = user.Address
+                Address = user.Address != null ? user.Address : string.Empty
             });
 
         }
@@ -587,31 +589,47 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                LoginResponse loginCheckResponse = new LoginResponse();
-                loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
-                if (loginCheckResponse == null)
+                LoginResponse loginCheck = null;
+                //LoginResponse loginCheckResponse = new LoginResponse();
+                //loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+                //if (loginCheckResponse == null)
+                //{
+                //    loginCheckResponse = new LoginResponse();
+                //    loginCheckResponse.userId = 0;
+                //    loginCheckResponse.userName = "NA";
+                //    return StatusCode(401, new { statusCode = 0, statusMessage = "Invalid User, Please try log in with proper User Details" });
+                //}
+                //if (string.IsNullOrEmpty(request.EmailId) )//|| string.IsNullOrEmpty(request.pword))
+                //{
+                //    return StatusCode(401, new { statusCode = 0, statusMessage = "Fill Mandatory Fields" });
+                //}
+                //else
                 {
-                    loginCheckResponse = new LoginResponse();
-                    loginCheckResponse.userId = 0;
-                    loginCheckResponse.userName = "NA";
-                    return StatusCode(401, new { statusCode = 0, statusMessage = "Invalid User, Please try log in with proper User Details" });
+                    //if (ModelState.IsValid)
+                    {
+                          loginCheck = _uService.IsValidUser(request.EmailId);
+                        if (loginCheck.statusCode!=1)
+                        {
+                            return StatusCode(200, new { statusCode = 0, request = request, statusMessage = "Invalid User" });
+                        }
+                    }
                 }
                 if (Request.Form.Files[0] != null)
                 {
                     try
                     {
-                        request.ProfileImage = SaveProfilePicture(request.EmailId, loginCheckResponse.userName);
+                        request.ProfileImage = SaveProfilePicture(request.EmailId, loginCheck.userName);
                     }
                     catch (Exception)
                     {
-                        return StatusCode(501, new { statusCode = 0, statusMessage = "Update Failed" });
+                        return StatusCode(200, new { statusCode = 0, statusMessage = "Update Failed" });
                     }
                 }
                 _uService.UpdateUserMaster(request);
             }
             catch (Exception)
             {
-                return StatusCode(501, new { statusCode = 0, statusMessage = "Update Failed" });
+                return StatusCode(200, new { statusCode = 0, statusMessage = "Update Failed" });
             }
             return StatusCode(200, new { statusCode = 1, statusMessage = "Update Successful" }); 
         }
@@ -621,6 +639,7 @@ namespace Ecommerce.Controllers
         {
             try
             {
+                string httpLead = @"http://";
                 LoginResponse loginCheckResponse = new LoginResponse();
                 loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
                 if (loginCheckResponse == null)
@@ -643,13 +662,27 @@ namespace Ecommerce.Controllers
                     {
                         isFine = false;
                     }
-                    if (isFine == false)
+                    if (isFine==false)
                     {
-                        request.countryList = _cService.GetAllCountryies();
-                        request.stateList = _cService.GetAllStates((int)request.CountryId);
-                        request.cityList = _cService.GetallCities((int)request.StateId);
-                        request.addtypeList = _cService.GetAllAddressTypes();
-                        return Ok(request);
+                        return Json(new
+                        {
+                            status = 0,
+                            message = "User Already Exists"
+                        });
+                    //if (isFine == false)
+                    //{
+                    //    request.countryList = _cService.GetAllCountryies();
+                    //    if (request.CountryId != null )
+                    //    {
+                    //        request.stateList = _cService.GetAllStates((int)request.CountryId);
+                    //    }
+                    //    if ( request.StateId != null)
+                    //    {
+                    //        request.cityList = _cService.GetallCities((int)request.StateId);
+
+                    //    }
+                    //    request.addtypeList = _cService.GetAllAddressTypes();
+                    //    return Ok(request);
                     }
                     else
                     {
@@ -658,7 +691,7 @@ namespace Ecommerce.Controllers
                         request.IsDeleted = false;
                         request.IsEmailVerified = true;
                         request.RegisteredOn = DateTime.Now;
-                        if (Request.Form.Files[0] != null)
+                        if (Request.Form.Files!=null && Request.Form.Files.Count>0 && Request.Form.Files[0] != null)
                         {
                             um.ProfileImage = SaveProfilePicture("", request.UserName);
                         }
@@ -683,11 +716,11 @@ namespace Ecommerce.Controllers
                             var ps = _nService.SendRegistrationEmail(EmailTemplateModules.RegistrationEmail,
                                request.EmailId, request.UserName, loginCheckResponse.userId);
 
-                            return Json(new { status = 1, message = result.statusMessage, Emailid = request.EmailId, UserId = result.currentId, UserName = request.UserName, Mobile = request.MobileNumber, profilePicUrl = HttpContext.Request.Host.Value + @"\UserImages\" + imagepath });// Ok(result);
+                            return Json(new { status = 1, message = result.statusMessage, Emailid = request.EmailId, UserId = result.currentId, UserName = request.UserName, Mobile = request.MobileNumber, profilePicUrl = um!=null ?um.ProfileImage!=null?um.ProfileImage:"":"" });// Ok(result);
                         }
                         if (result.statusCode == 0)
                         {
-                            return StatusCode(501, new { statusCode = 0, statusMessage = "Unable to complete registration now, please try after some time." });
+                            return StatusCode(200, new { status = 0, message = "Unable to complete registration now, please try after some time." });
                         }
                         else
                         {
@@ -700,12 +733,12 @@ namespace Ecommerce.Controllers
                 request.cityList = _cService.GetallCities((int)request.StateId);
                 request.addtypeList = _cService.GetAllAddressTypes();
                 //return Ok(request);
-                return StatusCode(200, new { statusCode = 1, request= request, statusMessage = "Update Successful" });
+                return StatusCode(200, new { status = 1, request= request, message = "Update Successful" });
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(501, new { statusCode = 0, statusMessage = "Registration Failed" });
+                return StatusCode(200, new { status = 0, Message = "Registration Failed" });
             }
         }
 
@@ -714,7 +747,7 @@ namespace Ecommerce.Controllers
             string fullPath = string.Empty;
             string contenttype= string.Empty;
             string pathToSave = string.Empty;
-                pathToSave= HttpContext.Request.Host.Value + @"\UserImages\";
+                pathToSave= HttpContext.Request.Scheme + ":\\" + HttpContext.Request.Host.Value + @"\UserImages\";
 
             try
             {
@@ -727,7 +760,7 @@ namespace Ecommerce.Controllers
                     if (file.Length > 0)
                     {
                         var fileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-                          fullPath = Path.Combine(pathToSave+@"\"+  userName + "." + contenttype);
+                          fullPath =pathToSave+  userName + "." + contenttype;
                         // var dbPath = Path.Combine(folderName, fileName);
                         if (System.IO.File.Exists(Path.Combine(Directory.GetCurrentDirectory()+ @"\wwwroot\WWWROOT\UserImages\" + userName + "." + contenttype)))
                         {
@@ -741,7 +774,7 @@ namespace Ecommerce.Controllers
                         }
                         if (!string.IsNullOrEmpty(emailId))
                         {
-                            _uService.UpdateUserMaster(new UserMasterEntity() { EmailId = emailId, ProfileImage = pathToSave });
+                            _uService.UpdateUserMaster(new UserMasterEntity() { EmailId = emailId, ProfileImage = fullPath });
 
                         }
                         return fullPath;

@@ -213,7 +213,56 @@ namespace Ecommerce.Models.BAL
             }
             return result;
         }
-        public ApiResponse<LoginResponse> LoginCheck(LoginRequest request)
+
+        public LoginResponse IsValidUser(string emailId) 
+        {
+            LoginResponse response = new LoginResponse();
+
+            try
+            {
+                var obj = (from um in context.userMasters
+                           join ut in context.userTypeMasters on um.UserTypeId equals ut.TypeId into utTemp
+                           from utype in utTemp.DefaultIfEmpty()
+                           where um.EmailId == emailId &&
+                           um.IsDeleted == false
+                           select new
+                           {
+                               um.EmailId,
+                               um.UserId,
+                               um.UserName,
+                               utype.TypeName,
+                               um.PWord,
+                               um.IsEmailVerified,
+                               um.CurrentStatus,
+                               um.ProfileImage
+                           }).FirstOrDefault();
+
+                if (obj != null)
+                {
+
+                    response.statusCode = 1;
+                    response.statusMessage = "Valid User";
+                    response.userId = obj.UserId;
+                    response.userName = obj.UserName;
+                    response.userTypeName = obj.TypeName;
+                    response.emailId = obj.EmailId;
+                    response.userImageURL = obj.ProfileImage != null ? obj.ProfileImage : "";
+                    
+                    //return response;
+                }
+
+                return  (response);
+
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Invalid User";
+                return  (response);
+            }
+
+        }
+        public ApiResponse< LoginResponse> LoginCheck(LoginRequest request)
         {
             LoginResponse response = new LoginResponse();
             try

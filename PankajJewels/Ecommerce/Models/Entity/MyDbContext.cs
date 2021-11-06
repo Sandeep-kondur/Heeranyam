@@ -78,7 +78,7 @@ namespace Ecommerce.Models.Entity
             modelBuilder.Entity<BannerType>().ToTable("BannerType");
             modelBuilder.Entity<CustomizeOrderEntity>().ToTable("CustomizeOrder");
             modelBuilder.Entity<LoginTrack>().ToTable("LoginTrack");
-            modelBuilder.Entity<LoginTrack>().ToTable("ContactUs");
+            modelBuilder.Entity<ContactUs>().ToTable("ContactUs");
             modelBuilder.Entity<DaimondsPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<PerlPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SRubyPerPrdDisplayModel>().HasNoKey();

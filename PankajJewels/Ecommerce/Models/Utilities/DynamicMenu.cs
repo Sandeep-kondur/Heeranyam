@@ -49,4 +49,6 @@ namespace Ecommerce.Models.Utilities
         public string Image { get; set; }
         public List<SubCategory> SubCategories{ get; set; }
     }
+
+    
 }

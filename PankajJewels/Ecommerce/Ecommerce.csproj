@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\WebApp\Img\**" />
+    <Content Remove="wwwroot\WebApp\Img\**" />
+    <EmbeddedResource Remove="wwwroot\WebApp\Img\**" />
+    <None Remove="wwwroot\WebApp\Img\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.10" />
@@ -24,6 +31,13 @@
     <Folder Include="wwwroot\icons\" />
     <Folder Include="wwwroot\ProductImages\" />
     <Folder Include="wwwroot\UserImages\" />
+    <Folder Include="wwwroot\WebApp\assets\img" />
+    <Folder Include="wwwroot\WebApp\assets\img\slider" />
+    <Folder Include="wwwroot\WebApp\assets\img\banner" />
+    <Folder Include="wwwroot\WebApp\assets\img\home" />
+
+
+
 
   </ItemGroup>
 

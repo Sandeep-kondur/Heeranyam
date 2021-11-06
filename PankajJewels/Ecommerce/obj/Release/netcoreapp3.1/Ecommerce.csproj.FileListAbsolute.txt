@@ -1360,3 +1360,5 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.dll
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.pdb
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.genruntimeconfig.cache
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.csproj.AssemblyReference.cache
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\Ecommerce.GeneratedMSBuildEditorConfig.editorconfig

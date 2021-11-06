@@ -69,6 +69,6 @@ namespace Ecommerce.Models.InterfacesBAL
         List<UserAddressListModel> GetAllAddress(int userId);
         AddressModel GetAddressbyId(int id);
         ProcessResponse SaveContactUs(ContactUs contactUs);
-
+        LoginResponse IsValidUser(string emailId);
     }
 }
