@@ -73,5 +73,8 @@ namespace Ecommerce.Models.InterfacesBAL
         void DeleteSRubyPerPrd(int id);
         void DeletePerlPerPrd(int id);
         void DeleteSolPerPrd(int id);
+
+
+        List<ProductListDisplay> APIGetProductsByCatId(ProductDetailsRequest request, string url);
     }
 }

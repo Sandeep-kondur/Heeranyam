@@ -262,6 +262,37 @@ namespace Ecommerce.Models.BAL
             }
 
         }
+
+        public List<Category> APIGetMenuCat(string urlhost) 
+        {
+            List<Category> categories = new List<Category>();
+            var response = (from cat in context.categoryMasterEntities
+                            select new Category {
+                                Name =cat.CategoryName,
+                                ParentMenuId = 0,
+                                Id = cat.CategoryId,
+                                Permitted = true,
+                                Image = urlhost + @"\icons\"+cat.CategoryCode+".png",
+                            }).ToList();
+            return response;
+        }
+
+        public List<SubCategory> APIGetMenuSubCat(string urlhost)
+        {
+            List<SubCategory> categories = new List<SubCategory>();
+            var response = (from cat in context.subCategoryMasters
+                            select new SubCategory
+                            {
+                                Name = cat.SubCategoryName,
+                                ParentMenuId = cat.CategoryId  ?? default(int),
+                                Id = cat.SubCategoryId,
+                                Permitted = true,
+                                Image = urlhost + @"\icons\" + cat.SubCategoryName + ".png",
+                            }).ToList();
+            return response;
+        }
+
+
         public ApiResponse< LoginResponse> LoginCheck(LoginRequest request)
         {
             LoginResponse response = new LoginResponse();

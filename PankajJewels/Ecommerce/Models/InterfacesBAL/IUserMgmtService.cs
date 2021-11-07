@@ -1,5 +1,6 @@
 ﻿using Ecommerce.Models.Entity;
 using Ecommerce.Models.ModelClasses;
+using Ecommerce.Models.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,5 +71,7 @@ namespace Ecommerce.Models.InterfacesBAL
         AddressModel GetAddressbyId(int id);
         ProcessResponse SaveContactUs(ContactUs contactUs);
         LoginResponse IsValidUser(string emailId);
+        List<SubCategory> APIGetMenuSubCat(string urlhost);
+        List<Category> APIGetMenuCat(string urlhost);
     }
 }

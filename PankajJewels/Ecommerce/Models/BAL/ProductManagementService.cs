@@ -1459,5 +1459,103 @@ namespace Ecommerce.Models.BAL
             context.Entry(d).CurrentValues.SetValues(d);
             context.SaveChanges();
         }
+
+
+        #region API Products
+      
+        public List<ProductListDisplay> APIGetProductsByCatId(ProductDetailsRequest request,string url)
+        {
+            int id = 0;
+            List<ProductListDisplay> response = new List<ProductListDisplay>();
+
+            if (request.SubCatID!=0  && request.CatID>0)
+            {
+                id = request.SubCatID;
+                try
+                {
+
+                    response = (from prd in context.productMasterEntities
+                                join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                                join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                                join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                                where prd.IsDeleted == false && prd.SubCategoryId == request.SubCatID && prd.CategoryId==request.CatID
+                                select new ProductListDisplay
+                                {
+                                    CategoryId = prd.CategoryId,
+                                    CategoryId_name = cat.CategoryName,
+                                    DetailCategoryId = prd.DetailCategoryId,
+                                    ProductId = prd.ProductId,
+                                    DetailCategoryId_name = detcat.DetailCategoryName,
+                                    DiscountApplicableId = prd.DiscountApplicableId,
+                                    DiscountMasterId = prd.DiscountApplicableId,
+                                    IsCustomizable = prd.IsCustomizable,
+                                    IsSizeApplicable = prd.IsSizeApplicable,
+                                    MaxDelivaryDays = prd.MaxDelivaryDays,
+                                    PostedBy = prd.PostedBy,
+                                    PostedOn = prd.PostedOn,
+                                    ProductDescription = prd.ProductDescription,
+                                    ProductTitle = prd.ProductTitle,
+                                    SubCategoryId = prd.SubCategoryId,
+                                    SubCategoryId_name = subcat.SubCategoryName,
+                                    ProductMainImages_List =url+ context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                    ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
+                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
+                                }).OrderByDescending(b => b.PostedOn).Take(10).
+                                ToList();
+
+
+                }
+                catch (Exception ex)
+                {
+                    _logService.LogError(ex);
+                }
+            }
+            else
+            {
+                id = request.CatID;
+                try
+                {
+
+                    response = (from prd in context.productMasterEntities
+                                join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                                join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                                join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                                where prd.IsDeleted == false && prd.CategoryId == id
+                                select new ProductListDisplay
+                                {
+                                    CategoryId = prd.CategoryId,
+                                    CategoryId_name = cat.CategoryName,
+                                    DetailCategoryId = prd.DetailCategoryId,
+                                    ProductId = prd.ProductId,
+                                    DetailCategoryId_name = detcat.DetailCategoryName,
+                                    DiscountApplicableId = prd.DiscountApplicableId,
+                                    DiscountMasterId = prd.DiscountApplicableId,
+                                    IsCustomizable = prd.IsCustomizable,
+                                    IsSizeApplicable = prd.IsSizeApplicable,
+                                    MaxDelivaryDays = prd.MaxDelivaryDays,
+                                    PostedBy = prd.PostedBy,
+                                    PostedOn = prd.PostedOn,
+                                    ProductDescription = prd.ProductDescription,
+                                    ProductTitle = prd.ProductTitle,
+                                    SubCategoryId = prd.SubCategoryId,
+                                    SubCategoryId_name = subcat.SubCategoryName,
+                                    ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                    ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
+                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
+                                }).OrderByDescending(b => b.PostedOn).Take(10).
+                                ToList();
+
+
+                }
+                catch (Exception ex)
+                {
+                    _logService.LogError(ex);
+                }
+            }
+
+            
+            return response;
+        }
+        #endregion
     }
 }

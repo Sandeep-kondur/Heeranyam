@@ -158,7 +158,7 @@ namespace Ecommerce.Controllers
             }
             catch (Exception)
             {
-                return StatusCode(501, new { statusCode = 0, statusMessage = "Request Failed" });
+                return StatusCode(200, new { statusCode = 0, statusMessage = "Request Failed" });
             }
             if (Response.StatusCode==1)
             {
@@ -170,7 +170,7 @@ namespace Ecommerce.Controllers
             }
             else
             {
-                return StatusCode(401, new { statusCode = 0, statusMessage = "Request Failed" });
+                return StatusCode(200, new { statusCode = 0, statusMessage = "Request Failed" });
             }
         }
 
@@ -182,41 +182,66 @@ namespace Ecommerce.Controllers
             var urlhost = HttpContext.Request.Scheme + ":\\" + HttpContext.Request.Host.Value; //HttpContext.Request.Host.Value; 
             Categories categories = new Categories();
             List<Category> lstCategory = new List<Category>();
+
             //string urlhost = Path.Combine(Directory.GetCurrentDirectory(), "WWWROOT\\icons");
-            lstCategory.Add(new Category()
+            var cat = _uService.APIGetMenuCat(urlhost);
+            var subcat = _uService.APIGetMenuSubCat(urlhost);
+
+            //lstCategory.Add(new Category()
+            //{
+            //    Name = "Rings",
+            //    ParentMenuId = 0,
+            //    Id = 1,
+            //    Permitted = true,
+            //    Image = urlhost + @"\icons\rings.png",
+            //    SubCategory = new List<SubCategory>(){
+            //        new SubCategory(){ Name = "Home Made Rings", ParentMenuId = 1, Id = 9, Permitted = true, Image = urlhost + @"\icons\rings.png" } ,
+            //        new SubCategory(){ Name = "Hookup Bands", ParentMenuId = 1, Id = 10, Permitted = true, Image = urlhost + @"\icons\rings.png" }
+
+            //    }
+            //});
+            foreach (var item in cat)
             {
-                Name = "Rings",
-                ParentMenuId = 0,
-                Id = 1,
-                Permitted = true,
-                Image = urlhost + @"\icons\rings.png",
-                SubCategory = new List<SubCategory>(){
-                    new SubCategory(){ Name = "Home Made Rings", ParentMenuId = 1, Id = 9, Permitted = true, Image = urlhost + @"\icons\rings.png" } ,
-                    new SubCategory(){ Name = "Hookup Bands", ParentMenuId = 1, Id = 10, Permitted = true, Image = urlhost + @"\icons\rings.png" }
+                bool time = true;
+                if (time)
+                {
+                    List<SubCategory> lstsubcat = new List<SubCategory>();
+                    foreach (var child in subcat)
+                    {
+                        if (child.ParentMenuId==item.Id)
+                        {
+                            lstsubcat.Add(new SubCategory() { 
+                            Name =child.Name,ParentMenuId=child.ParentMenuId,Id=child.Id,Image=child.Image
+                            });
+                        }
+                    }
+                    time = false;
+                    lstCategory.Add(new Category() { Name = item.Name, ParentMenuId = item.ParentMenuId, Id = item.Id, Image = item.Image 
+                    ,SubCategory=lstsubcat});
 
                 }
-            });
-            lstCategory.Add(new Category()
-            {
-                Name = "EarRings",
-                ParentMenuId = 0,
-                Id = 2,
-                Permitted = true,
-                Image = urlhost + @"\icons\earrings.png",
-                SubCategory = new List<SubCategory>(){
-                    new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 2, Id = 11, Permitted = true, Image = urlhost + @"\icons\rings.png",
-                    SubCategories= new List<SubCategory>(){
-                    new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 11, Id = 12, Permitted = true, Image = urlhost + @"\icons\rings.png"}
-                    } }
+            }
+          //  lstCategory.Add(new Category()
+          //  {
+          //      Name = "EarRings",
+          //      ParentMenuId = 0,
+          //      Id = 2,
+          //      Permitted = true,
+          //      Image = urlhost + @"\icons\earrings.png",
+          //      SubCategory = new List<SubCategory>(){
+          //          new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 2, Id = 11, Permitted = true, Image = urlhost + @"\icons\rings.png",
+          //          SubCategories= new List<SubCategory>(){
+          //          new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 11, Id = 12, Permitted = true, Image = urlhost + @"\icons\rings.png"}
+          //          } }
 
-                }
-            });
-            lstCategory.Add(new Category() { Name = "Chains", ParentMenuId = 0, Id = 4, Permitted = true, Image = urlhost + @"\icons\pendants.png" });
-            lstCategory.Add(new Category() { Name = "Bangles", ParentMenuId = 0, Id = 5, Permitted = true, Image = urlhost + @"\icons\bangles.png" });
-            lstCategory.Add(new Category() { Name = "Bracelets", ParentMenuId = 0, Id = 6, Permitted = true, Image = urlhost + @"\icons\bracelets.png" });
-            lstCategory.Add(new Category() { Name = "All Gold", ParentMenuId = 0, Id = 7, Permitted = true, Image = urlhost + @"\icons\allgold.png" });
-          //  lstCategory.Add(new Category() { Name = "Contact Us", ParentMenuId = 0, Id = 8, Permitted = true, Image = urlhost + @"\icons\contactus.png" });
-            categories.Category = lstCategory;
+          //      }
+          //  });
+          //  lstCategory.Add(new Category() { Name = "Chains", ParentMenuId = 0, Id = 4, Permitted = true, Image = urlhost + @"\icons\pendants.png" });
+          //  lstCategory.Add(new Category() { Name = "Bangles", ParentMenuId = 0, Id = 5, Permitted = true, Image = urlhost + @"\icons\bangles.png" });
+          //  lstCategory.Add(new Category() { Name = "Bracelets", ParentMenuId = 0, Id = 6, Permitted = true, Image = urlhost + @"\icons\bracelets.png" });
+          //  lstCategory.Add(new Category() { Name = "All Gold", ParentMenuId = 0, Id = 7, Permitted = true, Image = urlhost + @"\icons\allgold.png" });
+          ////  lstCategory.Add(new Category() { Name = "Contact Us", ParentMenuId = 0, Id = 8, Permitted = true, Image = urlhost + @"\icons\contactus.png" });
+          //  categories.Category = lstCategory;
 
             return Json(new { status = 1, message = "Menu", category = lstCategory });
 

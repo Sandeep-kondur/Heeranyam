@@ -273,6 +273,23 @@ namespace Ecommerce.Controllers
         }
 
         [HttpPost]
+        public IActionResult APIGetProductsByCatId(ProductDetailsRequest request) 
+        {
+            try
+            {
+                string url = HttpContext.Request.Scheme + ":\\" + HttpContext.Request.Host.Value + @"\ProductImages\";
+                  var response = _pService.APIGetProductsByCatId(request,url);
+                 
+
+                return StatusCode(200, new { status =1, message="Success", peoductDetails=response});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(200, new { status = 1, message = "Failure"});
+            }
+        }
+
+        [HttpPost]
         public IActionResult GetMyProducts(GenericRequest request)
         {
             try
