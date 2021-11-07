@@ -1539,7 +1539,7 @@ namespace Ecommerce.Models.BAL
                                     ProductTitle = prd.ProductTitle,
                                     SubCategoryId = prd.SubCategoryId,
                                     SubCategoryId_name = subcat.SubCategoryName,
-                                    ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                    ProductMainImages_List = url+context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
                                     ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
                                     SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
                                 }).OrderByDescending(b => b.PostedOn).Take(10).
