@@ -52,13 +52,28 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\AdminPanel\js\custom.js
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\AdminPanel\js\jquery.min.js
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\AdminPanel\js\materialize.min.js
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\allgold.png
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\bangles.png
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\bracelets.png
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\contactus.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\css\site.css
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\earrings.png
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\favicon.ico
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\AllJewelry.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\bangles.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\bracelets.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\chains.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\contactus.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\earrings.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Engagement Rings.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Fancy Earring.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Fancy Gold Ring.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Fancy Pendants.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\favicon.ico
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Gold Bracelet.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Handmade Ring.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Men's Ring.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\necklace.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\pendants.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Platinum Bracelets.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Religious Rings.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\rings.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Solitaires.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\icons\Women.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\js\MyScripts.js
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\js\site.js
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css
@@ -94,7 +109,6 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\lib\jquery\dist\jquery.min.js
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\lib\jquery\dist\jquery.min.map
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\lib\jquery\LICENSE.txt
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\pendants.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\06102021053451UWLB.jpg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\06102021054616WLCX.jpg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\06102021091307BKSY.jpg
@@ -199,7 +213,6 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\972021124950RGXP.jpeg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\972021124950UUZM.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\dummy.jpg
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\rings.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\UserImages\.jpg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\UserImages\djysfdg.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\UserImages\Mahipal.jpg
