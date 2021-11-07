@@ -661,7 +661,7 @@ namespace Ecommerce.Models.BAL
                     IsDeleted = b.IsDeleted,
                     BannerPage = b.BannerPage,
                     BannerId = b.BannerId,
-                    BannerSection = b.BannerSection,
+                    BannerSection =  b.BannerSection,
                     BannerTextBig = b.BannerTextBig,
                     BannerTextShort = b.BannerTextShort,
                     BannerType = b.BannerType,

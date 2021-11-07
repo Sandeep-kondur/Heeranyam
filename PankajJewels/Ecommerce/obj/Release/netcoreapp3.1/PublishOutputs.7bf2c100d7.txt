@@ -213,6 +213,7 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\972021124950RGXP.jpeg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\972021124950UUZM.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\dummy.jpg
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\EarRings_1.jpg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\UserImages\.jpg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\UserImages\djysfdg.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\UserImages\Mahipal.jpg

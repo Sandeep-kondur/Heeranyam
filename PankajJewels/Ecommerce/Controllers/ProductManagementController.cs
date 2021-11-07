@@ -273,7 +273,7 @@ namespace Ecommerce.Controllers
         }
 
         [HttpPost]
-        public IActionResult APIGetProductsByCatId(ProductDetailsRequest request) 
+        public IActionResult APIGetProductsByCatId([FromForm] ProductDetailsRequest request ) 
         {
             try
             {
