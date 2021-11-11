@@ -30,7 +30,7 @@ namespace Ecommerce.Controllers
         private readonly IOrderMgmtService _ordService;
         public HomeController(ILogger<HomeController> logger, IConfiguration config, IProductManagementService pService,
             ICommonService cService,
-            IMasterDataMgmtService mService, IUserMgmtService uService, IOtherMgmtService oService, 
+            IMasterDataMgmtService mService, IUserMgmtService uService, IOtherMgmtService oService,
             INotificationService nService,
             IOrderMgmtService ordService)
         {
@@ -64,12 +64,192 @@ namespace Ecommerce.Controllers
             myObj.newArrivals = _pService.GetLatestProducts();
             myObj.mainMenus = _cServce.GetMainMenu();
             ViewBag.CartCount = _uService.GetUserCartCount(loginCheckResponse.userId);
-           
+
             return View(myObj);
         }
 
 
         #region API End Points
+
+        [HttpPost]
+        public IActionResult APIAddToWishlist(int userId, int productId, int detailId)
+        {
+            ProcessResponse response = new ProcessResponse();
+
+            WishListEntity test = new WishListEntity();
+            test.AddedOn = DateTime.Now;
+            test.IsDeleted = false;
+            test.ProductId = productId;
+            if (detailId == 0)
+            {
+                var details = _pService.GetProductDetails(productId);
+                test.ProductDetailId = details.ProductDetails[0].ProductDetailId;
+            }
+            else
+            {
+                test.ProductDetailId = detailId;
+            }
+            test.UserId = userId;
+            response = _uService.AddToWishList(test);
+            return StatusCode(200, new { currentid = response.currentId, cartcount = response.cartcount, status = response.statusCode, message = response.statusMessage });
+        }
+
+        [HttpGet]
+        public IActionResult APIMyCart(int userid)
+        {
+            try
+            {
+                int CartCount = _uService.GetUserCartCount(userid);
+                UserCartModel myObject = new UserCartModel();
+                myObject = _uService.GetMyCart(userid);
+                decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
+                return StatusCode(200, new { status = 1, message = "Success", cartDetails = myObject,cartcount =CartCount, totalAMount=totalvalue });
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, message = "Failure" });
+
+            }
+
+        }
+        [HttpPost]
+        public IActionResult APIDeleteWishlist(int productid,int userid)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                response = _uService.DeleteWishList(productid);
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed to delete";
+            }
+            return StatusCode(200,new { status=1,Message="Success",result = response });
+        }
+
+
+        [HttpPost]
+        public IActionResult APIDeleteFromCart(int productid,int userid)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                response = _uService.DeleteFromCart(productid);
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed to delete";
+            }
+             
+            int cartCount = _uService.GetUserCartCount(userid);
+
+            return StatusCode(200,new { status = 1, Message = "Success", result = response , cartcount= cartCount});
+        }
+
+        [HttpPost]
+        public IActionResult APIAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
+        {
+            try
+            {
+                ProcessResponse response = new ProcessResponse();
+                CartDetailsModel pd = new CartDetailsModel();
+                pd.ProductId = productId;
+                pd.ProductDetailId = detailId;
+                pd.NumberOfItems = numberOfItems;
+
+                PostProductModel_Web product = _pService.GetProductDetails_Web(productId);
+                PriceBreakUpModel pm = new PriceBreakUpModel();
+                decimal goldOriginalRate = 0;
+                if (product.ProductDetails.Count > 0)
+                {
+                    if (detailId > 0)
+                    {
+                        product.ProductDetails = product.ProductDetails.Where(a => a.ProductDetailId == detailId).ToList();
+                    }
+                    else
+                    {
+                        detailId = product.ProductDetails[0].ProductDetailId;
+                    }
+                    decimal goldWeight = (decimal)product.ProductDetails[0].ProductWeight;
+                    goldOriginalRate = (decimal)product.GoldRate.Rate;
+                    decimal goldKaratPercentatge = (decimal)product.MetalMaster.Where(a => a.MasterId == product.ProductDetails[0].MetalMasterId).Select(b => b.PriceCalPercentage).FirstOrDefault();
+                    decimal goldRate = goldWeight * ((goldOriginalRate * goldKaratPercentatge) / 100);
+
+                    decimal daimondRate = 0;
+                    if (product.ProductDetails[0].DaimondsMain != null)
+                    {
+                        decimal individualPrice = 0;
+                        foreach (var v in product.ProductDetails[0].DaimondsDetail)
+                        {
+                            decimal dmPrice = (decimal)product.DiamondRate
+                                .Where(a => a.MasterId == v.DaimondTypeId).Select(b => b.PriceTag).FirstOrDefault();
+                            individualPrice += (decimal)v.TotalWaight * dmPrice;
+                            daimondRate += individualPrice;
+                        }
+                    }
+
+                    pm.DaimondRate = daimondRate;
+
+                    pm.GoldRate = goldRate;
+                    pm.GST = (decimal)product.GST[0].GSTTaxValue * goldRate / 100;
+                    pm.MakingCharges = goldRate * 10 / 100;
+                    pm.discount = (decimal)product.DiscountAmount * pm.MakingCharges / 100;
+                    pm.totalAmount = (daimondRate + goldRate + pm.MakingCharges + pm.GST) - pm.discount;
+                    pm.oldAmount = daimondRate + goldRate + pm.GST + pm.MakingCharges;
+                    product.priceBreakup = pm;
+
+                }
+                if (product.ProductDetails[0] != null)
+                {
+                    pd.MetalMasterId = product.ProductDetails[0].MetalMasterId;
+                    pd.MetalMasterId_Name = product.ProductDetails[0].MetalMasterId_Name;
+                    pd.GoldPrice = goldOriginalRate;
+                    pd.GoldRate = pm.GoldRate;
+                    pd.SizeId = (int)product.ProductDetails[0].SizeMasterId;
+                    pd.SizeName = product.ProductDetails[0].SizeMasterId_name;
+                    pd.GoldWeight = (int)product.ProductDetails[0].MetalWeight;
+                    pd.CurrentStatus = "Open";
+                    pd.DaimondPrice = pm.DaimondRate;
+                    pd.Discount = pm.discount;
+                    pd.GST = pm.GST;
+                    pd.MakingCharges = pm.MakingCharges;
+                    pd.NumberOfItems = numberOfItems;
+                    pd.OldPrice = pm.oldAmount;
+                    pd.ProductDetailId = detailId;
+                    pd.ProductId = productId;
+                    pd.ProductTitle = product.ProductTitle;
+                    pd.TotalPrice = pm.totalAmount;
+                    pd.AddedOn = DateTime.Now;
+                    response = _uService.AddToCart(pd, userId);
+                    response.cartcount = _uService.GetUserCartCount(userId);
+
+                    return StatusCode(200, new { status = response.statusCode, message = response.statusMessage,cartcount=response.cartcount });
+                }
+                else
+                {
+                    return StatusCode(200, new { status = 0, Message = "Failure" });
+                }
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, Message = "Failure" });
+            }
+
+        }
+        [HttpGet]
+        public IActionResult APIWishlist(int userid, string emailid)
+        {
+
+            int cartCount = _uService.GetUserCartCount(userid);
+            List<WishListModel> myObject = new List<WishListModel>();
+            myObject = _uService.GetMyWishList(userid);
+            return StatusCode(200, new { wishList = myObject, status = 1, Message = "Success" });
+        }
+
 
         public IActionResult APIAboutUS()
         {
@@ -154,15 +334,16 @@ namespace Ecommerce.Controllers
         {
             try
             {
-             var response=   _uService.SaveContactUs(request);
+                var response = _uService.SaveContactUs(request);
             }
             catch (Exception)
             {
                 return StatusCode(200, new { statusCode = 0, statusMessage = "Request Failed" });
             }
-            if (Response.StatusCode==1)
+            if (Response.StatusCode == 1)
             {
-                return StatusCode(200,new{
+                return StatusCode(200, new
+                {
                     status = 1,
                     message = "Success Ma",
                     notify = "Thank you " + request.Name + " for contacting us"
@@ -208,40 +389,51 @@ namespace Ecommerce.Controllers
                     List<SubCategory> lstsubcat = new List<SubCategory>();
                     foreach (var child in subcat)
                     {
-                        if (child.ParentMenuId==item.Id)
+                        if (child.ParentMenuId == item.Id)
                         {
-                            lstsubcat.Add(new SubCategory() { 
-                            Name =child.Name,ParentMenuId=child.ParentMenuId,Id=child.Id,Image=child.Image
+                            lstsubcat.Add(new SubCategory()
+                            {
+                                Name = child.Name,
+                                ParentMenuId = child.ParentMenuId,
+                                Id = child.Id,
+                                Image = child.Image
                             });
                         }
                     }
                     time = false;
-                    lstCategory.Add(new Category() { Name = item.Name, ParentMenuId = item.ParentMenuId, Id = item.Id, Image = item.Image 
-                    ,SubCategory=lstsubcat});
+                    lstCategory.Add(new Category()
+                    {
+                        Name = item.Name,
+                        ParentMenuId = item.ParentMenuId,
+                        Id = item.Id,
+                        Image = item.Image
+                    ,
+                        SubCategory = lstsubcat
+                    });
 
                 }
             }
-          //  lstCategory.Add(new Category()
-          //  {
-          //      Name = "EarRings",
-          //      ParentMenuId = 0,
-          //      Id = 2,
-          //      Permitted = true,
-          //      Image = urlhost + @"\icons\earrings.png",
-          //      SubCategory = new List<SubCategory>(){
-          //          new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 2, Id = 11, Permitted = true, Image = urlhost + @"\icons\rings.png",
-          //          SubCategories= new List<SubCategory>(){
-          //          new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 11, Id = 12, Permitted = true, Image = urlhost + @"\icons\rings.png"}
-          //          } }
+            //  lstCategory.Add(new Category()
+            //  {
+            //      Name = "EarRings",
+            //      ParentMenuId = 0,
+            //      Id = 2,
+            //      Permitted = true,
+            //      Image = urlhost + @"\icons\earrings.png",
+            //      SubCategory = new List<SubCategory>(){
+            //          new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 2, Id = 11, Permitted = true, Image = urlhost + @"\icons\rings.png",
+            //          SubCategories= new List<SubCategory>(){
+            //          new SubCategory(){ Name = "Fancy EarRings", ParentMenuId = 11, Id = 12, Permitted = true, Image = urlhost + @"\icons\rings.png"}
+            //          } }
 
-          //      }
-          //  });
-          //  lstCategory.Add(new Category() { Name = "Chains", ParentMenuId = 0, Id = 4, Permitted = true, Image = urlhost + @"\icons\pendants.png" });
-          //  lstCategory.Add(new Category() { Name = "Bangles", ParentMenuId = 0, Id = 5, Permitted = true, Image = urlhost + @"\icons\bangles.png" });
-          //  lstCategory.Add(new Category() { Name = "Bracelets", ParentMenuId = 0, Id = 6, Permitted = true, Image = urlhost + @"\icons\bracelets.png" });
-          //  lstCategory.Add(new Category() { Name = "All Gold", ParentMenuId = 0, Id = 7, Permitted = true, Image = urlhost + @"\icons\allgold.png" });
-          ////  lstCategory.Add(new Category() { Name = "Contact Us", ParentMenuId = 0, Id = 8, Permitted = true, Image = urlhost + @"\icons\contactus.png" });
-          //  categories.Category = lstCategory;
+            //      }
+            //  });
+            //  lstCategory.Add(new Category() { Name = "Chains", ParentMenuId = 0, Id = 4, Permitted = true, Image = urlhost + @"\icons\pendants.png" });
+            //  lstCategory.Add(new Category() { Name = "Bangles", ParentMenuId = 0, Id = 5, Permitted = true, Image = urlhost + @"\icons\bangles.png" });
+            //  lstCategory.Add(new Category() { Name = "Bracelets", ParentMenuId = 0, Id = 6, Permitted = true, Image = urlhost + @"\icons\bracelets.png" });
+            //  lstCategory.Add(new Category() { Name = "All Gold", ParentMenuId = 0, Id = 7, Permitted = true, Image = urlhost + @"\icons\allgold.png" });
+            ////  lstCategory.Add(new Category() { Name = "Contact Us", ParentMenuId = 0, Id = 8, Permitted = true, Image = urlhost + @"\icons\contactus.png" });
+            //  categories.Category = lstCategory;
 
             return Json(new { status = 1, message = "Menu", category = lstCategory });
 
@@ -534,7 +726,7 @@ namespace Ecommerce.Controllers
         }
 
 
-         
+
         [HttpPost]
         public IActionResult AddToCart(int userId, int productId, int detailId, int qty, int numberOfItems = 1)
         {
@@ -609,7 +801,7 @@ namespace Ecommerce.Controllers
             ViewBag.CartCount = _uService.GetUserCartCount(userId);
             response.cartcount = ViewBag.CartCount;
 
-                        RenderCart(userId);
+            RenderCart(userId);
             return Json(new { result = response });
         }
 
@@ -620,7 +812,8 @@ namespace Ecommerce.Controllers
             try
             {
                 response = _uService.DeleteFromCart(id);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 response.statusCode = 0;
                 response.statusMessage = "Failed to delete";
@@ -718,7 +911,7 @@ namespace Ecommerce.Controllers
             return View(myObject);
         }
 
-         
+
         public IActionResult CreateOrder()
         {
             LoginResponse loginCheckResponse = new LoginResponse();
@@ -764,7 +957,7 @@ namespace Ecommerce.Controllers
             myObject.orderModel = orderModel;
             return View(orderModel);
         }
-        
+
         public IActionResult CreateCODOrder()
         {
             LoginResponse loginCheckResponse = new LoginResponse();
@@ -793,89 +986,89 @@ namespace Ecommerce.Controllers
                 loginCheckResponse.userName = "NA";
             }
             ViewBag.LoggedUser = loginCheckResponse;
-             
 
-                // Create these action method
 
-                UserCartModel myObject = new UserCartModel();
-                myObject = SessionHelper.GetObjectFromJson<UserCartModel>(HttpContext.Session, "currentOrder");
-                // update cart as paid 
-                try
+            // Create these action method
+
+            UserCartModel myObject = new UserCartModel();
+            myObject = SessionHelper.GetObjectFromJson<UserCartModel>(HttpContext.Session, "currentOrder");
+            // update cart as paid 
+            try
+            {
+                if (myObject != null)
                 {
-                    if (myObject != null)
+                    //place entries in PO Master and details
+                    POMasterEntity poM = new POMasterEntity();
+                    poM.CartId = myObject.CartId;
+                    poM.CreatedOn = DateTime.Now;
+                    poM.CurrentStatus = "Unpaid";
+                    poM.InstrumentDetails = "COD";
+                    poM.IsDeleted = false;
+                    poM.OrderStatus = "Open";
+                    poM.OrderAmount = (decimal)myObject.CartDetails.Sum(a => a.TotalPrice);
+                    poM.PaidAmount = 0;
+                    poM.PaidDate = null;
+                    poM.BankCharges = 0;
+                    poM.BankTaxes = 0;
+                    poM.PaymentMethod = "COD";
+                    poM.PONumber = "PO-HJ-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + loginCheckResponse.userId.ToString() + "-" + RandomGenerator.RandomString(3, false);
+                    poM.TransactionId = "NA";
+                    poM.UserId = myObject.CartUserId;
+                    ProcessResponse pomResponse = _uService.SavePOMaster(poM);
+                    if (pomResponse.currentId > 0)
                     {
-                        //place entries in PO Master and details
-                        POMasterEntity poM = new POMasterEntity();
-                        poM.CartId = myObject.CartId;
-                        poM.CreatedOn = DateTime.Now;
-                        poM.CurrentStatus = "Unpaid";
-                        poM.InstrumentDetails = "COD";
-                        poM.IsDeleted = false;
-                        poM.OrderStatus = "Open";
-                        poM.OrderAmount = (decimal)myObject.CartDetails.Sum(a => a.TotalPrice);
-                        poM.PaidAmount = 0;
-                        poM.PaidDate = null;
-                        poM.BankCharges = 0;
-                        poM.BankTaxes = 0;
-                        poM.PaymentMethod ="COD";
-                        poM.PONumber = "PO-HJ-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + loginCheckResponse.userId.ToString() + "-" + RandomGenerator.RandomString(3, false);
-                        poM.TransactionId = "NA";
-                        poM.UserId = myObject.CartUserId;
-                        ProcessResponse pomResponse = _uService.SavePOMaster(poM);
-                        if (pomResponse.currentId > 0)
+                        poM.POId = pomResponse.currentId;
+                        foreach (var v in myObject.CartDetails)
                         {
-                            poM.POId = pomResponse.currentId;
-                            foreach (var v in myObject.CartDetails)
-                            {
-                                PODetailsEntity pde = new PODetailsEntity();
-                                CloneObjects.CopyPropertiesTo(v, pde);
-                                pde.POMasterId = pomResponse.currentId;
-                                var vRes = _uService.SavePODetails(pde);
-                            }
-
-                            // place an entry in followup 
-                            POFollowUpEntity pf = new POFollowUpEntity();
-                            pf.FollowUpBy = loginCheckResponse.userId;
-                            pf.FollowUpOn = DateTime.Now;
-                            pf.FollowUpRemarks = "Order Created on " + DateTime.Now.ToString() + ". Making process will be initiated shortly";
-                            pf.POId = pomResponse.currentId;
-                            pf.PODetialId = 0;
-                            pf.IsDeleted = false;
-                            _pService.SaveFollowUp(pf);
-
-                            // send emails 
-                            _nService.SendOrderCreatedEmail(poM);
+                            PODetailsEntity pde = new PODetailsEntity();
+                            CloneObjects.CopyPropertiesTo(v, pde);
+                            pde.POMasterId = pomResponse.currentId;
+                            var vRes = _uService.SavePODetails(pde);
                         }
 
-                        
-                        // update cart and details status
+                        // place an entry in followup 
+                        POFollowUpEntity pf = new POFollowUpEntity();
+                        pf.FollowUpBy = loginCheckResponse.userId;
+                        pf.FollowUpOn = DateTime.Now;
+                        pf.FollowUpRemarks = "Order Created on " + DateTime.Now.ToString() + ". Making process will be initiated shortly";
+                        pf.POId = pomResponse.currentId;
+                        pf.PODetialId = 0;
+                        pf.IsDeleted = false;
+                        _pService.SaveFollowUp(pf);
 
-                        CartMasterEntity cm = new CartMasterEntity();
-                        cm = _uService.GetCartById(myObject.CartId);
-                        cm.IsDeleted = true;
-                        cm.CurrentStatus = "Purchased";
-                        var t = _uService.UpdateCartMaster(cm);
-
-                        foreach (var d in myObject.CartDetails)
-                        {
-                            CartDetailsEntity cd = new CartDetailsEntity();
-                            cd = _uService.GetCartDetailById(d.CartDetailId);
-                            cd.IsDeleted = true;
-                            cd.CurrentStatus = "Purchased";
-                            var dR = _uService.UpdateCartDetails(cd);
-                        }
-
+                        // send emails 
+                        _nService.SendOrderCreatedEmail(poM);
                     }
-                }
-                catch (Exception ex)
-                {
+
+
+                    // update cart and details status
+
+                    CartMasterEntity cm = new CartMasterEntity();
+                    cm = _uService.GetCartById(myObject.CartId);
+                    cm.IsDeleted = true;
+                    cm.CurrentStatus = "Purchased";
+                    var t = _uService.UpdateCartMaster(cm);
+
+                    foreach (var d in myObject.CartDetails)
+                    {
+                        CartDetailsEntity cd = new CartDetailsEntity();
+                        cd = _uService.GetCartDetailById(d.CartDetailId);
+                        cd.IsDeleted = true;
+                        cd.CurrentStatus = "Purchased";
+                        var dR = _uService.UpdateCartDetails(cd);
+                    }
 
                 }
+            }
+            catch (Exception ex)
+            {
 
-                SessionHelper.SetObjectAsJson(HttpContext.Session, "currentOrder", null);
-               
-            
-                return View();
+            }
+
+            SessionHelper.SetObjectAsJson(HttpContext.Session, "currentOrder", null);
+
+
+            return View();
         }
         public ActionResult Complete()
         {
@@ -909,33 +1102,33 @@ namespace Ecommerce.Controllers
             rResult.id = paymentCaptured.Attributes["id"];
             ///rResult.acquirer_data.bank_transaction_id = paymentCaptured.Attributes["acquirer_data"]["bank_transaction_id"];
             rResult.amount = paymentCaptured.Attributes["amount"];
-            rResult.amount_refunded= paymentCaptured.Attributes["amount_refunded"];
+            rResult.amount_refunded = paymentCaptured.Attributes["amount_refunded"];
             rResult.bank = paymentCaptured.Attributes["bank"];
-            rResult.captured= paymentCaptured.Attributes["captured"];
-            rResult.card_id= paymentCaptured.Attributes["card_id"];
-            rResult.contact= paymentCaptured.Attributes["contact"];
-            rResult.created_at= paymentCaptured.Attributes["created_at"];
-            rResult.currency= paymentCaptured.Attributes["currency"];
-            rResult.description= paymentCaptured.Attributes["description"];
-            rResult.email= paymentCaptured.Attributes["email"];
-            rResult.entity= paymentCaptured.Attributes["entity"];
-            rResult.error_code= paymentCaptured.Attributes["error_code"]; 
-            rResult.error_description= paymentCaptured.Attributes["error_description"];
-            rResult.error_reason= paymentCaptured.Attributes["error_reason"];
-            rResult.error_source= paymentCaptured.Attributes["error_source"];
-            rResult.error_step= paymentCaptured.Attributes["error_step"]; 
-            rResult.fee= paymentCaptured.Attributes["fee"];
+            rResult.captured = paymentCaptured.Attributes["captured"];
+            rResult.card_id = paymentCaptured.Attributes["card_id"];
+            rResult.contact = paymentCaptured.Attributes["contact"];
+            rResult.created_at = paymentCaptured.Attributes["created_at"];
+            rResult.currency = paymentCaptured.Attributes["currency"];
+            rResult.description = paymentCaptured.Attributes["description"];
+            rResult.email = paymentCaptured.Attributes["email"];
+            rResult.entity = paymentCaptured.Attributes["entity"];
+            rResult.error_code = paymentCaptured.Attributes["error_code"];
+            rResult.error_description = paymentCaptured.Attributes["error_description"];
+            rResult.error_reason = paymentCaptured.Attributes["error_reason"];
+            rResult.error_source = paymentCaptured.Attributes["error_source"];
+            rResult.error_step = paymentCaptured.Attributes["error_step"];
+            rResult.fee = paymentCaptured.Attributes["fee"];
             rResult.id = paymentCaptured.Attributes["id"];
-            rResult.international= paymentCaptured.Attributes["international"];
-            rResult.invoice_id= paymentCaptured.Attributes["invoice_id"];
-            rResult.method= paymentCaptured.Attributes["method"];
-           // rResult.notes.address= paymentCaptured.Attributes["notes"]["address"];
-            rResult.order_id= paymentCaptured.Attributes["order_id"];
-            rResult.refund_status= paymentCaptured.Attributes["refund_status"];
-            rResult.status= paymentCaptured.Attributes["status"];
-            rResult.tax= paymentCaptured.Attributes["tax"];
-            rResult.vpa= paymentCaptured.Attributes["vpa"];
-            rResult.wallet= paymentCaptured.Attributes["wallet"];
+            rResult.international = paymentCaptured.Attributes["international"];
+            rResult.invoice_id = paymentCaptured.Attributes["invoice_id"];
+            rResult.method = paymentCaptured.Attributes["method"];
+            // rResult.notes.address= paymentCaptured.Attributes["notes"]["address"];
+            rResult.order_id = paymentCaptured.Attributes["order_id"];
+            rResult.refund_status = paymentCaptured.Attributes["refund_status"];
+            rResult.status = paymentCaptured.Attributes["status"];
+            rResult.tax = paymentCaptured.Attributes["tax"];
+            rResult.vpa = paymentCaptured.Attributes["vpa"];
+            rResult.wallet = paymentCaptured.Attributes["wallet"];
 
 
             // Check payment made successfully
@@ -943,7 +1136,7 @@ namespace Ecommerce.Controllers
             if (paymentCaptured.Attributes["status"] == "captured")
             {
                 // Create these action method
-               
+
                 UserCartModel myObject = new UserCartModel();
                 myObject = SessionHelper.GetObjectFromJson<UserCartModel>(HttpContext.Session, "currentOrder");
                 // update cart as paid 
@@ -959,11 +1152,11 @@ namespace Ecommerce.Controllers
                         poM.InstrumentDetails = rResult.order_id;
                         poM.IsDeleted = false;
                         poM.OrderStatus = "Open";
-                        poM.OrderAmount = (decimal) myObject.CartDetails.Sum(a => a.TotalPrice);
+                        poM.OrderAmount = (decimal)myObject.CartDetails.Sum(a => a.TotalPrice);
                         poM.PaidAmount = rResult.amount / 100;
                         poM.PaidDate = DateTime.Now;
                         poM.BankCharges = rResult.fee / 100;
-                        poM.BankTaxes = rResult.tax / 100; 
+                        poM.BankTaxes = rResult.tax / 100;
                         poM.PaymentMethod = rResult.method;
                         poM.PONumber = "PO-HJ-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + loginCheckResponse.userId.ToString() + "-" + RandomGenerator.RandomString(3, false);
                         poM.TransactionId = rResult.id;
@@ -1029,11 +1222,11 @@ namespace Ecommerce.Controllers
 
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
 
                 }
-                
+
                 SessionHelper.SetObjectAsJson(HttpContext.Session, "currentOrder", null);
                 return RedirectToAction("PaymentSuccess");
             }
@@ -1055,9 +1248,9 @@ namespace Ecommerce.Controllers
             }
             ViewBag.LoggedUser = loginCheckResponse;
             ViewBag.CartCount = _uService.GetUserCartCount(loginCheckResponse.userId);
-            
 
-            
+
+
 
             return View();
         }
@@ -1089,8 +1282,8 @@ namespace Ecommerce.Controllers
             ViewBag.LoggedUser = loginCheckResponse;
             HomeProductsModels myObj = new HomeProductsModels();
 
-          
-          
+
+
             ViewBag.CartCount = _uService.GetUserCartCount(loginCheckResponse.userId);
 
             return View(myObj);
@@ -1158,7 +1351,7 @@ namespace Ecommerce.Controllers
             test.AddedOn = DateTime.Now;
             test.IsDeleted = false;
             test.ProductId = productId;
-            if(detailId == 0)
+            if (detailId == 0)
             {
                 var details = _pService.GetProductDetails(productId);
                 test.ProductDetailId = details.ProductDetails[0].ProductDetailId;

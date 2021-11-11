@@ -178,6 +178,11 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\09092021072421MEJS.jpg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\09092021072421MQKV.jpeg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\09092021072421RKJO.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\10112021162318WEKF.jpg
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\10112021180530TPSN.jpg
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\10112021184011IAGN.jpg
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\10112021184045EYSD.png
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\10112021184118ACLM.png
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\19092021092221HCJX.jpg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\19092021094409LXVM.jpeg
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Release\netcoreapp3.1\PubTmp\Out\wwwroot\ProductImages\19092021094409MUXI.jpg

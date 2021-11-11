@@ -733,7 +733,7 @@ namespace Ecommerce.Controllers
                 request.cityList = _cService.GetallCities((int)request.StateId);
                 request.addtypeList = _cService.GetAllAddressTypes();
                 //return Ok(request);
-                return StatusCode(200, new { status = 1, request= request, message = "Update Successful" });
+                return StatusCode(200, new { status = 1, request= request, message = "Registration Success" });
 
             }
             catch (Exception ex)

@@ -272,6 +272,20 @@ namespace Ecommerce.Controllers
             }
         }
 
+
+        [HttpGet]
+        public IActionResult APIGetProductDetails(int request)
+        {
+            try
+            {
+                var productDetails = Transform.ConvertResultToApiResonse(_pService.GetProductDetails(request));
+                return StatusCode(200, new { ProductDetails= productDetails, Message="Success" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(200, new { status=0, message="Failure"});
+            }
+        }
         [HttpPost]
         public IActionResult APIGetProductsByCatId([FromForm] ProductDetailsRequest request ) 
         {
@@ -281,7 +295,7 @@ namespace Ecommerce.Controllers
                   var response = _pService.APIGetProductsByCatId(request,url);
                  
 
-                return StatusCode(200, new { status =1, message="Success", peoductDetails=response});
+                return StatusCode(200, new { status =1, message="Success", productDetails=response});
             }
             catch (Exception ex)
             {
