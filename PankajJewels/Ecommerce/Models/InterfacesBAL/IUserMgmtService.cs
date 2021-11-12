@@ -55,7 +55,8 @@ namespace Ecommerce.Models.InterfacesBAL
 
         ProcessResponse AddToCart(CartDetailsModel requst, int userId);
         ProcessResponse DeleteFromCart(int detId);
-
+        ProcessResponse APIDeleteFromCart(int userid, int productid);
+        ProcessResponse APIDecrementFromCart(int userid, int productid);
         ProcessResponse UpdateCart(CartDetailsModel request);
 
         UserCartModel GetMyCart(int userId);
@@ -73,5 +74,6 @@ namespace Ecommerce.Models.InterfacesBAL
         LoginResponse IsValidUser(string emailId);
         List<SubCategory> APIGetMenuSubCat(string urlhost);
         List<Category> APIGetMenuCat(string urlhost);
+        CartDetailsEntity IsProdcutInCart(int userid, int productid);
     }
 }

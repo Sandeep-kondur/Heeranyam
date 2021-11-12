@@ -278,8 +278,8 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                var productDetails = Transform.ConvertResultToApiResonse(_pService.GetProductDetails(request));
-                return StatusCode(200, new { ProductDetails= productDetails, Message="Success" });
+                var product = _pService.GetProductDetails(request);
+                return StatusCode(200, new { status=1, product, Message="Success" ,inwishList=1,rating=4});
             }
             catch (Exception ex)
             {
@@ -291,7 +291,7 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                string url = HttpContext.Request.Scheme + ":\\" + HttpContext.Request.Host.Value + @"\ProductImages\";
+                string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
                   var response = _pService.APIGetProductsByCatId(request,url);
                  
 

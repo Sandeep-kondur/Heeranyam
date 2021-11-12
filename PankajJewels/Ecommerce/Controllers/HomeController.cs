@@ -103,7 +103,7 @@ namespace Ecommerce.Controllers
                 UserCartModel myObject = new UserCartModel();
                 myObject = _uService.GetMyCart(userid);
                 decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
-                return StatusCode(200, new { status = 1, message = "Success", cartDetails = myObject,cartcount =CartCount, totalAMount=totalvalue });
+                return StatusCode(200, new { status = 1, message = "Success", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue });
             }
             catch (Exception)
             {
@@ -114,7 +114,7 @@ namespace Ecommerce.Controllers
 
         }
         [HttpPost]
-        public IActionResult APIDeleteWishlist(int productid,int userid)
+        public IActionResult APIDeleteWishlist(int productid, int userid)
         {
             ProcessResponse response = new ProcessResponse();
             try
@@ -126,34 +126,37 @@ namespace Ecommerce.Controllers
                 response.statusCode = 0;
                 response.statusMessage = "Failed to delete";
             }
-            return StatusCode(200,new { status=1,Message="Success",result = response });
+            return StatusCode(200, new { status = 1, Message = "Success", result = response });
         }
 
 
         [HttpPost]
-        public IActionResult APIDeleteFromCart(int productid,int userid)
+        public IActionResult APIDeleteFromCart(int productid, int userid)
         {
             ProcessResponse response = new ProcessResponse();
             try
             {
-                response = _uService.DeleteFromCart(productid);
+                response = _uService.APIDeleteFromCart(userid,productid);
             }
             catch (Exception ex)
             {
                 response.statusCode = 0;
                 response.statusMessage = "Failed to delete";
             }
-             
+
             int cartCount = _uService.GetUserCartCount(userid);
 
-            return StatusCode(200,new { status = 1, Message = "Success", result = response , cartcount= cartCount});
+            return StatusCode(200, new { status = 1, Message = "Success", result = response, cartcount = cartCount });
         }
 
+
         [HttpPost]
-        public IActionResult APIAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
+        public IActionResult APIProductIncrementAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
         {
             try
             {
+                UserCartModel myObject = new UserCartModel();
+                myObject = _uService.GetMyCart(userId);
                 ProcessResponse response = new ProcessResponse();
                 CartDetailsModel pd = new CartDetailsModel();
                 pd.ProductId = productId;
@@ -226,11 +229,388 @@ namespace Ecommerce.Controllers
                     response = _uService.AddToCart(pd, userId);
                     response.cartcount = _uService.GetUserCartCount(userId);
 
-                    return StatusCode(200, new { status = response.statusCode, message = response.statusMessage,cartcount=response.cartcount });
+                    return StatusCode(200, new { status = response.statusCode, message = response.statusMessage, cartcount = response.cartcount });
                 }
                 else
                 {
                     return StatusCode(200, new { status = 0, Message = "Failure" });
+                }
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, Message = "Failure" });
+            }
+
+        }
+
+
+        [HttpPost]
+        public IActionResult APIDecrementFromCart(int productid, int userid)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                response = _uService.APIDecrementFromCart(userid,productid);
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed to delete";
+            }
+
+            int cartCount = _uService.GetUserCartCount(userid);
+
+            return StatusCode(200, new { status = 1, Message = "Success", result = response, cartcount = cartCount });
+        }
+        [HttpPost]
+        public IActionResult APIIncrementAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
+        {
+            try
+            {
+                ProcessResponse response = new ProcessResponse();
+                CartDetailsEntity cartdetails = _uService.IsProdcutInCart(userId, productId);
+                if (cartdetails != null)
+                {
+                    // numberOfItems = cartdetails.NumberOfItems!=null?numberOfItems+cartdetails.NumberOfItems.GetValueOrDefault():numberOfItems;// : numberOfItems;
+                    CartDetailsModel pd = new CartDetailsModel();
+                    pd.ProductId = productId;
+                    pd.ProductDetailId = detailId;
+                    pd.NumberOfItems = numberOfItems;
+
+                    PostProductModel_Web product = _pService.GetProductDetails_Web(productId);
+                    PriceBreakUpModel pm = new PriceBreakUpModel();
+                    decimal goldOriginalRate = 0;
+                    if (product.ProductDetails.Count > 0)
+                    {
+                        if (detailId > 0)
+                        {
+                            product.ProductDetails = product.ProductDetails.Where(a => a.ProductDetailId == detailId).ToList();
+                        }
+                        else
+                        {
+                            detailId = product.ProductDetails[0].ProductDetailId;
+                        }
+                        decimal goldWeight = (decimal)product.ProductDetails[0].ProductWeight;
+                        goldOriginalRate = (decimal)product.GoldRate.Rate;
+                        decimal goldKaratPercentatge = (decimal)product.MetalMaster.Where(a => a.MasterId == product.ProductDetails[0].MetalMasterId).Select(b => b.PriceCalPercentage).FirstOrDefault();
+                        decimal goldRate = goldWeight * ((goldOriginalRate * goldKaratPercentatge) / 100);
+
+                        decimal daimondRate = 0;
+                        if (product.ProductDetails[0].DaimondsMain != null)
+                        {
+                            decimal individualPrice = 0;
+                            foreach (var v in product.ProductDetails[0].DaimondsDetail)
+                            {
+                                decimal dmPrice = (decimal)product.DiamondRate
+                                    .Where(a => a.MasterId == v.DaimondTypeId).Select(b => b.PriceTag).FirstOrDefault();
+                                individualPrice += (decimal)v.TotalWaight * dmPrice;
+                                daimondRate += individualPrice;
+                            }
+                        }
+
+                        pm.DaimondRate = daimondRate;
+
+                        pm.GoldRate = goldRate;
+                        pm.GST = (decimal)product.GST[0].GSTTaxValue * goldRate / 100;
+                        pm.MakingCharges = goldRate * 10 / 100;
+                        pm.discount = (decimal)product.DiscountAmount * pm.MakingCharges / 100;
+                        pm.totalAmount = (daimondRate + goldRate + pm.MakingCharges + pm.GST) - pm.discount;
+                        pm.oldAmount = daimondRate + goldRate + pm.GST + pm.MakingCharges;
+                        product.priceBreakup = pm;
+
+                    }
+                    if (product.ProductDetails[0] != null)
+                    {
+                        pd.MetalMasterId = product.ProductDetails[0].MetalMasterId;
+                        pd.MetalMasterId_Name = product.ProductDetails[0].MetalMasterId_Name;
+                        pd.GoldPrice = goldOriginalRate;
+                        pd.GoldRate = pm.GoldRate;
+                        pd.SizeId = (int)product.ProductDetails[0].SizeMasterId;
+                        pd.SizeName = product.ProductDetails[0].SizeMasterId_name;
+                        pd.GoldWeight = (int)product.ProductDetails[0].MetalWeight;
+                        pd.CurrentStatus = "Open";
+                        pd.DaimondPrice = pm.DaimondRate;
+                        pd.Discount = pm.discount;
+                        pd.GST = pm.GST;
+                        pd.MakingCharges = pm.MakingCharges;
+                        pd.NumberOfItems = numberOfItems;
+                        pd.OldPrice = numberOfItems * pm.oldAmount;
+                        pd.ProductDetailId = detailId;
+                        pd.ProductId = productId;
+                        pd.ProductTitle = product.ProductTitle;
+                        pd.TotalPrice = numberOfItems * pm.totalAmount;
+                        pd.AddedOn = DateTime.Now;
+                        response = _uService.AddToCart(pd, userId);
+                        response.cartcount = _uService.GetUserCartCount(userId);
+
+                        return StatusCode(200, new { status = response.statusCode, message = response.statusMessage, cartcount = response.cartcount });
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, Message = "Failure" });
+                    }
+                }
+                else
+                {
+
+
+                    CartDetailsModel pd = new CartDetailsModel();
+                    pd.ProductId = productId;
+                    pd.ProductDetailId = detailId;
+                    pd.NumberOfItems = numberOfItems;
+
+                    PostProductModel_Web product = _pService.GetProductDetails_Web(productId);
+                    PriceBreakUpModel pm = new PriceBreakUpModel();
+                    decimal goldOriginalRate = 0;
+                    if (product.ProductDetails.Count > 0)
+                    {
+                        if (detailId > 0)
+                        {
+                            product.ProductDetails = product.ProductDetails.Where(a => a.ProductDetailId == detailId).ToList();
+                        }
+                        else
+                        {
+                            detailId = product.ProductDetails[0].ProductDetailId;
+                        }
+                        decimal goldWeight = (decimal)product.ProductDetails[0].ProductWeight;
+                        goldOriginalRate = (decimal)product.GoldRate.Rate;
+                        decimal goldKaratPercentatge = (decimal)product.MetalMaster.Where(a => a.MasterId == product.ProductDetails[0].MetalMasterId).Select(b => b.PriceCalPercentage).FirstOrDefault();
+                        decimal goldRate = goldWeight * ((goldOriginalRate * goldKaratPercentatge) / 100);
+
+                        decimal daimondRate = 0;
+                        if (product.ProductDetails[0].DaimondsMain != null)
+                        {
+                            decimal individualPrice = 0;
+                            foreach (var v in product.ProductDetails[0].DaimondsDetail)
+                            {
+                                decimal dmPrice = (decimal)product.DiamondRate
+                                    .Where(a => a.MasterId == v.DaimondTypeId).Select(b => b.PriceTag).FirstOrDefault();
+                                individualPrice += (decimal)v.TotalWaight * dmPrice;
+                                daimondRate += individualPrice;
+                            }
+                        }
+
+                        pm.DaimondRate = daimondRate;
+
+                        pm.GoldRate = goldRate;
+                        pm.GST = (decimal)product.GST[0].GSTTaxValue * goldRate / 100;
+                        pm.MakingCharges = goldRate * 10 / 100;
+                        pm.discount = (decimal)product.DiscountAmount * pm.MakingCharges / 100;
+                        pm.totalAmount = (daimondRate + goldRate + pm.MakingCharges + pm.GST) - pm.discount;
+                        pm.oldAmount = daimondRate + goldRate + pm.GST + pm.MakingCharges;
+                        product.priceBreakup = pm;
+
+                    }
+                    if (product.ProductDetails[0] != null)
+                    {
+                        pd.MetalMasterId = product.ProductDetails[0].MetalMasterId;
+                        pd.MetalMasterId_Name = product.ProductDetails[0].MetalMasterId_Name;
+                        pd.GoldPrice = goldOriginalRate;
+                        pd.GoldRate = pm.GoldRate;
+                        pd.SizeId = (int)product.ProductDetails[0].SizeMasterId;
+                        pd.SizeName = product.ProductDetails[0].SizeMasterId_name;
+                        pd.GoldWeight = (int)product.ProductDetails[0].MetalWeight;
+                        pd.CurrentStatus = "Open";
+                        pd.DaimondPrice = pm.DaimondRate;
+                        pd.Discount = pm.discount;
+                        pd.GST = pm.GST;
+                        pd.MakingCharges = pm.MakingCharges;
+                        pd.NumberOfItems = numberOfItems;
+                        pd.OldPrice = numberOfItems * pm.oldAmount;
+                        pd.ProductDetailId = detailId;
+                        pd.ProductId = productId;
+                        pd.ProductTitle = product.ProductTitle;
+                        pd.TotalPrice = numberOfItems * pm.totalAmount;
+                        pd.AddedOn = DateTime.Now;
+                        response = _uService.AddToCart(pd, userId);
+                        response.cartcount = _uService.GetUserCartCount(userId);
+
+                        return StatusCode(200, new { status = response.statusCode, message = response.statusMessage, cartcount = response.cartcount });
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, Message = "Failure" });
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, Message = "Failure" });
+            }
+
+        }
+
+        [HttpPost]
+        public IActionResult APIAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
+        {
+            try
+            {
+                ProcessResponse response = new ProcessResponse();
+                CartDetailsEntity cartdetails = _uService.IsProdcutInCart(userId, productId);
+                if (cartdetails != null)
+                {
+                    // numberOfItems = cartdetails.NumberOfItems!=null?numberOfItems+cartdetails.NumberOfItems.GetValueOrDefault():numberOfItems;// : numberOfItems;
+                    CartDetailsModel pd = new CartDetailsModel();
+                    pd.ProductId = productId;
+                    pd.ProductDetailId = detailId;
+                    pd.NumberOfItems = numberOfItems;
+
+                    PostProductModel_Web product = _pService.GetProductDetails_Web(productId);
+                    PriceBreakUpModel pm = new PriceBreakUpModel();
+                    decimal goldOriginalRate = 0;
+                    if (product.ProductDetails.Count > 0)
+                    {
+                        if (detailId > 0)
+                        {
+                            product.ProductDetails = product.ProductDetails.Where(a => a.ProductDetailId == detailId).ToList();
+                        }
+                        else
+                        {
+                            detailId = product.ProductDetails[0].ProductDetailId;
+                        }
+                        decimal goldWeight = (decimal)product.ProductDetails[0].ProductWeight;
+                        goldOriginalRate = (decimal)product.GoldRate.Rate;
+                        decimal goldKaratPercentatge = (decimal)product.MetalMaster.Where(a => a.MasterId == product.ProductDetails[0].MetalMasterId).Select(b => b.PriceCalPercentage).FirstOrDefault();
+                        decimal goldRate = goldWeight * ((goldOriginalRate * goldKaratPercentatge) / 100);
+
+                        decimal daimondRate = 0;
+                        if (product.ProductDetails[0].DaimondsMain != null)
+                        {
+                            decimal individualPrice = 0;
+                            foreach (var v in product.ProductDetails[0].DaimondsDetail)
+                            {
+                                decimal dmPrice = (decimal)product.DiamondRate
+                                    .Where(a => a.MasterId == v.DaimondTypeId).Select(b => b.PriceTag).FirstOrDefault();
+                                individualPrice += (decimal)v.TotalWaight * dmPrice;
+                                daimondRate += individualPrice;
+                            }
+                        }
+
+                        pm.DaimondRate = daimondRate;
+
+                        pm.GoldRate = goldRate;
+                        pm.GST = (decimal)product.GST[0].GSTTaxValue * goldRate / 100;
+                        pm.MakingCharges = goldRate * 10 / 100;
+                        pm.discount = (decimal)product.DiscountAmount * pm.MakingCharges / 100;
+                        pm.totalAmount = (daimondRate + goldRate + pm.MakingCharges + pm.GST) - pm.discount;
+                        pm.oldAmount = daimondRate + goldRate + pm.GST + pm.MakingCharges;
+                        product.priceBreakup = pm;
+
+                    }
+                    if (product.ProductDetails[0] != null)
+                    {
+                        pd.MetalMasterId = product.ProductDetails[0].MetalMasterId;
+                        pd.MetalMasterId_Name = product.ProductDetails[0].MetalMasterId_Name;
+                        pd.GoldPrice = goldOriginalRate;
+                        pd.GoldRate = pm.GoldRate;
+                        pd.SizeId = (int)product.ProductDetails[0].SizeMasterId;
+                        pd.SizeName = product.ProductDetails[0].SizeMasterId_name;
+                        pd.GoldWeight = (int)product.ProductDetails[0].MetalWeight;
+                        pd.CurrentStatus = "Open";
+                        pd.DaimondPrice = pm.DaimondRate;
+                        pd.Discount = pm.discount;
+                        pd.GST = pm.GST;
+                        pd.MakingCharges = pm.MakingCharges;
+                        pd.NumberOfItems = numberOfItems;
+                        pd.OldPrice = numberOfItems * pm.oldAmount;
+                        pd.ProductDetailId = detailId;
+                        pd.ProductId = productId;
+                        pd.ProductTitle = product.ProductTitle;
+                        pd.TotalPrice = numberOfItems * pm.totalAmount;
+                        pd.AddedOn = DateTime.Now;
+                        response = _uService.AddToCart(pd, userId);
+                        response.cartcount = _uService.GetUserCartCount(userId);
+
+                        return StatusCode(200, new { status = response.statusCode, message = response.statusMessage, cartcount = response.cartcount });
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, Message = "Failure" });
+                    }
+                }
+                else
+                {
+
+
+                    CartDetailsModel pd = new CartDetailsModel();
+                    pd.ProductId = productId;
+                    pd.ProductDetailId = detailId;
+                    pd.NumberOfItems = numberOfItems;
+
+                    PostProductModel_Web product = _pService.GetProductDetails_Web(productId);
+                    PriceBreakUpModel pm = new PriceBreakUpModel();
+                    decimal goldOriginalRate = 0;
+                    if (product.ProductDetails.Count > 0)
+                    {
+                        if (detailId > 0)
+                        {
+                            product.ProductDetails = product.ProductDetails.Where(a => a.ProductDetailId == detailId).ToList();
+                        }
+                        else
+                        {
+                            detailId = product.ProductDetails[0].ProductDetailId;
+                        }
+                        decimal goldWeight = (decimal)product.ProductDetails[0].ProductWeight;
+                        goldOriginalRate = (decimal)product.GoldRate.Rate;
+                        decimal goldKaratPercentatge = (decimal)product.MetalMaster.Where(a => a.MasterId == product.ProductDetails[0].MetalMasterId).Select(b => b.PriceCalPercentage).FirstOrDefault();
+                        decimal goldRate = goldWeight * ((goldOriginalRate * goldKaratPercentatge) / 100);
+
+                        decimal daimondRate = 0;
+                        if (product.ProductDetails[0].DaimondsMain != null)
+                        {
+                            decimal individualPrice = 0;
+                            foreach (var v in product.ProductDetails[0].DaimondsDetail)
+                            {
+                                decimal dmPrice = (decimal)product.DiamondRate
+                                    .Where(a => a.MasterId == v.DaimondTypeId).Select(b => b.PriceTag).FirstOrDefault();
+                                individualPrice += (decimal)v.TotalWaight * dmPrice;
+                                daimondRate += individualPrice;
+                            }
+                        }
+
+                        pm.DaimondRate = daimondRate;
+
+                        pm.GoldRate = goldRate;
+                        pm.GST = (decimal)product.GST[0].GSTTaxValue * goldRate / 100;
+                        pm.MakingCharges = goldRate * 10 / 100;
+                        pm.discount = (decimal)product.DiscountAmount * pm.MakingCharges / 100;
+                        pm.totalAmount = (daimondRate + goldRate + pm.MakingCharges + pm.GST) - pm.discount;
+                        pm.oldAmount = daimondRate + goldRate + pm.GST + pm.MakingCharges;
+                        product.priceBreakup = pm;
+
+                    }
+                    if (product.ProductDetails[0] != null)
+                    {
+                        pd.MetalMasterId = product.ProductDetails[0].MetalMasterId;
+                        pd.MetalMasterId_Name = product.ProductDetails[0].MetalMasterId_Name;
+                        pd.GoldPrice = goldOriginalRate;
+                        pd.GoldRate = pm.GoldRate;
+                        pd.SizeId = (int)product.ProductDetails[0].SizeMasterId;
+                        pd.SizeName = product.ProductDetails[0].SizeMasterId_name;
+                        pd.GoldWeight = (int)product.ProductDetails[0].MetalWeight;
+                        pd.CurrentStatus = "Open";
+                        pd.DaimondPrice = pm.DaimondRate;
+                        pd.Discount = pm.discount;
+                        pd.GST = pm.GST;
+                        pd.MakingCharges = pm.MakingCharges;
+                        pd.NumberOfItems = numberOfItems;
+                        pd.OldPrice = numberOfItems * pm.oldAmount;
+                        pd.ProductDetailId = detailId;
+                        pd.ProductId = productId;
+                        pd.ProductTitle = product.ProductTitle;
+                        pd.TotalPrice = numberOfItems * pm.totalAmount;
+                        pd.AddedOn = DateTime.Now;
+                        response = _uService.AddToCart(pd, userId);
+                        response.cartcount = _uService.GetUserCartCount(userId);
+
+                        return StatusCode(200, new { status = response.statusCode, message = response.statusMessage, cartcount = response.cartcount });
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, Message = "Failure" });
+                    }
                 }
             }
             catch (Exception)

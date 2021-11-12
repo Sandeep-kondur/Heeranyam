@@ -525,6 +525,10 @@ namespace Ecommerce.Controllers
                         {
                             SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
                             _uService.UpdateUserMaster(new UserMasterEntity() { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.deviceID, EmailId = request.emailid });
+                            if (!string.IsNullOrEmpty(loginCheck.userImageURL) &&!loginCheck.userImageURL.Contains(Request.Host.Value))
+                            {
+                                loginCheck.userImageURL = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/UserImages/" + loginCheck.userImageURL;
+                            }
                             return StatusCode(200, new { statusCode = 1, UserDetails =loginCheck,statusMessage = "Login Success" });
                         }
                         else
@@ -639,7 +643,7 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                string httpLead = @"http://";
+                string httpLead = @"http:\\";
                 LoginResponse loginCheckResponse = new LoginResponse();
                 loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
                 if (loginCheckResponse == null)
@@ -747,7 +751,7 @@ namespace Ecommerce.Controllers
             string fullPath = string.Empty;
             string contenttype= string.Empty;
             string pathToSave = string.Empty;
-                pathToSave= HttpContext.Request.Scheme + ":\\" + HttpContext.Request.Host.Value + @"\UserImages\";
+                pathToSave= HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/UserImages/";
 
             try
             {

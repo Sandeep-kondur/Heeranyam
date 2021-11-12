@@ -312,8 +312,7 @@ namespace Ecommerce.Models.BAL
                                um.PWord,
                                um.IsEmailVerified,
                                um.CurrentStatus,
-                               um.ProfileImage
-                           }).FirstOrDefault();
+                               um.ProfileImage                           }).FirstOrDefault();
 
                 if (obj == null)
                 {
@@ -651,14 +650,78 @@ namespace Ecommerce.Models.BAL
             else
             {
                 int currentId = cart.CartId;
-                int itemCount = context.cartDetailsEntities.Where(a => a.CartId == currentId && a.IsDeleted == false && a.CurrentStatus == "Open").Count();
+                int itemCount = context.cartDetailsEntities.Where(a => a.CartId == currentId && a.IsDeleted == false && a.CurrentStatus == "Open").Count();//.Sum(i => i.NumberOfItems.GetValueOrDefault());//
                 totalItems = itemCount;
             }
 
             return totalItems;
         }
 
-        public ProcessResponse AddToCart(CartDetailsModel requst, int userId)
+        public ProcessResponse AddToCart(CartDetailsModel requst, int userId) 
+        {
+
+            ProcessResponse response = new ProcessResponse();
+
+            CartDetailsEntity cartDetails = (from cmaster in context.cartMasterEntities
+                                             join cmd in context.cartDetailsEntities on cmaster.CartId equals cmd.CartId
+                                             where cmaster.CartUserId == userId && cmaster.CurrentStatus == "Open" && cmaster.IsDeleted == false && cmd.ProductId == requst.ProductId && cmd.IsDeleted== false 
+                                             select cmd).FirstOrDefault();
+            CartMasterEntity cmcheck = context.cartMasterEntities.Where(a => a.CartUserId == userId && a.CurrentStatus == "Open" && a.IsDeleted == false).FirstOrDefault();
+            if (cmcheck != null   ) 
+            {
+                if (cartDetails != null && cartDetails.CurrentStatus.ToUpper()!="DELETED")
+                {
+                    decimal? totalpriceforoneitem = cartDetails.TotalPrice.GetValueOrDefault()/ cartDetails.NumberOfItems;
+                    decimal? oldpriceforoneitem = cartDetails.OldPrice.GetValueOrDefault() / cartDetails.NumberOfItems;
+
+                    cartDetails.NumberOfItems = requst.NumberOfItems+cartDetails.NumberOfItems;
+                    cartDetails.TotalPrice = cartDetails.NumberOfItems * totalpriceforoneitem;
+                    cartDetails.OldPrice = cartDetails.NumberOfItems * oldpriceforoneitem;
+                    context.SaveChanges();
+
+                    response.statusCode = 1;
+                    response.statusMessage = "Success";
+                }
+                else
+                {
+                    int currentId = cmcheck.CartId;
+                    requst.CartId = currentId;
+                    requst.IsDeleted = false;
+                    CartDetailsEntity cd = new CartDetailsEntity();
+
+                    CloneObjects.CopyPropertiesTo(requst, cd);
+                    context.cartDetailsEntities.Add(cd);
+                    context.SaveChanges();
+                    response.statusCode = 1;
+                    response.statusMessage = "Success";
+                }
+               
+            }
+            else
+            {
+                CartMasterEntity cm = new CartMasterEntity();
+                cm.CartId = 0;
+                cm.CartUserId = userId;
+                cm.CreatedOn = DateTime.Now;
+                cm.CurrentStatus = "Open";
+                cm.IsDeleted = false;
+                context.cartMasterEntities.Add(cm);
+                context.SaveChanges();
+
+                int currentId = cm.CartId;
+                requst.CartId = currentId;
+                requst.IsDeleted = false;
+                CartDetailsEntity cd = new CartDetailsEntity();
+
+                CloneObjects.CopyPropertiesTo(requst, cd);
+                context.cartDetailsEntities.Add(cd);
+                context.SaveChanges();
+                response.statusCode = 1;
+                response.statusMessage = "Success";
+            }
+            return response;
+        }
+        public ProcessResponse AddToCart1(CartDetailsModel requst, int userId)
         {
             ProcessResponse response = new ProcessResponse();
             try
@@ -696,6 +759,17 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
+        public CartDetailsEntity IsProdcutInCart(int userid, int productid) 
+        {
+
+            CartDetailsEntity cartDetails = (from cmaster in context.cartMasterEntities
+                                             join cmd in context.cartDetailsEntities on cmaster.CartId equals cmd.CartId
+                                             where cmaster.CartUserId == userid && cmaster.CurrentStatus == "Open" && cmaster.IsDeleted == false //&& cmd.ProductId == productid
+                                             select cmd).FirstOrDefault();
+
+
+            return cartDetails;
+        }
         public CartMasterEntity GetCartById(int id)
         {
             return context.cartMasterEntities.Where(a => a.CartId == id).FirstOrDefault();
@@ -704,6 +778,94 @@ namespace Ecommerce.Models.BAL
         {
             return context.cartDetailsEntities.Where(a => a.CartDetailId == id).FirstOrDefault();
         }
+
+        public ProcessResponse APIDecrementFromCart(int userid, int productid)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                CartDetailsEntity cd =
+                    (from cm in context.cartMasterEntities
+                     join cd1 in context.cartDetailsEntities on cm.CartId equals cd1.CartId
+                     where cd1.ProductId == productid  && cd1.IsDeleted==false
+                     select cd1).FirstOrDefault();
+                if (cd != null)
+                {
+                    // cd.IsDeleted = true;
+                    // cd.CurrentStatus = "Deleted";
+                    if (cd.NumberOfItems>1)
+                    {
+                        cd.NumberOfItems = cd.NumberOfItems - 1;
+                    }
+                    else 
+                    {
+                        cd.NumberOfItems = 0;
+                        cd.IsDeleted = true;
+                        cd.CurrentStatus = "Deleted";
+                       
+                    }
+                    context.Entry(cd).CurrentValues.SetValues(cd);
+                    context.SaveChanges();
+                    isCartEmptyandUpdate(userid, productid);
+                }
+
+                response.statusCode = 1;
+                response.statusMessage = "Success";
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed";
+            }
+            return response;
+        }
+
+        private void isCartEmptyandUpdate(int userid, int productid) 
+        {
+         var   cart =
+                    (from cm in context.cartMasterEntities
+                     join cd1 in context.cartDetailsEntities on cm.CartId equals cd1.CartId
+                     where  cd1.IsDeleted == false && cm.CartUserId==userid
+                     select cd1).FirstOrDefault();
+            if (cart==null)
+            {
+                var cm = context.cartMasterEntities.Where(x => x.CartUserId == userid && x.IsDeleted==false).FirstOrDefault();
+                if (cm!=null)
+                {
+                    cm.IsDeleted = true;
+                    context.SaveChanges();
+                }
+            }
+        }
+        public ProcessResponse APIDeleteFromCart(int userid,int productid)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                CartDetailsEntity cd =
+                    (from cm in context.cartMasterEntities
+                    join cd1 in  context.cartDetailsEntities on cm.CartId equals cd1.CartId 
+                    where cd1.ProductId==productid && cd1.IsDeleted == false
+                     select cd1).FirstOrDefault();
+                if (cd != null)
+                {
+                    cd.IsDeleted = true;
+                    cd.CurrentStatus = "Deleted";
+                    context.Entry(cd).CurrentValues.SetValues(cd);
+                    context.SaveChanges();
+                }
+
+                response.statusCode = 1;
+                response.statusMessage = "Success";
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed";
+            }
+            return response;
+        }
+        
         public ProcessResponse DeleteFromCart(int detId)
         {
             ProcessResponse response = new ProcessResponse();
