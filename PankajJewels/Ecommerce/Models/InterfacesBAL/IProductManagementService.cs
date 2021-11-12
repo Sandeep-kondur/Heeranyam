@@ -10,7 +10,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IProductManagementService
     {
-
+        bool isInWishList(int productid, int userid);
         List<ProductImagesEntity> GetMainImages(int id);
         void DeleteMainImage(int imageid);
         List<ProductDetailImagesEntity> GetDetialImages(int id);

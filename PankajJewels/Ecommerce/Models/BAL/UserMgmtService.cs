@@ -1232,6 +1232,27 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
+        public ProcessResponse APIDeleteWishList(int id,int userid)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                WishListEntity wl = new WishListEntity();
+                wl = context.wishListEntities.Where(a => a.ProductId == id && a.UserId==userid && a.IsDeleted==false).FirstOrDefault();
+                wl.IsDeleted = true;
+                context.Entry(wl).CurrentValues.SetValues(wl);
+                context.SaveChanges();
+                response.statusCode = 1;
+                response.statusMessage = "Success";
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed";
+            }
+            return response;
+        }
+
         public ProcessResponse DeleteWishList(int id)
         {
             ProcessResponse response = new ProcessResponse();

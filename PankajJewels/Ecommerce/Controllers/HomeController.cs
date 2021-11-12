@@ -119,7 +119,7 @@ namespace Ecommerce.Controllers
             ProcessResponse response = new ProcessResponse();
             try
             {
-                response = _uService.DeleteWishList(productid);
+                response = _uService.APIDeleteWishList(productid,userid);
             }
             catch (Exception ex)
             {

@@ -459,6 +459,23 @@ namespace Ecommerce.Models.BAL
 
             return response;
         }
+
+        public bool isInWishList(int productid , int userid) {
+            try
+            {
+                var wl = context.wishListEntities.Where(x => x.ProductId == productid && x.UserId == userid && x.IsDeleted==false).FirstOrDefault();
+                if (wl!=null)
+                {
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+
+                return false;
+            }
+            return false;
+        }
         public PostProductModel_Web GetProductDetails_Web(int productId, int pdid=0)
         {
             PostProductModel_Web response = new PostProductModel_Web();
