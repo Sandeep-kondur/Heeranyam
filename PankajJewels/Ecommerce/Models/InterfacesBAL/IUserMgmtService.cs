@@ -10,6 +10,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IUserMgmtService
     {
+        ProcessResponse APIPostReview(UserReviewMaster userReviewMaster);
         ProcessResponse APIDeleteWishList(int id, int userid);
         ProcessResponse UpdateCODPayment(CODPaymentUpdateModel request);
         ProcessResponse SaveRazorPaymentResult(RazorPaymentResultEntity request);

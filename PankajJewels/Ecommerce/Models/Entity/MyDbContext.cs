@@ -79,11 +79,14 @@ namespace Ecommerce.Models.Entity
             modelBuilder.Entity<CustomizeOrderEntity>().ToTable("CustomizeOrder");
             modelBuilder.Entity<LoginTrack>().ToTable("LoginTrack");
             modelBuilder.Entity<ContactUs>().ToTable("ContactUs");
+            modelBuilder.Entity<UserReviewMaster>().ToTable("UserReviewMaster");
             modelBuilder.Entity<DaimondsPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<PerlPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SRubyPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SolPerPrdDisplayModel>().HasNoKey();
         }
+
+        public DbSet<UserReviewMaster> UserReviewMasters { get; set; }
         public DbSet<ContactUs> contactUs { get; set; }
         public DbSet<LoginTrack> loginTracks { get; set; }
         public DbSet<CustomizeOrderEntity>  customizeOrderEntities { get; set; }

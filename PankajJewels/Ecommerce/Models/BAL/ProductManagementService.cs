@@ -431,20 +431,36 @@ namespace Ecommerce.Models.BAL
                                 int cId = details[i].DaimondsMain.DPPId;
                                 details[i].DaimondsDetail = context.daimondsPerPrdDetailsEntities.Where(a => a.DPPId == cId).ToList();
                             }
+                            else
+                            {
+                                details[i].DaimondsDetail = new List<DaimondsPerPrdDetailsEntity>();
+                            }
                             if (details[i].SolitaireMain != null)
                             {
                                 int cId = details[i].SolitaireMain.SPPId;
                                 details[i].SolitaireDetails = context.solitairePerPrdDetailsEntities.Where(a => a.SPPId== cId).ToList();
+                            }
+                            else
+                            {
+                                details[i].SolitaireDetails = new List<SolitairePerPrdDetailsEntity>();
                             }
                             if (details[i].PerlMain != null)
                             {
                                 int cId = details[i].PerlMain.PPPId;
                                 details[i].PerlDetails = context.perlPerPrdDetailsEntities.Where(a => a.PPPId== cId).ToList();
                             }
+                            else
+                            {
+                                details[i].PerlDetails = new List<PerlPerPrdDetailsEntity>();
+                            }
                             if (details[i].SRubyMain!= null)
                             {
                                 int cId = details[i].SRubyMain.SRPPId;
                                 details[i].SRubyDetails = context.sRubyPerPrdDetailsEntities.Where(a => a.SRPPId== cId).ToList();
+                            }
+                            else
+                            {
+                                details[i].SRubyDetails = new List<SRubyPerPrdDetailsEntity>();
                             }
                         }
                     }
@@ -460,21 +476,28 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
-        public bool isInWishList(int productid , int userid) {
+        public int isInWishList(int productid , int userid) {
             try
             {
                 var wl = context.wishListEntities.Where(x => x.ProductId == productid && x.UserId == userid && x.IsDeleted==false).FirstOrDefault();
                 if (wl!=null)
                 {
-                    return true;
+                    return 1;
                 }
             }
             catch (Exception)
             {
 
-                return false;
+                return 0;
             }
-            return false;
+            return 0;
+        }
+
+        public List<UserReviewMaster> GetProductReviews(int productId, int userid) 
+        {
+
+            var response = context.UserReviewMasters.Where(x => x.UserId == userid && x.ProductId == productId).ToList();
+            return response;
         }
         public PostProductModel_Web GetProductDetails_Web(int productId, int pdid=0)
         {

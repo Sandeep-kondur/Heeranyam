@@ -71,6 +71,131 @@ namespace Ecommerce.Controllers
 
         #region API End Points
 
+        [HttpGet]
+        public IActionResult APIListing(int userId,int cid = 0, int sid = 0, int did = 0, int pageNumber = 1,
+           int pageSize = 10, string search = "", decimal price = 0, int metalid = 0,
+           string gender = "", int discountid = 0, bool isFA = false)
+        {
+            
+
+            HomeProductsModels myObj = new HomeProductsModels();
+            List<SubCategoryMasterEntity> subCatDrop = new List<SubCategoryMasterEntity>();
+            List<DetailCategoryMasterEntity> detCatDrops = new List<DetailCategoryMasterEntity>();
+            List<CategoryMasterEntity> catDrops = new List<CategoryMasterEntity>();
+            PaginationRequest pr = new PaginationRequest();
+            GenericRequest gr = new GenericRequest();
+            gr.pageNumber = 1;
+            gr.pageSize = 1000;
+            pr.pageNumber = 1;
+            pr.pageSize = 1000;
+            catDrops = _oServce.GetAllCategories(pr);
+            if (isFA)
+            {
+                string q1 = @"select pm.CategoryId, pm.ProductDescription, cat.CategoryName CategoryId_name, pm.DetailCategoryId, dcat.DetailCategoryName DetailCategoryId_name,
+                            pm.ProductId, pm.DiscountApplicableId, pm.DiscountApplicableId DiscountMasterId,
+                            pm.IsCustomizable, pm.IsSizeApplicable, pm.MaxDelivaryDays, pm.PostedBy, pm.PostedOn, pm.ProductTitle,
+                            pm.SubCategoryId, scat.SubCategoryName SubCategoryId_name,
+                            (select top(1) ImageUrl from ProductImages where ProductImages.ProductId = pm.ProductId) ProductMainImages_List,
+                            (select top(1) pd.ActualPrice from ProductDetails pd where pd.ProductId = pm.ProductId) ActualPrice,
+                            (select top(1) pd.SellingPrice from ProductDetails pd where pd.ProductId = pm.ProductId) SellingPrice
+                            from ProductMaster pm
+                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
+                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
+                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
+                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
+                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
+                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
+                            where pm.IsDeleted = 0 ";
+                string q2 = string.Empty;
+                if (price != -1)
+                {
+                    q2 = " and SellingPrice < " + price.ToString();
+                }
+                if (metalid > 0)
+                {
+                    q2 += " and mm.MasterId = " + metalid;
+                }
+                if (!string.IsNullOrEmpty(gender))
+                {
+                    q2 += " and pm.PrefferedGender = '" + gender + "'";
+                }
+                if (discountid > 0)
+                {
+                    q2 += " and pm.DiscountApplicableId = " + discountid;
+                }
+                int skipSize = pageNumber == 1 ? 0 : (pageNumber - 1) * pageSize;
+                string q3 = " order by pm.postedon desc offset " + skipSize + " rows fetch next " + pageSize + " rows only";
+                q1 = q1 + q2 + q3;
+                myObj.listProducts = _pService.GetProductsByFilter(q1);
+
+
+                string countQ = @"select count(pm.CategoryId) as cnt
+                            from ProductMaster pm
+                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
+                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
+                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
+                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
+                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
+                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
+                            where pm.IsDeleted = 0 ";
+                string countQF = countQ + " " + q2;
+                myObj.totalRecords = _pService.GetProductsByFilter_count(countQF);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(search))
+                {
+                    myObj.listProducts = _pService.GetProductsBySearch(cid, pageNumber, pageSize, search);
+                    myObj.totalRecords = _pService.GetProductsBySearch_count(cid, pageNumber, pageSize, search);
+                }
+                else if (cid > 0)
+                {
+                    myObj.listProducts = _pService.GetProductsByCatId(cid, pageNumber, pageSize, search);
+                    myObj.totalRecords = _pService.GetProductsByCatId_Count(cid, pageNumber, pageSize, search);
+
+                }
+                else if (did > 0)
+                {
+                    myObj.listProducts = _pService.GetProductsByDetId(did, pageNumber, pageSize, search);
+                    myObj.totalRecords = _pService.GetProductsByDetId_Count(did, pageNumber, pageSize, search);
+
+                }
+            }
+            gr.Id = cid;
+            subCatDrop = _oServce.GetAllSubCategories(gr);
+            gr.Id = sid;
+            detCatDrops = _oServce.GetAllDetailCategories(gr);
+
+            ViewBag.TotalCount = myObj.totalRecords;
+            ViewBag.pageNumber = pageNumber;
+            ViewBag.pageSize = pageSize;
+            ViewBag.search = search;
+            ViewBag.cid = cid;
+            ViewBag.did = did;
+            ViewBag.sid = sid;
+            ViewBag.price = price;
+            ViewBag.metalid = metalid;
+            ViewBag.gender = gender;
+            ViewBag.discountid = discountid;
+            ViewBag.CartCount = _uService.GetUserCartCount(userId);
+
+            // for filters drop downs
+
+            List<MetalMasterEntity> metalDrop = _mService.GetMetalMaster(pr, "List");
+
+            StaticDropDowns staticDrops = new StaticDropDowns();
+            List<DiscountMasterEntity> discDrops = _mService.GetAllDiscounts(gr);
+
+            myObj.detCatDrops = detCatDrops;
+            myObj.subCateDrop = subCatDrop;
+            myObj.catDrops = catDrops;
+            myObj.staticDrops = staticDrops;
+            myObj.metalDrop = metalDrop;
+            myObj.discDrops = discDrops;
+
+            return StatusCode(200,new { myObj , status=1, message="Success"});
+        }
+
         [HttpPost]
         public IActionResult APIAddToWishlist(int userId, int productId, int detailId)
         {
@@ -119,7 +244,7 @@ namespace Ecommerce.Controllers
             ProcessResponse response = new ProcessResponse();
             try
             {
-                response = _uService.APIDeleteWishList(productid,userid);
+                response = _uService.APIDeleteWishList(productid, userid);
             }
             catch (Exception ex)
             {
@@ -136,7 +261,7 @@ namespace Ecommerce.Controllers
             ProcessResponse response = new ProcessResponse();
             try
             {
-                response = _uService.APIDeleteFromCart(userid,productid);
+                response = _uService.APIDeleteFromCart(userid, productid);
             }
             catch (Exception ex)
             {
@@ -251,7 +376,7 @@ namespace Ecommerce.Controllers
             ProcessResponse response = new ProcessResponse();
             try
             {
-                response = _uService.APIDecrementFromCart(userid,productid);
+                response = _uService.APIDecrementFromCart(userid, productid);
             }
             catch (Exception ex)
             {
@@ -438,6 +563,32 @@ namespace Ecommerce.Controllers
             {
 
                 return StatusCode(200, new { status = 0, Message = "Failure" });
+            }
+
+        }
+
+        [HttpPost]
+
+        public IActionResult APIPostReview(UserReviewMaster userReviewMaster)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (Request.Form.Files != null && Request.Form.Files.Count > 0 && Request.Form.Files[0] != null)
+                    {
+                        userReviewMaster.FeedbackImageUrl = SaveReviewPicture(userReviewMaster.ProductId.ToString(), userReviewMaster.UserId.ToString());
+                    }
+                    _uService.APIPostReview(userReviewMaster);
+                }
+
+                return StatusCode(200, new { status = 1, message = "Success" });
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, message = "Failed" });
+
             }
 
         }
@@ -818,7 +969,51 @@ namespace Ecommerce.Controllers
             return Json(new { status = 1, message = "Menu", category = lstCategory });
 
         }
+        public string SaveReviewPicture(string productID, string userID)
+        {
+            string fullPath = string.Empty;
+            string path = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/ReviewImages/";//server path
 
+            try
+            {
+                if (Request.Form.Files[0] != null)
+                {
+                    var file = Request.Form.Files[0];
+                    string contenttype = file.FileName.Split('.').Count() > 1 ? file.FileName.Split('.')[1] : "";
+                    var folderName = Path.Combine("WWWROOT", "ReviewImages");
+                    //to test locally
+                    var pathToSave = Path.Combine(Directory.GetCurrentDirectory(), folderName);
+                    if (file.Length > 0)
+                    {
+                        var fileName = DateTime.Now.ToString("ddMMyyyy").ToString() + "_" + productID + "_" + userID;// ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+                        fullPath = Path.Combine(pathToSave, fileName + "." + contenttype);
+                        // var dbPath = Path.Combine(folderName, fileName);
+                        path = path + fileName + "." + contenttype;
+
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            System.IO.File.Delete(fullPath);
+                        }
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            file.CopyTo(stream);
+                        }
+                        return path;
+                    }
+                    else
+                    {
+                        return path;
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return path;
+            }
+
+            return path;
+        }
         public bool SaveProfilePicture(string emailId, string userName)
         {
             try

@@ -274,12 +274,13 @@ namespace Ecommerce.Controllers
 
 
         [HttpGet]
-        public IActionResult APIGetProductDetails(int productid,int userid)
+        public IActionResult APIGetProductDetails( int productid,int userid)
         {
             try
             {
                 var product = _pService.GetProductDetails(productid);
-                return StatusCode(200, new { status=1, product, Message="Success" ,isInWishList=_pService.isInWishList(productid, userid) ,rating=4});
+                var reviews = _pService.GetProductReviews(productid, userid);
+                return StatusCode(200, new { status=1, product, reviews=reviews != null?reviews.ToList():new List<UserReviewMaster>(), Message="Success" ,isInWishList=_pService.isInWishList(productid, userid) ,rating=4});
             }
             catch (Exception ex)
             {

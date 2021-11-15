@@ -28,15 +28,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="wwwroot\ReviewImages\" />
     <Folder Include="wwwroot\ProductImages\" />
     <Folder Include="wwwroot\UserImages\" />
     <Folder Include="wwwroot\WebApp\assets\img" />
     <Folder Include="wwwroot\WebApp\assets\img\slider" />
     <Folder Include="wwwroot\WebApp\assets\img\banner" />
     <Folder Include="wwwroot\WebApp\assets\img\home" />
-
-
-
 
   </ItemGroup>
 

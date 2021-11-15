@@ -1232,6 +1232,27 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
+        public ProcessResponse APIPostReview(UserReviewMaster userReviewMaster)
+        {
+            ProcessResponse response = new ProcessResponse();
+
+            try
+            {
+                if (userReviewMaster!=null)
+                {
+                    context.UserReviewMasters.Add(userReviewMaster);
+                    context.SaveChanges();
+                    response.statusCode = 1;
+                    response.statusMessage = "Success";
+                }
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed";
+            }
+            return response;
+        }
         public ProcessResponse APIDeleteWishList(int id,int userid)
         {
             ProcessResponse response = new ProcessResponse();
