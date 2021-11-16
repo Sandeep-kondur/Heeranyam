@@ -716,6 +716,7 @@ namespace Ecommerce.Controllers
                             ad.IsDeleted = false;
                             ad.IsDeliverAddress = "Yes";
                             ad.UserId = result.currentId;
+                            ad.AddressTypeId = 4;// default set to None
                             var aa = _uService.SaveAddress(ad);
                             var ps = _nService.SendRegistrationEmail(EmailTemplateModules.RegistrationEmail,
                                request.EmailId, request.UserName, loginCheckResponse.userId);
