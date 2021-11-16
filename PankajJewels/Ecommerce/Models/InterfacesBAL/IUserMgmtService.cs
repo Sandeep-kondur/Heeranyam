@@ -31,8 +31,8 @@ namespace Ecommerce.Models.InterfacesBAL
         List<UserMasterDisplay> GetAllUsers(string type);
         void UpdatePassword(UserMasterEntity request);
         ProcessResponse UpdateUser(UserMasterEntity request);
-        void UpdateUserMaster(UserMasterEntity request);
-        UserMasterEntity GetUserByEmail(string email);
+        void UpdateUserMaster(APIUser request);
+        APIUser GetUserByEmail(string email);
         IQueryable<UserTypeMasterEnity> GetUserTypes();
         UserTypeMasterEnity GetUserTypeById(int id);
 

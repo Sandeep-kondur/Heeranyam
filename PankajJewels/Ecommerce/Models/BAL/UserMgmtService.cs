@@ -166,7 +166,7 @@ namespace Ecommerce.Models.BAL
             }
         }
 
-        public void UpdateUserMaster(UserMasterEntity request)
+        public void UpdateUserMaster(APIUser request)
         {
             var uma =context.userMasters.Where(a => a.UserId == request.UserId).FirstOrDefault();
             if (uma != null)
@@ -176,42 +176,79 @@ namespace Ecommerce.Models.BAL
                 {
                     uma.MobileNumber = request.MobileNumber;
                 }
-                if (!String.IsNullOrEmpty(request.ProfileImage))
+                if (!String.IsNullOrEmpty(request.ProfilePicUrl))
                 {
-                    uma.ProfileImage = request.ProfileImage;
+                    uma.ProfileImage = request.ProfilePicUrl;
                 }
-                if (!String.IsNullOrEmpty(request.DeviceId) 
-                    && request.DeviceId.ToUpper()!=uma.DeviceId.ToUpper())
+                //if (!String.IsNullOrEmpty(request.APIUserMasterModel.DeviceId) 
+                //    && request.APIUserMasterModel.DeviceId.ToUpper()!=uma.DeviceId.ToUpper())
+                //{
+                //    uma.DeviceId = request.APIUserMasterModel.DeviceId;
+                //}
+
+                //if (!String.IsNullOrEmpty(request.Address)
+                //    && request.Address.ToUpper() != uma.Address.ToUpper())
+                //{
+                //    uma.Address = request.Address;
+                //}
+                if (request.AddressTypeId != 0)
                 {
-                    uma.DeviceId = request.DeviceId;
+                    var addressMaster = context.addressEntities.Where(x => x.UserId == request.UserId && x.AddressTypeId == request.AddressTypeId).FirstOrDefault();
+                    if (addressMaster != null)
+                    {
+                       if(request.Address1!=null) addressMaster.Address1 = request.Address1;
+                        if (request.Address2 != null) addressMaster.Address2 = request.Address2;
+                        if (request.LandMark != null) addressMaster.LandMark = request.LandMark;
+                        if (request.ZipCode != null) addressMaster.ZipCode = request.ZipCode;
+
+                        context.SaveChanges();
+                    }
                 }
-
-                if (!String.IsNullOrEmpty(request.Address)
-                    && request.Address.ToUpper() != uma.Address.ToUpper())
-                {
-                    uma.Address = request.Address;
-                }
-
-
+              
                 // um.PWord = request.PWord;
                 context.Entry(uma).CurrentValues.SetValues(uma);
                 context.SaveChanges();
             }
         }
 
-        public UserMasterEntity GetUserByEmail(string email)
+        public APIUser GetUserByEmail(string email)
         {
             UserMasterEntity result = new UserMasterEntity();
+
+            APIUser apiUser = new APIUser();
+             
             try
             {
                 result = context.userMasters.Where(a => a.EmailId == email || a.MobileNumber == email && a.IsDeleted == false).FirstOrDefault();
+                apiUser = new APIUser()
+                { UserId= result.UserId,UserName=result.UserName,EmailId=result.EmailId,
+                    MobileNumber= result.MobileNumber,ProfilePicUrl=result.ProfileImage};
+                var resultAddress = context.addressEntities.Where(x => x.UserId == result.UserId).FirstOrDefault();
+
+                if (resultAddress != null && resultAddress.AddressTypeId!=4)
+                {
+                    apiUser.AddressTypeId = resultAddress.AddressTypeId;
+                    apiUser.Address1 = resultAddress.Address1;
+                    apiUser.Address2 = resultAddress.Address2;
+                    apiUser.LandMark = resultAddress.LandMark;
+                    apiUser.ZipCode = resultAddress.ZipCode;
+                }
+                else
+                {
+                    apiUser.AddressTypeId = resultAddress.AddressTypeId;
+                    apiUser.Address1 = string.Empty;
+                    apiUser.Address2 = string.Empty;
+                    apiUser.LandMark = string.Empty;
+                    apiUser.ZipCode = string.Empty;
+                }
+            
                 
             }
             catch (Exception ex)
             {
 
             }
-            return result;
+            return apiUser;
         }
 
         public LoginResponse IsValidUser(string emailId) 

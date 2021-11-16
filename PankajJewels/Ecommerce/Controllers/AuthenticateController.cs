@@ -524,7 +524,7 @@ namespace Ecommerce.Controllers
                         if (loginCheck.statusCode == 1)
                         {
                             SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
-                            _uService.UpdateUserMaster(new UserMasterEntity() { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.deviceID, EmailId = request.emailid });
+                            _uService.UpdateUserMaster(new APIUser()  { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.deviceID, EmailId = request.emailid } );
                             if (!string.IsNullOrEmpty(loginCheck.userImageURL) &&!loginCheck.userImageURL.Contains(Request.Host.Value))
                             {
                                 loginCheck.userImageURL = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/UserImages/" + loginCheck.userImageURL;
@@ -553,7 +553,7 @@ namespace Ecommerce.Controllers
         {
 
             LoginResponse loginCheckResponse = new LoginResponse();
-            UserMasterEntity user;
+            APIUser user;
             try
             { 
 
@@ -563,9 +563,9 @@ namespace Ecommerce.Controllers
                     return StatusCode(200, new { statusCode = 0, request = request, statusMessage = "Invalid User" });
                 }
                 user = _uService.GetUserByEmail(request.EmailId);
-                if (user.ProfileImage != null && user.ProfileImage.Length > 0 && !user.ProfileImage.ToLower().Contains("http"))
+                if (user.ProfilePicUrl != null && user.ProfilePicUrl.Length > 0 && !user.ProfilePicUrl.ToLower().Contains("http"))
                 {
-                    user.ProfileImage = HttpContext.Request.Scheme + ":\\" + user.ProfileImage;
+                    user.ProfilePicUrl = HttpContext.Request.Scheme + ":\\" + user.ProfilePicUrl;
                 }
             }
             catch (Exception)
@@ -575,21 +575,27 @@ namespace Ecommerce.Controllers
             return Json(new
             {
                 status = 1,
+                Message="Profile Success",
                 UserId = user.UserId,
                 UserName = user.UserName,
                 UserTypeId = user.UserTypeId,
                 EmailId = user.EmailId,
                 DeviceId = user.DeviceId != null ? user.DeviceId : string.Empty,
      
-                ProfileImage = user.ProfileImage!= null ? user.ProfileImage: string.Empty,
+                ProfileImage = user.ProfilePicUrl != null ? user.ProfilePicUrl : string.Empty,
                 MobileNumber = user.MobileNumber,
-                Address = user.Address != null ? user.Address : string.Empty
+                Address1=user.Address1,
+                Address2= user.Address2,
+                AddressTypeId= user.AddressTypeId,
+                IsDeliveredAddress= user.IsDeliverAddress,
+                ZipCode=user.ZipCode
+                 
             });
 
         }
 
         [HttpPut]
-        public IActionResult APIUpdateProfile(UserMasterEntity request)
+        public IActionResult APIUpdateProfile(APIUser request)
         {
             try
             {
@@ -622,7 +628,7 @@ namespace Ecommerce.Controllers
                 {
                     try
                     {
-                        request.ProfileImage = SaveProfilePicture(request.EmailId, loginCheck.userName);
+                        request.ProfilePicUrl = SaveProfilePicture(request.EmailId, loginCheck.userName);
                     }
                     catch (Exception)
                     {
@@ -779,7 +785,7 @@ namespace Ecommerce.Controllers
                         }
                         if (!string.IsNullOrEmpty(emailId))
                         {
-                            _uService.UpdateUserMaster(new UserMasterEntity() { EmailId = emailId, ProfileImage = fullPath });
+                            _uService.UpdateUserMaster(new APIUser() { EmailId = emailId, ProfilePicUrl = fullPath  });
 
                         }
                         return fullPath;
