@@ -9,7 +9,8 @@ namespace Ecommerce.Models.ModelClasses
     {
             public int CatID { get; set; }
             public int SubCatID { get; set; }
+        public int UserID { get; set; }
 
-        
+
     }
 }

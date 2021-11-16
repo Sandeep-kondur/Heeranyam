@@ -31,5 +31,7 @@ namespace Ecommerce.Models.Entity
         public string PrefferedGender { get; set; }
         public string IsAllGold { get; set; }
         public string IsHotDeal { get; set; }
+
+        public int Stock { get; set; }
     }
 }

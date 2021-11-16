@@ -228,7 +228,7 @@ namespace Ecommerce.Controllers
                 UserCartModel myObject = new UserCartModel();
                 myObject = _uService.GetMyCart(userid);
                 decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
-                return StatusCode(200, new { status = 1, message = "Success", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue });
+                return StatusCode(200, new { status = CartCount>=0?1:0, message =CartCount>=1? "Success":"There are no Cart Items", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue });
             }
             catch (Exception)
             {
@@ -777,7 +777,9 @@ namespace Ecommerce.Controllers
 
             int cartCount = _uService.GetUserCartCount(userid);
             List<WishListModel> myObject = new List<WishListModel>();
-            myObject = _uService.GetMyWishList(userid);
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+
+            myObject = _uService.APIGetMyWishList(userid,  url);
             return StatusCode(200, new { wishList = myObject, status = 1, Message = "Success" });
         }
 
@@ -891,7 +893,7 @@ namespace Ecommerce.Controllers
         {
 
 
-            var urlhost = HttpContext.Request.Scheme + ":\\" + HttpContext.Request.Host.Value; //HttpContext.Request.Host.Value; 
+            var urlhost = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value; //HttpContext.Request.Host.Value; 
             Categories categories = new Categories();
             List<Category> lstCategory = new List<Category>();
 

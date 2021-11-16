@@ -10,6 +10,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IProductManagementService
     {
+        APIPostProductModel APIGetProductDetails(int productId,int userid);
         List<UserReviewMaster> GetProductReviews(int productId, int userid);
         int isInWishList(int productid, int userid);
         List<ProductImagesEntity> GetMainImages(int id);
@@ -76,6 +77,6 @@ namespace Ecommerce.Models.InterfacesBAL
         void DeleteSolPerPrd(int id);
 
 
-        List<ProductListDisplay> APIGetProductsByCatId(ProductDetailsRequest request, string url);
+        List<APIProductListDisplay> APIGetProductsByCatId(ProductDetailsRequest request, string url, int userId);
     }
 }

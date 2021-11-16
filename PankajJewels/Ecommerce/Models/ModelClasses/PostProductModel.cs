@@ -8,6 +8,37 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.Models.ModelClasses
 {
+
+    public class APIPostProductModel
+    {
+        public int ProductId { get; set; }
+        public string ProductTitle { get; set; }
+        public string ProductDescription { get; set; }
+        public bool? IsCustomizable { get; set; }
+        public DateTime? PostedOn { get; set; }
+        public int? PostedBy { get; set; }
+        public int? MaxDelivaryDays { get; set; }
+        public int? DiscountApplicableId { get; set; }
+        public bool? IsSizeApplicable { get; set; }
+
+        public int? CategoryId { get; set; }
+        public string CategoryId_name { get; set; }
+        public int? SubCategoryId { get; set; }
+        public string SubCategoryId_name { get; set; }
+        public int? DetailCategoryId { get; set; }
+        public string DetailCategoryId_name { get; set; }
+
+        public List<IFormFile> ProductMainImages { get; set; }
+        public string ProductMainImages_List { get; set; }
+
+        public List<ProductDetailsModel> ProductDetails { get; set; }
+
+        public WishListEntity WishList { get; set; }
+        public string DiscountMaster_IdName { get; set; }
+        public decimal? DiscountAmount { get; set; }
+        public string PrefferedGender { get; set; }
+        public int Stock { get; set; }
+    }
     public class PostProductModel
     {
         public int ProductId { get; set; }
@@ -32,6 +63,7 @@ namespace Ecommerce.Models.ModelClasses
 
         public List<ProductDetailsModel> ProductDetails { get; set; }
 
+        public WishListEntity WishList { get; set; }
         public string DiscountMaster_IdName { get; set; }
         public decimal? DiscountAmount { get;   set; }
         public string PrefferedGender { get; set; }
@@ -77,6 +109,33 @@ namespace Ecommerce.Models.ModelClasses
         public List<SRubyPerPrdDetailsEntity> SRubyDetails { get; set; }
         public decimal? MakingCharges { get; set; }
 
+    }
+
+    public class APIProductListDisplay
+    {
+        public int ProductId { get; set; }
+        public string ProductTitle { get; set; }
+        public string ProductDescription { get; set; }
+        public bool? IsCustomizable { get; set; }
+        public DateTime? PostedOn { get; set; }
+        public int? PostedBy { get; set; }
+        public int? MaxDelivaryDays { get; set; }
+        public int? DiscountApplicableId { get; set; }
+        public bool? IsSizeApplicable { get; set; }
+
+        public int? CategoryId { get; set; }
+        public string CategoryId_name { get; set; }
+        public int? SubCategoryId { get; set; }
+        public string SubCategoryId_name { get; set; }
+        public int? DetailCategoryId { get; set; }
+        public string DetailCategoryId_name { get; set; }
+        public int? DiscountMasterId { get; set; }
+        public string ProductMainImages_List { get; set; }
+        public decimal? ActualPrice { get; set; }
+        public decimal? SellingPrice { get; set; }
+        public int IsInWishList { get; set; }
+
+        public int Stock { get; set; }
     }
     public class ProductListDisplay
     {

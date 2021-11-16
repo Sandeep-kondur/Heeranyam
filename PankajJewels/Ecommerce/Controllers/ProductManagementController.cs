@@ -278,9 +278,16 @@ namespace Ecommerce.Controllers
         {
             try
             {
-                var product = _pService.GetProductDetails(productid);
+                string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+                var product = _pService.APIGetProductDetails(productid,userid);
+                if (!string.IsNullOrEmpty(product.ProductMainImages_List)&& !product.ProductMainImages_List.Contains(Request.Scheme))
+                {
+                    product.ProductMainImages_List = url + product.ProductMainImages_List;
+                }
+
                 var reviews = _pService.GetProductReviews(productid, userid);
-                return StatusCode(200, new { status=1, product, reviews=reviews != null?reviews.ToList():new List<UserReviewMaster>(), Message="Success" ,isInWishList=_pService.isInWishList(productid, userid) ,rating=4});
+                var wishlist = _pService.isInWishList(productid, userid);
+                return StatusCode(200, new { status=1, product, reviews=reviews != null?reviews.ToList():new List<UserReviewMaster>(), Message="Success" ,isInWishList= wishlist==1? wishlist:0 , rating=4});
             }
             catch (Exception ex)
             {
@@ -293,14 +300,22 @@ namespace Ecommerce.Controllers
             try
             {
                 string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
-                  var response = _pService.APIGetProductsByCatId(request,url);
-                 
+                  var response = _pService.APIGetProductsByCatId(request,url,request.UserID);
 
-                return StatusCode(200, new { status =1, message="Success", productDetails=response});
+                if (response!=null && response.Count >= 1)
+                {
+                    return StatusCode(200, new { status = 1, message = "Success", productDetails = response });
+
+                }
+                else
+                {
+                    return StatusCode(200, new { status = 0, message = "No Products Available", });
+
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode(200, new { status = 1, message = "Failure"});
+                return StatusCode(200, new { status = 0, message = "Failure"});
             }
         }
 

@@ -17,6 +17,8 @@ namespace Ecommerce.Models.InterfacesBAL
         PODetailsEntity GetPoDetailByMasterIdId(int id);
         UserMasterProfile GetMyProfile(int id);
         List<WishListModel> GetMyWishList(int userid);
+        List<WishListModel> APIGetMyWishList(int userid, string url);
+
         ProcessResponse AddToWishList(WishListEntity request);
         ProcessResponse DeleteWishList(int id);
         ProcessResponse UpdateCartDetails(CartDetailsEntity request);

@@ -272,7 +272,7 @@ namespace Ecommerce.Models.BAL
                                 ParentMenuId = 0,
                                 Id = cat.CategoryId,
                                 Permitted = true,
-                                Image = urlhost + @"\icons\"+cat.CategoryCode+".png",
+                                Image = urlhost + @"/icons/"+cat.CategoryCode+".png",
                             }).ToList();
             return response;
         }
@@ -287,7 +287,7 @@ namespace Ecommerce.Models.BAL
                                 ParentMenuId = cat.CategoryId  ?? default(int),
                                 Id = cat.SubCategoryId,
                                 Permitted = true,
-                                Image = urlhost + @"\icons\" + cat.SubCategoryName + ".png",
+                                Image = urlhost + @"/icons/" + cat.SubCategoryName + ".png",
                             }).ToList();
             return response;
         }
@@ -795,7 +795,9 @@ namespace Ecommerce.Models.BAL
                     // cd.CurrentStatus = "Deleted";
                     if (cd.NumberOfItems>1)
                     {
+                        cd.TotalPrice = cd.TotalPrice / cd.NumberOfItems;
                         cd.NumberOfItems = cd.NumberOfItems - 1;
+                        cd.TotalPrice = cd.TotalPrice * cd.NumberOfItems;
                     }
                     else 
                     {
@@ -1152,9 +1154,7 @@ namespace Ecommerce.Models.BAL
         {
             return context.pODetails.Where(a => a.POMasterId == id).FirstOrDefault();
         }
-
-
-        public List<WishListModel> GetMyWishList(int userid)
+        public List<WishListModel> GetMyWishList(int userid )
         {
             List<WishListModel> response = new List<WishListModel>();
             try
@@ -1182,7 +1182,51 @@ namespace Ecommerce.Models.BAL
                                 GoldRate = 0,
                                 OldPrice = pd.ActualPrice,
                                 ProductId = p.ProductId,
-                                ProductImage = pi.ImageUrl,
+                                ProductImage =  pi.ImageUrl,
+                                ProductTitle = p.ProductTitle,
+                                SizeId = pd.SizeMasterId,
+                                WishListId = w.WishListId
+                            }).ToList();
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return response;
+        }
+
+        public List<WishListModel> APIGetMyWishList(int userid,string url)
+        {
+            List<WishListModel> response = new List<WishListModel>();
+            try
+            {
+                response = (
+                            from w in context.wishListEntities
+                            join pd in context.productDetailsEntities on w.ProductDetailId equals pd.ProductDetailId
+                            join pi in context.productImagesEntities on w.ProductId equals pi.ProductId
+                            join p in context.productMasterEntities on w.ProductId equals p.ProductId
+                            where w.IsDeleted == false && w.UserId == userid
+                            select new WishListModel
+                            {
+                                AddedOn = w.AddedOn,
+                                CurrentStatus = "Active",
+                                IsDeleted = w.IsDeleted,
+                                DaimondPrice = 0,
+                                MetalMasterId = pd.MetalMasterId,
+                                Discount = 0,
+                                ProductDetailId = w.ProductDetailId,
+                                MetalMasterId_Name = "",
+                                MakingCharges = pd.MakingCharges,
+                                GST = 0,
+                                GoldWeight = pd.ProductWeight,
+                                GoldPrice = 0,
+                                GoldRate = 0,
+                                OldPrice = pd.ActualPrice,
+                                ProductId = p.ProductId,
+                                ProductImage =pi.ImageUrl.Contains("http")==false?url+ pi.ImageUrl:pi.ImageUrl,
                                  ProductTitle = p.ProductTitle,
                                   SizeId=pd.SizeMasterId,
                                   WishListId = w.WishListId

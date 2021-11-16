@@ -476,6 +476,149 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
+        public APIPostProductModel APIGetProductDetails(int productId,int userid)
+        {
+            APIPostProductModel response = new APIPostProductModel();
+            try
+            {
+                response = (from prd in context.productMasterEntities
+                            join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                            join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                            join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                            join disc in context.discountMasterEntities on prd.DiscountApplicableId equals disc.DMasterId
+                            where prd.ProductId == productId
+                            select new APIPostProductModel
+                            {
+                                CategoryId = prd.CategoryId,
+                                CategoryId_name = cat.CategoryName,
+                                DetailCategoryId = prd.DetailCategoryId,
+                                ProductId = prd.ProductId,
+                                DetailCategoryId_name = detcat.DetailCategoryName,
+                                DiscountApplicableId = prd.DiscountApplicableId,
+                                DiscountMaster_IdName = disc.DicountTitile,
+                                DiscountAmount = disc.DiscountAmount,
+                                IsCustomizable = prd.IsCustomizable,
+                                IsSizeApplicable = prd.IsSizeApplicable,
+                                MaxDelivaryDays = prd.MaxDelivaryDays,
+                                PostedBy = prd.PostedBy,
+                                PostedOn = prd.PostedOn,
+                                ProductDescription = prd.ProductDescription,
+                                ProductDetails = null,
+                                ProductMainImages = null,
+                                ProductTitle = prd.ProductTitle,
+                                SubCategoryId = prd.SubCategoryId,
+                                SubCategoryId_name = subcat.SubCategoryName,
+                                ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                Stock=prd.Stock
+
+                            }).FirstOrDefault();
+                if (response != null)
+                {
+                    List<ProductDetailsModel> details = new List<ProductDetailsModel>();
+                    details = (from pd in context.productDetailsEntities
+                               join hMe in context.measurementMasterEntities on pd.HeightMeasurementId equals hMe.MeasurementId
+                               join mwMe in context.measurementMasterEntities on pd.HeightMeasurementId equals mwMe.MeasurementId
+                               join pwMe in context.measurementMasterEntities on pd.HeightMeasurementId equals pwMe.MeasurementId
+                               join wMe in context.measurementMasterEntities on pd.HeightMeasurementId equals wMe.MeasurementId
+                               join metm in context.metalMasterEntities on pd.MetalMasterId equals metm.MasterId
+                               join siz in context.sizeMasterEntities on pd.SizeMasterId equals siz.SizeMasterId
+                               where pd.ProductId == response.ProductId && pd.IsDeleted == false
+                               select new ProductDetailsModel
+                               {
+                                   ActualPrice = pd.ActualPrice,
+                                   IsDeleted = pd.IsDeleted,
+                                   ProductId = pd.ProductId,
+                                   DaimondsDetail = null,
+                                   DaimondsMain = context.daimondsPerProductEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).FirstOrDefault(),
+                                   Height = pd.Height,
+                                   ProductDetailId = pd.ProductDetailId,
+                                   HeightMeasurementId = pd.HeightMeasurementId,
+                                   HeightMeasurementId_name = hMe.MeasurementName,
+                                   IsActive = pd.IsActive,
+                                   MetailWeightMesuremetnId = pd.MetailWeightMesuremetnId,
+                                   MetailWeightMesuremetnId_Name = mwMe.MeasurementName,
+                                   MetalMasterId = pd.MetalMasterId,
+                                   MetalMasterId_Name = metm.MetalCode,
+                                   MetalWeight = pd.MetalWeight,
+                                   PerlDetails = null,
+                                   PerlMain = context.perlPerProductEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).FirstOrDefault(),
+                                   ProductCode = pd.ProductCode,
+                                   ProductDetailImages_List = context.productDetailImagesEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                   ProductWeight = pd.ProductWeight,
+                                   ProductWeightMeasurement = pd.ProductWeightMeasurement,
+                                   ProductWeightMeasurement_Name = pwMe.MeasurementName,
+                                   SellingPrice = pd.SellingPrice,
+                                   ProductDetailImages = null,
+                                   SizeMasterId = pd.SizeMasterId,
+                                   SizeMasterId_name = siz.SizeName,
+                                   SolitaireDetails = null,
+                                   SolitaireMain = context.solitairePerProductEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).FirstOrDefault(),
+                                   SRubyDetails = null,
+                                   SRubyMain = context.sRubyPerProductEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).FirstOrDefault(),
+                                   SubTitleText = pd.SubTitleText,
+                                   WeightMeasurementId = pd.WeightMeasurementId,
+                                   WeightMeasurementId_Name = wMe.MeasurementName,
+                                   Width = pd.Width,
+                                   MakingCharges = pd.MakingCharges
+                               }).ToList();
+                    if (details.Count > 0)
+                    {
+                        for (int i = 0; i < details.Count; i++)
+                        {
+                            if (details[i].DaimondsMain != null)
+                            {
+                                int cId = details[i].DaimondsMain.DPPId;
+                                details[i].DaimondsDetail = context.daimondsPerPrdDetailsEntities.Where(a => a.DPPId == cId).ToList();
+                            }
+                            else
+                            {
+                                details[i].DaimondsDetail = new List<DaimondsPerPrdDetailsEntity>();
+                            }
+                            if (details[i].SolitaireMain != null)
+                            {
+                                int cId = details[i].SolitaireMain.SPPId;
+                                details[i].SolitaireDetails = context.solitairePerPrdDetailsEntities.Where(a => a.SPPId == cId).ToList();
+                            }
+                            else
+                            {
+                                details[i].SolitaireDetails = new List<SolitairePerPrdDetailsEntity>();
+                            }
+                            if (details[i].PerlMain != null)
+                            {
+                                int cId = details[i].PerlMain.PPPId;
+                                details[i].PerlDetails = context.perlPerPrdDetailsEntities.Where(a => a.PPPId == cId).ToList();
+                            }
+                            else
+                            {
+                                details[i].PerlDetails = new List<PerlPerPrdDetailsEntity>();
+                            }
+                            if (details[i].SRubyMain != null)
+                            {
+                                int cId = details[i].SRubyMain.SRPPId;
+                                details[i].SRubyDetails = context.sRubyPerPrdDetailsEntities.Where(a => a.SRPPId == cId).ToList();
+                            }
+                            else
+                            {
+                                details[i].SRubyDetails = new List<SRubyPerPrdDetailsEntity>();
+                            }
+                        }
+                    }
+                    if (response.ProductDetails != null)
+                    {
+                         
+                    }
+                    response.ProductDetails = details;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError(ex);
+            }
+
+            return response;
+        }
+
         public int isInWishList(int productid , int userid) {
             try
             {
@@ -1503,10 +1646,10 @@ namespace Ecommerce.Models.BAL
 
         #region API Products
       
-        public List<ProductListDisplay> APIGetProductsByCatId(ProductDetailsRequest request,string url)
+        public List<APIProductListDisplay> APIGetProductsByCatId(ProductDetailsRequest request,string url,int userId)
         {
             int id = 0;
-            List<ProductListDisplay> response = new List<ProductListDisplay>();
+            List<APIProductListDisplay> response = new List<APIProductListDisplay>();
 
             if (request.SubCatID!=0  && request.CatID>0)
             {
@@ -1519,7 +1662,7 @@ namespace Ecommerce.Models.BAL
                                 join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
                                 join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
                                 where prd.IsDeleted == false && prd.SubCategoryId == request.SubCatID && prd.CategoryId==request.CatID
-                                select new ProductListDisplay
+                                select new APIProductListDisplay
                                 {
                                     CategoryId = prd.CategoryId,
                                     CategoryId_name = cat.CategoryName,
@@ -1539,7 +1682,9 @@ namespace Ecommerce.Models.BAL
                                     SubCategoryId_name = subcat.SubCategoryName,
                                     ProductMainImages_List =url+ context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
                                     ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
-                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
+                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault(),
+                                    IsInWishList=userId !=0?context.wishListEntities.Where(a=>a.ProductId==prd.ProductId &&a.IsDeleted==false&&a.UserId==userId).FirstOrDefault()!=null?1:0:0,
+                                    Stock = prd.Stock
                                 }).OrderByDescending(b => b.PostedOn).Take(10).
                                 ToList();
 
@@ -1561,7 +1706,7 @@ namespace Ecommerce.Models.BAL
                                 join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
                                 join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
                                 where prd.IsDeleted == false && prd.CategoryId == id
-                                select new ProductListDisplay
+                                select new APIProductListDisplay
                                 {
                                     CategoryId = prd.CategoryId,
                                     CategoryId_name = cat.CategoryName,
@@ -1581,7 +1726,10 @@ namespace Ecommerce.Models.BAL
                                     SubCategoryId_name = subcat.SubCategoryName,
                                     ProductMainImages_List = url+context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
                                     ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
-                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
+                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault(),
+                                    IsInWishList = userId != 0 ? context.wishListEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false && a.UserId == userId).FirstOrDefault() != null ? 1 : 0 : 0,
+                                    Stock=prd.Stock
+
                                 }).OrderByDescending(b => b.PostedOn).Take(10).
                                 ToList();
 
