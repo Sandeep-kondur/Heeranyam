@@ -31,7 +31,7 @@ namespace Ecommerce.Models.ModelClasses
         public List<IFormFile> ProductMainImages { get; set; }
         public string ProductMainImages_List { get; set; }
 
-        public List<ProductDetailsModel> ProductDetails { get; set; }
+        public List<APIProductDetailsModel> ProductDetails { get; set; }
 
         public WishListEntity WishList { get; set; }
         public string DiscountMaster_IdName { get; set; }
@@ -69,6 +69,47 @@ namespace Ecommerce.Models.ModelClasses
         public string PrefferedGender { get; set; }
     }
 
+
+    public class APIProductDetailsModel
+    {
+        public int ProductDetailId { get; set; }
+        public int? ProductId { get; set; }
+        public decimal? ActualPrice { get; set; }
+        public decimal? SellingPrice { get; set; }
+        public string ProductCode { get; set; }
+        public decimal? Height { get; set; }
+        public decimal? Width { get; set; }
+        public int? HeightMeasurementId { get; set; }
+        public string HeightMeasurementId_name { get; set; }
+        public int? WeightMeasurementId { get; set; }
+        public string WeightMeasurementId_Name { get; set; }
+        public int? MetalMasterId { get; set; }
+        public string MetalMasterId_Name { get; set; }
+        public decimal? MetalWeight { get; set; }
+        public int? MetailWeightMesuremetnId { get; set; }
+        public string MetailWeightMesuremetnId_Name { get; set; }
+        public bool? IsDeleted { get; set; }
+        public bool? IsActive { get; set; }
+        public string SubTitleText { get; set; }
+        public decimal? ProductWeight { get; set; }
+        public int? ProductWeightMeasurement { get; set; }
+        public string ProductWeightMeasurement_Name { get; set; }
+        public List<SizeMasterEntity> SizeMasterEntity { get; set; }
+
+        public DaimondsPerProductEntity DaimondsMain { get; set; }
+        public List<DaimondsPerPrdDetailsEntity> DaimondsDetail { get; set; }
+
+        public PerlPerProductEntity PerlMain { get; set; }
+        public List<PerlPerPrdDetailsEntity> PerlDetails { get; set; }
+        public List<IFormFile> ProductDetailImages { get; set; }
+        public string ProductDetailImages_List { get; set; }
+        public SolitairePerProductEntity SolitaireMain { get; set; }
+        public List<SolitairePerPrdDetailsEntity> SolitaireDetails { get; set; }
+        public SRubyPerProductEntity SRubyMain { get; set; }
+        public List<SRubyPerPrdDetailsEntity> SRubyDetails { get; set; }
+        public decimal? MakingCharges { get; set; }
+
+    }
     public class ProductDetailsModel
     {
         public int ProductDetailId { get; set; }

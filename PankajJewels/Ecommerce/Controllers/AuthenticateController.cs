@@ -588,7 +588,8 @@ namespace Ecommerce.Controllers
                 Address2= user.Address2,
                 AddressTypeId= user.AddressTypeId,
                 IsDeliveredAddress= user.IsDeliverAddress,
-                ZipCode=user.ZipCode
+                ZipCode=user.ZipCode,
+                CityName= user.CityName
                  
             });
 

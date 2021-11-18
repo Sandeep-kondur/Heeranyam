@@ -10,6 +10,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IProductManagementService
     {
+        List<ProductListDisplay> APIGetProductsBySearch(int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "");
         APIPostProductModel APIGetProductDetails(int productId,int userid);
         List<UserReviewMaster> GetProductReviews(int productId, int userid);
         int isInWishList(int productid, int userid);

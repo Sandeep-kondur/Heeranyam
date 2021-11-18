@@ -228,10 +228,14 @@ namespace Ecommerce.Models.BAL
                 if (resultAddress != null && resultAddress.AddressTypeId!=4)
                 {
                     apiUser.AddressTypeId = resultAddress.AddressTypeId;
-                    apiUser.Address1 = resultAddress.Address1;
-                    apiUser.Address2 = resultAddress.Address2;
-                    apiUser.LandMark = resultAddress.LandMark;
-                    apiUser.ZipCode = resultAddress.ZipCode;
+                    apiUser.Address1 = resultAddress.Address1 != null ? resultAddress.Address1 : string.Empty;
+                    apiUser.Address2 = resultAddress.Address2 != null ? resultAddress.Address2 : string.Empty; 
+                    apiUser.LandMark = resultAddress.LandMark != null ? resultAddress.LandMark : string.Empty; 
+                    apiUser.ZipCode = resultAddress.ZipCode != null ? resultAddress.ZipCode : string.Empty; 
+                    apiUser.IsDeliverAddress = resultAddress.IsDeliverAddress != null ? resultAddress.IsDeliverAddress : string.Empty;
+
+                    apiUser.CityName = context.cityMasterEntities.Where(x=>x.Id== resultAddress.CityId).Select(a => a.CityName).FirstOrDefault();
+
                 }
                 else
                 {
@@ -240,6 +244,7 @@ namespace Ecommerce.Models.BAL
                     apiUser.Address2 = string.Empty;
                     apiUser.LandMark = string.Empty;
                     apiUser.ZipCode = string.Empty;
+                    apiUser.CityName = string.Empty;
                 }
             
                 

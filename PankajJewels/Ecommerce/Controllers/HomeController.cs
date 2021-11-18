@@ -1,18 +1,16 @@
 ﻿using Ecommerce.Models;
+using Ecommerce.Models.Entity;
+using Ecommerce.Models.InterfacesBAL;
 using Ecommerce.Models.ModelClasses;
 using Ecommerce.Models.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Ecommerce.Models.InterfacesBAL;
-using Ecommerce.Models.Entity;
-using Microsoft.Extensions.Configuration;
 using System.IO;
-using Microsoft.AspNetCore.Http.Extensions;
+using System.Linq;
 using System.Net.Http.Headers;
 
 namespace Ecommerce.Controllers
@@ -195,6 +193,18 @@ namespace Ecommerce.Controllers
 
             return StatusCode(200,new { myObj , status=1, message="Success"});
         }
+        [HttpGet]
+        public IActionResult APICheckOut(int userid)
+        {
+           
+            UserCartModel myObject = new UserCartModel();
+            myObject = _uService.GetMyCart(userid);
+          
+            return StatusCode(200, new { status = 1,
+                Message = "Success",
+                cartDetails = 
+                (myObject != null && myObject.CartDetails != null && myObject.CartDetails.Count > 0) == true ? myObject : new UserCartModel() });
+        }
 
         [HttpPost]
         public IActionResult APIAddToWishlist(int userId, int productId, int detailId)
@@ -224,11 +234,23 @@ namespace Ecommerce.Controllers
         {
             try
             {
+                string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
                 int CartCount = _uService.GetUserCartCount(userid);
                 UserCartModel myObject = new UserCartModel();
                 myObject = _uService.GetMyCart(userid);
+                decimal bankChareges = 0;
+                decimal bankTax = 0;
+                foreach (var item in myObject.CartDetails)
+                {
+                    if (item.ProductImage != null &&! item.ProductImage.Contains(Request.Host.Value))
+                    {
+                        item.ProductImage = url + item.ProductImage;
+                    }
+                    bankChareges = item.BankChareges + bankChareges;
+                    bankTax = item.BankTax + bankTax;
+                }
                 decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
-                return StatusCode(200, new { status = CartCount>=0?1:0, message =CartCount>=1? "Success":"There are no Cart Items", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue });
+                return StatusCode(200, new { status = CartCount>=0?1:0, message =CartCount>=1? "Success":"There are no Cart Items", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue , bankTax= bankTax, bankChareges=bankChareges });
             }
             catch (Exception)
             {
@@ -274,6 +296,175 @@ namespace Ecommerce.Controllers
             return StatusCode(200, new { status = 1, Message = "Success", result = response, cartcount = cartCount });
         }
 
+        public IActionResult APIComplete(int userid,string paymentid,string orderid)
+        {
+            // Payment data comes in url so we have to get it from url
+
+            // This id is razorpay unique payment id which can be use to get the payment details from razorpay server
+            string paymentId = paymentid;// Request.Form["rzp_paymentid"];
+
+            // This is orderId  
+            var orderId = orderid;// Request.Form["rzp_orderid"];
+            string rKey = _config.GetValue<string>("OtherConfig:RazorKey");
+            string rSecret = _config.GetValue<string>("OtherConfig:RazorSecret");
+            Razorpay.Api.RazorpayClient client = new Razorpay.Api.RazorpayClient(rKey, rSecret);
+
+            Razorpay.Api.Payment payment = client.Payment.Fetch(paymentId);
+
+            // This code is for capture the payment 
+            Dictionary<string, object> options = new Dictionary<string, object>();
+            options.Add("amount", payment.Attributes["amount"]);
+            Razorpay.Api.Payment paymentCaptured = payment.Capture(options);
+            string amt = paymentCaptured.Attributes["amount"];
+            RazorOrderResult rResult = new RazorOrderResult();
+            rResult.id = paymentCaptured.Attributes["id"];
+            ///rResult.acquirer_data.bank_transaction_id = paymentCaptured.Attributes["acquirer_data"]["bank_transaction_id"];
+            rResult.amount = paymentCaptured.Attributes["amount"];
+            rResult.amount_refunded = paymentCaptured.Attributes["amount_refunded"];
+            rResult.bank = paymentCaptured.Attributes["bank"];
+            rResult.captured = paymentCaptured.Attributes["captured"];
+            rResult.card_id = paymentCaptured.Attributes["card_id"];
+            rResult.contact = paymentCaptured.Attributes["contact"];
+            rResult.created_at = paymentCaptured.Attributes["created_at"];
+            rResult.currency = paymentCaptured.Attributes["currency"];
+            rResult.description = paymentCaptured.Attributes["description"];
+            rResult.email = paymentCaptured.Attributes["email"];
+            rResult.entity = paymentCaptured.Attributes["entity"];
+            rResult.error_code = paymentCaptured.Attributes["error_code"];
+            rResult.error_description = paymentCaptured.Attributes["error_description"];
+            rResult.error_reason = paymentCaptured.Attributes["error_reason"];
+            rResult.error_source = paymentCaptured.Attributes["error_source"];
+            rResult.error_step = paymentCaptured.Attributes["error_step"];
+            rResult.fee = paymentCaptured.Attributes["fee"];
+            rResult.id = paymentCaptured.Attributes["id"];
+            rResult.international = paymentCaptured.Attributes["international"];
+            rResult.invoice_id = paymentCaptured.Attributes["invoice_id"];
+            rResult.method = paymentCaptured.Attributes["method"];
+            // rResult.notes.address= paymentCaptured.Attributes["notes"]["address"];
+            rResult.order_id = paymentCaptured.Attributes["order_id"];
+            rResult.refund_status = paymentCaptured.Attributes["refund_status"];
+            rResult.status = paymentCaptured.Attributes["status"];
+            rResult.tax = paymentCaptured.Attributes["tax"];
+            rResult.vpa = paymentCaptured.Attributes["vpa"];
+            rResult.wallet = paymentCaptured.Attributes["wallet"];
+
+
+            // Check payment made successfully
+
+            if (paymentCaptured.Attributes["status"] == "captured")
+            {
+                // Create these action method
+
+                UserCartModel myObject = new UserCartModel();
+                myObject = SessionHelper.GetObjectFromJson<UserCartModel>(HttpContext.Session, "currentOrder");
+                // update cart as paid 
+                try
+                {
+                    if (myObject != null)
+                    {
+                        //place entries in PO Master and details
+                        POMasterEntity poM = new POMasterEntity();
+                        poM.CartId = myObject.CartId;
+                        poM.CreatedOn = DateTime.Now;
+                        poM.CurrentStatus = "PaymentSuccess";
+                        poM.InstrumentDetails = rResult.order_id;
+                        poM.IsDeleted = false;
+                        poM.OrderStatus = "Open";
+                        poM.OrderAmount = (decimal)myObject.CartDetails.Sum(a => a.TotalPrice);
+                        poM.PaidAmount = rResult.amount / 100;
+                        poM.PaidDate = DateTime.Now;
+                        poM.BankCharges = rResult.fee / 100;
+                        poM.BankTaxes = rResult.tax / 100;
+                        poM.PaymentMethod = rResult.method;
+                        poM.PONumber = "PO-HJ-" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString() + userid.ToString() + "-" + RandomGenerator.RandomString(3, false);
+                        poM.TransactionId = rResult.id;
+                        poM.UserId = myObject.CartUserId;
+                        ProcessResponse pomResponse = _uService.SavePOMaster(poM);
+                        if (pomResponse.currentId > 0)
+                        {
+                            poM.POId = pomResponse.currentId;
+                            foreach (var v in myObject.CartDetails)
+                            {
+                                PODetailsEntity pde = new PODetailsEntity();
+                                CloneObjects.CopyPropertiesTo(v, pde);
+                                pde.POMasterId = pomResponse.currentId;
+                                var vRes = _uService.SavePODetails(pde);
+                            }
+
+                            // place an entry in followup 
+                            POFollowUpEntity pf = new POFollowUpEntity();
+                            pf.FollowUpBy = userid;
+                            pf.FollowUpOn = DateTime.Now;
+                            pf.FollowUpRemarks = "Order Created on " + DateTime.Now.ToString() + ". Making process will be initiated shortly";
+                            pf.POId = pomResponse.currentId;
+                            pf.PODetialId = 0;
+                            pf.IsDeleted = false;
+                            _pService.SaveFollowUp(pf);
+
+                            // send emails 
+                            _nService.SendOrderCreatedEmail(poM);
+                        }
+
+                        // post values in razor result table
+                        RazorPaymentResultEntity rm = new RazorPaymentResultEntity();
+                        rm.id = rResult.id;
+                        rm.amount = rResult.amount;
+                        rm.order_id = rResult.order_id;
+                        rm.method = rResult.method;
+                        rm.bank = rResult.bank;
+                        rm.card_id = rResult.card_id;
+                        rm.wallet = rResult.wallet;
+                        rm.vpa = rResult.vpa;
+                        rm.fee = rResult.fee;
+                        rm.tax = rResult.tax;
+
+                        rm.POID = pomResponse.currentId;
+                        rm.IsDeleted = false;
+                        var rms = _uService.SaveRazorPaymentResult(rm);
+                        // update cart and details status
+
+                        CartMasterEntity cm = new CartMasterEntity();
+                        cm = _uService.GetCartById(myObject.CartId);
+                        cm.IsDeleted = true;
+                        cm.CurrentStatus = "Purchased";
+                        var t = _uService.UpdateCartMaster(cm);
+
+                        foreach (var d in myObject.CartDetails)
+                        {
+                            CartDetailsEntity cd = new CartDetailsEntity();
+                            cd = _uService.GetCartDetailById(d.CartDetailId);
+                            cd.IsDeleted = true;
+                            cd.CurrentStatus = "Purchased";
+                            var dR = _uService.UpdateCartDetails(cd);
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                 
+                return  APIPaymentSuccess(userid);
+            }
+            else
+            {
+                return APIPaymentFailed(  userid);
+            }
+        }
+
+        public IActionResult APIPaymentFailed(int userid)
+        {
+            
+            
+            return StatusCode(500, new { status=0, message="Payment Failed"});
+        }
+        public IActionResult APIPaymentSuccess(int userid)
+        {
+
+            return StatusCode(200, new { status = 1, message = "Payment Success" });
+        }
 
         [HttpPost]
         public IActionResult APIProductIncrementAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
@@ -593,8 +784,186 @@ namespace Ecommerce.Controllers
 
         }
 
+
+        public IActionResult APISearch(int userid,int cid = 0, int sid = 0, int did = 0, int pageNumber = 1,
+          int pageSize = 10, string search = "", decimal price = 0, int metalid = 0,
+          string gender = "", int discountid = 0, bool isFA = false)
+        {
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+
+            HomeProductsModels myObj = new HomeProductsModels();
+            List<SubCategoryMasterEntity> subCatDrop = new List<SubCategoryMasterEntity>();
+            List<DetailCategoryMasterEntity> detCatDrops = new List<DetailCategoryMasterEntity>();
+            List<CategoryMasterEntity> catDrops = new List<CategoryMasterEntity>();
+            PaginationRequest pr = new PaginationRequest();
+            GenericRequest gr = new GenericRequest();
+            gr.pageNumber = 1;
+            gr.pageSize = 1000;
+            pr.pageNumber = 1;
+            pr.pageSize = 1000;
+            catDrops = _oServce.GetAllCategories(pr);
+            if (isFA)
+            {
+                string q1 = @"select pm.CategoryId, pm.ProductDescription, cat.CategoryName CategoryId_name, pm.DetailCategoryId, dcat.DetailCategoryName DetailCategoryId_name,
+                            pm.ProductId, pm.DiscountApplicableId, pm.DiscountApplicableId DiscountMasterId,
+                            pm.IsCustomizable, pm.IsSizeApplicable, pm.MaxDelivaryDays, pm.PostedBy, pm.PostedOn, pm.ProductTitle,
+                            pm.SubCategoryId, scat.SubCategoryName SubCategoryId_name,
+                            (select top(1) ImageUrl from ProductImages where ProductImages.ProductId = pm.ProductId) ProductMainImages_List,
+                            (select top(1) pd.ActualPrice from ProductDetails pd where pd.ProductId = pm.ProductId) ActualPrice,
+                            (select top(1) pd.SellingPrice from ProductDetails pd where pd.ProductId = pm.ProductId) SellingPrice
+                            from ProductMaster pm
+                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
+                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
+                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
+                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
+                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
+                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
+                            where pm.IsDeleted = 0 ";
+                string q2 = string.Empty;
+                if (price != -1)
+                {
+                    q2 = " and SellingPrice < " + price.ToString();
+                }
+                if (metalid > 0)
+                {
+                    q2 += " and mm.MasterId = " + metalid;
+                }
+                if (!string.IsNullOrEmpty(gender))
+                {
+                    q2 += " and pm.PrefferedGender = '" + gender + "'";
+                }
+                if (discountid > 0)
+                {
+                    q2 += " and pm.DiscountApplicableId = " + discountid;
+                }
+                int skipSize = pageNumber == 1 ? 0 : (pageNumber - 1) * pageSize;
+                string q3 = " order by pm.postedon desc offset " + skipSize + " rows fetch next " + pageSize + " rows only";
+                q1 = q1 + q2 + q3;
+                myObj.listProducts = _pService.GetProductsByFilter(q1);
+
+
+                string countQ = @"select count(pm.CategoryId) as cnt
+                            from ProductMaster pm
+                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
+                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
+                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
+                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
+                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
+                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
+                            where pm.IsDeleted = 0 ";
+                string countQF = countQ + " " + q2;
+                myObj.totalRecords = _pService.GetProductsByFilter_count(countQF);
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(search))
+                {
+                    myObj.listProducts = _pService.APIGetProductsBySearch(cid, pageNumber, pageSize, search);
+                    myObj.totalRecords = _pService.GetProductsBySearch_count(cid, pageNumber, pageSize, search);
+                }
+                else if (cid > 0)
+                {
+                    myObj.listProducts = _pService.GetProductsByCatId(cid, pageNumber, pageSize, search);
+                  
+                    myObj.totalRecords = _pService.GetProductsByCatId_Count(cid, pageNumber, pageSize, search);
+
+                }
+                else if (did > 0)
+                {
+                    myObj.listProducts = _pService.GetProductsByDetId(did, pageNumber, pageSize, search);
+                    myObj.totalRecords = _pService.GetProductsByDetId_Count(did, pageNumber, pageSize, search);
+
+                }
+                if (myObj.listProducts != null && myObj.listProducts.Count > 0)
+                {
+                    foreach (var item in myObj.listProducts)
+                    {
+                        item.ProductMainImages_List = url + item.ProductMainImages_List;
+                    }
+                }
+            }
+            gr.Id = cid;
+            subCatDrop = _oServce.GetAllSubCategories(gr);
+            gr.Id = sid;
+            detCatDrops = _oServce.GetAllDetailCategories(gr);
+
+            //ViewBag.TotalCount = myObj.totalRecords;
+            //ViewBag.pageNumber = pageNumber;
+            //ViewBag.pageSize = pageSize;
+            //ViewBag.search = search;
+            //ViewBag.cid = cid;
+            //ViewBag.did = did;
+            //ViewBag.sid = sid;
+            //ViewBag.price = price;
+            //ViewBag.metalid = metalid;
+            //ViewBag.gender = gender;
+            //ViewBag.discountid = discountid;
+            //ViewBag.CartCount = _uService.GetUserCartCount(userid);
+
+            // for filters drop downs
+
+            List<MetalMasterEntity> metalDrop = _mService.GetMetalMaster(pr, "List");
+
+            StaticDropDowns staticDrops = new StaticDropDowns();
+            List<DiscountMasterEntity> discDrops = _mService.GetAllDiscounts(gr);
+
+            //myObj.detCatDrops = detCatDrops;
+            //myObj.subCateDrop = subCatDrop;
+            //myObj.catDrops = catDrops;
+            //myObj.staticDrops = staticDrops;
+            //myObj.metalDrop = metalDrop;
+            //myObj.discDrops = discDrops;
+            bool success = (myObj != null && myObj.listProducts != null && myObj.listProducts.Count > 0) == true;
+            return StatusCode (200, new { statusCode= success==true?1:0,Message=success==true?"Success": "There are no Products available",ProductDetails=success==true?myObj.listProducts : new List<ProductListDisplay>()});
+        }
+
+        public IActionResult APICreateOrder(int userid)
+        {
+
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+            int CartCount = _uService.GetUserCartCount(userid);
+            UserCartModel myObject = new UserCartModel();
+            myObject = _uService.GetMyCart(userid);
+            foreach (var item in myObject.CartDetails)
+            {
+                if (item.ProductImage != null && !item.ProductImage.Contains(Request.Host.Value))
+                {
+                    item.ProductImage = url + item.ProductImage;
+                }
+            }
+           
+            // create order
+            string rKey = _config.GetValue<string>("OtherConfig:RazorKey");
+            string rSecret = _config.GetValue<string>("OtherConfig:RazorSecret");
+            Random randomObj = new Random();
+            string transactionId = randomObj.Next(10000000, 100000000).ToString();
+            Razorpay.Api.RazorpayClient client = new Razorpay.Api.RazorpayClient(rKey, rSecret);
+            Dictionary<string, object> options = new Dictionary<string, object>();
+            int toPayAmount = (int)((myObject.CartDetails.Sum(b => b.TotalPrice) + myObject.CartDetails.Sum(b => b.BankTax) + myObject.CartDetails.Sum(b => b.BankChareges)) * 100);
+            options.Add("amount", toPayAmount);
+            options.Add("receipt", transactionId);
+            options.Add("currency", "INR");
+            options.Add("payment_capture", "0");
+
+            Razorpay.Api.Order orderResponse = client.Order.Create(options);
+            string orderId = orderResponse["id"].ToString();
+            OrderModel orderModel = new OrderModel
+            {
+                orderId = orderResponse.Attributes["id"],
+                address = myObject.CustomerAddress,
+                amount = toPayAmount,
+                contactNumber = myObject.CustomerMobile,
+                currency = "INR",
+                description = "Purchase of items",
+                email = myObject.CustomerEmail,
+                name = myObject.CustomerName,
+                razorpayKey = rKey
+            };
+            myObject.orderModel = orderModel;
+            return StatusCode(200, new {orderModel, status=1, message="success" });
+        }
         [HttpPost]
-        public IActionResult APIAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
+        public IActionResult APIAddToCart(int userId, int productId, int detailId,int size,int numberOfItems = 1)
         {
             try
             {
@@ -671,6 +1040,7 @@ namespace Ecommerce.Controllers
                         pd.ProductTitle = product.ProductTitle;
                         pd.TotalPrice = numberOfItems * pm.totalAmount;
                         pd.AddedOn = DateTime.Now;
+                        pd.SizeId = size;
                         response = _uService.AddToCart(pd, userId);
                         response.cartcount = _uService.GetUserCartCount(userId);
 
@@ -753,6 +1123,7 @@ namespace Ecommerce.Controllers
                         pd.ProductTitle = product.ProductTitle;
                         pd.TotalPrice = numberOfItems * pm.totalAmount;
                         pd.AddedOn = DateTime.Now;
+                        pd.SizeId = size;
                         response = _uService.AddToCart(pd, userId);
                         response.cartcount = _uService.GetUserCartCount(userId);
 
@@ -774,13 +1145,10 @@ namespace Ecommerce.Controllers
         [HttpGet]
         public IActionResult APIWishlist(int userid, string emailid)
         {
-
-            int cartCount = _uService.GetUserCartCount(userid);
             List<WishListModel> myObject = new List<WishListModel>();
             string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
-
             myObject = _uService.APIGetMyWishList(userid,  url);
-            return StatusCode(200, new { wishList = myObject, status = 1, Message = "Success" });
+            return StatusCode(200, new { wishList = myObject, status =myObject.Count>=1? 1:0, Message = myObject.Count >= 1 ?  "Success":"There are no WishList Items" });
         }
 
 
@@ -1095,6 +1463,8 @@ namespace Ecommerce.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 
         }
+
+
 
         public IActionResult Listing(int cid = 0, int sid = 0, int did = 0, int pageNumber = 1,
             int pageSize = 10, string search = "", decimal price = 0, int metalid = 0,
