@@ -10,6 +10,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IProductManagementService
     {
+        List<APIProductListDisplay> APIGetProductsBySearchforUser(int userid, int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "");
         List<ProductListDisplay> APIGetProductsBySearch(int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "");
         APIPostProductModel APIGetProductDetails(int productId,int userid);
         List<UserReviewMaster> GetProductReviews(int productId, int userid);
@@ -60,7 +61,7 @@ namespace Ecommerce.Models.InterfacesBAL
         ProcessResponse UpdateGoldRate(GoldRateMasterEntity request);
         List<ProductListDisplay> SearchProducts(int catId, int scatId, int detCatId, string search = "", int pageNumber = 1, int pageSize = 10);
 
-
+        List<APIProductListDisplay> APIGetLatestProducts(string src = "0");
         List<ProductListDisplay> GetLatestProducts(string src = "0");
         decimal GetGoldTodayRate();
         decimal GetMetalTypeRate(int metalId);

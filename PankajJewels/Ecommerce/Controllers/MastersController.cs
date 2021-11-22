@@ -911,8 +911,122 @@ namespace Ecommerce.Controllers
 
             return Json(new { result = response });
         }
+        
 
+        [HttpPost]
+        public IActionResult GetDaimondColorMasters(PaginationRequest request)
+        {
+            try
+            {
+                var response = (_mService.GetDaimondColorMaster(request));
 
+                
+                    return View(response);
+
+                 
+                
+            }
+            catch (Exception ex)
+            {
+                return View(ex);
+            }
+        }
+     
+        public IActionResult DiamondTypeData(int request)
+        {
+
+            LoginResponse loginCheckResponse = new LoginResponse();
+            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+            if (loginCheckResponse == null)
+            {
+                loginCheckResponse = new LoginResponse();
+                loginCheckResponse.userId = 0;
+                loginCheckResponse.userName = "NA"; return RedirectToAction("Login", "Authenticate");
+                ViewBag.LoggedUser = loginCheckResponse;
+                return RedirectToAction("Login", "Authenticate", new { url = "Master/Dashboard" });
+            }
+            ViewBag.LoggedUser = loginCheckResponse;
+            
+
+                ViewBag.LoggedUser = loginCheckResponse;
+                 DaimondTypeMasterEntity  diamondEntity = new DaimondTypeMasterEntity();
+
+              //  diamondEntity = _mService.GetDaimondTypeMaster(new PaginationRequest() { pageNumber = 1, pageSize = 10 }).FirstOrDefault();
+
+           
+            return View(diamondEntity);
+        }
+
+        public IActionResult DiamondType() {
+
+            LoginResponse loginCheckResponse = new LoginResponse();
+            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+            if (loginCheckResponse == null)
+            {
+                loginCheckResponse = new LoginResponse();
+                loginCheckResponse.userId = 0;
+                loginCheckResponse.userName = "NA"; return RedirectToAction("Login", "Authenticate");
+                ViewBag.LoggedUser = loginCheckResponse;
+                return RedirectToAction("Login", "Authenticate", new { url = "Master/Dashboard" });
+            }
+            ViewBag.LoggedUser = loginCheckResponse;
+           List< DaimondTypeMasterEntity> diamondEntity = new List<DaimondTypeMasterEntity>();
+
+            diamondEntity= _mService.GetDaimondTypeMaster(new PaginationRequest() { pageNumber = 1, pageSize = 10 });
+            return View(diamondEntity);
+        }
+
+        [HttpPost]
+        public IActionResult DiamondTypeData(DaimondTypeMasterEntity request)
+        {
+
+            LoginResponse loginCheckResponse = new LoginResponse();
+            loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
+            if (loginCheckResponse == null)
+            {
+                loginCheckResponse = new LoginResponse();
+                loginCheckResponse.userId = 0;
+                loginCheckResponse.userName = "NA"; return RedirectToAction("Login", "Authenticate");
+                ViewBag.LoggedUser = loginCheckResponse;
+                return RedirectToAction("Login", "Authenticate", new { url = "Master/Dashboard" });
+            }
+            ViewBag.LoggedUser = loginCheckResponse;
+            if (ModelState.IsValid)
+            {
+
+                if (ModelState.IsValid)
+                {
+                    if (request.MasterId == 0)
+                    {
+                        request.IsDeleted = false;
+                        var result = _mService.SaveDiamondTypeMaster(request);
+                        if (result.statusCode == 1)
+                        {
+                            return RedirectToAction("GoldMaster");
+                        }
+                        else
+                        {
+                            ViewBag.ErrorMessage = result.statusMessage;
+                        }
+                    }
+                    else
+                    {
+                        request.IsDeleted = false;
+                        var result = _mService.UpdateDaimondTypeMaster(request);
+                        if (result.statusCode == 1)
+                        {
+                            return RedirectToAction("GoldMaster");
+                        }
+                        else
+                        {
+                            ViewBag.ErrorMessage = result.statusMessage;
+                        }
+                    }
+                }
+
+            }
+            return View(request);
+        }
         public IActionResult TodayGoldRate()
         {
             LoginResponse loginCheckResponse = new LoginResponse();

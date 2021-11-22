@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ecommerce.Models.Entity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -52,5 +53,6 @@ namespace Ecommerce.Models.ModelClasses
 
         public decimal BankChareges { get; set; }
         public decimal BankTax { get; set; }
+        public List<SizeMasterEntity> SizeMasterEntity { get; set; }
     }
 }

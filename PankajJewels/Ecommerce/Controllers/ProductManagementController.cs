@@ -304,6 +304,17 @@ namespace Ecommerce.Controllers
 
                 if (response!=null && response.Count >= 1)
                 {
+                    foreach (var item in response)
+                    {
+                        if (item.ActualPrice == null)
+                        {
+                            item.ActualPrice = 0;
+                        }
+                        if (item.SellingPrice == null)
+                        {
+                            item.SellingPrice = 0;
+                        }
+                    }
                     return StatusCode(200, new { status = 1, message = "Success", productDetails = response });
 
                 }

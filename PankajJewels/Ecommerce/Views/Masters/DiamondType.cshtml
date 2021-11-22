@@ -1,0 +1,91 @@
+﻿@model IEnumerable<Ecommerce.Models.Entity.DaimondTypeMasterEntity>
+
+@{
+    ViewData["Title"] = "DiamondType";
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+}
+ 
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Add-Edit</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                @*<a href="~/Masters/Dashboard"><h5 class="pull-right">Back to list</h5></a>*@
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <div class="row">
+                            <h4>Diamond Type</h4>
+
+                            <a class="dropdown-button drop-down-meta" href="#" data-activates="dr-users"><i class="material-icons">more_vert</i></a>
+                            <ul id="dr-users" class="dropdown-content">
+                                <li>
+                                    <a href="~/Masters/DiamondTypeData">Add New</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab-inn">
+                        <div class="table-responsive table-desi">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>TypeName</th>
+                                        <th>Type Description</th>
+
+                                        <th>PriceTag</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model)
+                                    {
+                                    <tr>
+                                        <td>
+                                        </td>
+                                        <td>
+
+                                            <span class="list-enq-name">@r.TypeName</span>
+                                            <span class="list-enq-city"></span>
+
+                                        </td>
+                                        <td>
+                                            <span class="list-enq-name">@r.TypeDescription</span>
+                                        </td>
+
+                                        <td>
+                                            <span class="list-enq-name">@r.PriceTag</span>
+                                        </td>
+
+                                        <td>
+                                            <a href="~/Masters/GoldMasterData?id=@r.MasterId" title="Edit">
+                                                <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                            </a>
+                                            <a href="javascript:void(0);" onclick="ShowDelete(@r.MasterId)" title="Delete">
+                                                <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    }
+
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    </div>
+               
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

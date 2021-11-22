@@ -9,6 +9,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
    public interface IMasterDataMgmtService
     {
+        ProcessResponse SaveDiamondTypeMaster(DaimondTypeMasterEntity request);
         List<SizeMasterEntity> GetAllSizes_Web(GenericRequest request);
         List<SizeMasterForDeailPage> GetSizesForDetailPage(int prodcutid);
         List<DaimondShapeMasterEntity> GetDaimondShapreMaster(PaginationRequest request);

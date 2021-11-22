@@ -1069,6 +1069,116 @@ namespace Ecommerce.Models.BAL
             }
             return response;
         }
+
+        public List<APIProductListDisplay> APIGetLatestProducts(string src = "0")
+        {
+            List<APIProductListDisplay> response = new List<APIProductListDisplay>();
+            try
+            {
+                if (src == "0")
+                {
+                    response = (from prd in context.productMasterEntities
+                                join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                                join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                                join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                                where prd.IsDeleted == false
+                                select new APIProductListDisplay
+                                {
+                                    CategoryId = prd.CategoryId,
+                                    CategoryId_name = cat.CategoryName,
+                                    DetailCategoryId = prd.DetailCategoryId,
+                                    ProductId = prd.ProductId,
+                                    DetailCategoryId_name = detcat.DetailCategoryName,
+                                    DiscountApplicableId = prd.DiscountApplicableId,
+                                    DiscountMasterId = prd.DiscountApplicableId,
+                                    IsCustomizable = prd.IsCustomizable,
+                                    IsSizeApplicable = prd.IsSizeApplicable,
+                                    MaxDelivaryDays = prd.MaxDelivaryDays,
+                                    PostedBy = prd.PostedBy,
+                                    PostedOn = prd.PostedOn,
+                                    ProductDescription = prd.ProductDescription,
+                                    ProductTitle = prd.ProductTitle,
+                                    SubCategoryId = prd.SubCategoryId,
+                                    SubCategoryId_name = subcat.SubCategoryName,
+                                    ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                    ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
+                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
+                                }).OrderByDescending(b => b.PostedOn).Take(10).
+                                ToList();
+                }
+                else if (src == "AG")
+                {
+                    response = (from prd in context.productMasterEntities
+                                join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                                join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                                join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                                where prd.IsDeleted == false && prd.IsAllGold == "Yes"
+                                select new APIProductListDisplay
+                                {
+                                    CategoryId = prd.CategoryId,
+                                    CategoryId_name = cat.CategoryName,
+                                    DetailCategoryId = prd.DetailCategoryId,
+                                    ProductId = prd.ProductId,
+                                    DetailCategoryId_name = detcat.DetailCategoryName,
+                                    DiscountApplicableId = prd.DiscountApplicableId,
+                                    DiscountMasterId = prd.DiscountApplicableId,
+                                    IsCustomizable = prd.IsCustomizable,
+                                    IsSizeApplicable = prd.IsSizeApplicable,
+                                    MaxDelivaryDays = prd.MaxDelivaryDays,
+                                    PostedBy = prd.PostedBy,
+                                    PostedOn = prd.PostedOn,
+                                    ProductDescription = prd.ProductDescription,
+                                    ProductTitle = prd.ProductTitle,
+                                    SubCategoryId = prd.SubCategoryId,
+                                    SubCategoryId_name = subcat.SubCategoryName,
+                                    ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                    ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
+                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
+                                }).OrderByDescending(b => b.PostedOn).Take(10).
+                                ToList();
+                }
+                else if (src == "HT")
+                {
+                    response = (from prd in context.productMasterEntities
+                                join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                                join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                                join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                                where prd.IsDeleted == false && prd.IsHotDeal == "Yes"
+                                select new APIProductListDisplay
+                                {
+                                    CategoryId = prd.CategoryId,
+                                    CategoryId_name = cat.CategoryName,
+                                    DetailCategoryId = prd.DetailCategoryId,
+                                    ProductId = prd.ProductId,
+                                    DetailCategoryId_name = detcat.DetailCategoryName,
+                                    DiscountApplicableId = prd.DiscountApplicableId,
+                                    DiscountMasterId = prd.DiscountApplicableId,
+                                    IsCustomizable = prd.IsCustomizable,
+                                    IsSizeApplicable = prd.IsSizeApplicable,
+                                    MaxDelivaryDays = prd.MaxDelivaryDays,
+                                    PostedBy = prd.PostedBy,
+                                    PostedOn = prd.PostedOn,
+                                    ProductDescription = prd.ProductDescription,
+                                    ProductTitle = prd.ProductTitle,
+                                    SubCategoryId = prd.SubCategoryId,
+                                    SubCategoryId_name = subcat.SubCategoryName,
+                                    ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                    ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
+                                    SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault()
+                                }).OrderByDescending(b => b.PostedOn).Take(10).
+                                ToList();
+                }
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError(ex);
+            }
+            return response;
+        }
         public List<ProductListDisplay> GetLatestProducts(string src="0")
         {
             List<ProductListDisplay> response = new List<ProductListDisplay>();
@@ -1646,6 +1756,51 @@ namespace Ecommerce.Models.BAL
         #region API Products
 
 
+        public List<APIProductListDisplay> APIGetProductsBySearchforUser( int userid,int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "")
+        {
+            List<APIProductListDisplay> response = new List<APIProductListDisplay>();
+            try
+            {
+
+                response = (from prd in context.productMasterEntities
+                            join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                            join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                            join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                            where prd.IsDeleted == false &&
+                            (prd.ProductTitle.Contains(search) || subcat.SubCategoryName.Contains(search) || cat.CategoryName.Contains(search))
+                            select new APIProductListDisplay
+                            {
+                                CategoryId = prd.CategoryId,
+                                CategoryId_name = cat.CategoryName,
+                                DetailCategoryId = prd.DetailCategoryId,
+                                ProductId = prd.ProductId,
+                                DetailCategoryId_name = detcat.DetailCategoryName,
+                                DiscountApplicableId = prd.DiscountApplicableId,
+                                DiscountMasterId = prd.DiscountApplicableId,
+                                IsCustomizable = prd.IsCustomizable,
+                                IsSizeApplicable = prd.IsSizeApplicable,
+                                MaxDelivaryDays = prd.MaxDelivaryDays,
+                                PostedBy = prd.PostedBy,
+                                PostedOn = prd.PostedOn,
+                                ProductDescription = prd.ProductDescription,
+                                ProductTitle = prd.ProductTitle,
+                                SubCategoryId = prd.SubCategoryId,
+                                SubCategoryId_name = subcat.SubCategoryName,
+                                ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
+                                SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault(),
+                                IsInWishList = userid != 0 ? context.wishListEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false && a.UserId == userid).FirstOrDefault() != null ? 1 : 0 : 0
+                            }).OrderByDescending(b => b.PostedOn).Take(10).
+                            ToList();
+
+
+            }
+            catch (Exception ex)
+            {
+                _logService.LogError(ex);
+            }
+            return response;
+        }
         public List<ProductListDisplay> APIGetProductsBySearch(int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "")
         {
             List<ProductListDisplay> response = new List<ProductListDisplay>();

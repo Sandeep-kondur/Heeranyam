@@ -219,6 +219,28 @@ namespace Ecommerce.Models.BAL
         {
             return context.goldMasterEntities.Where(a => a.MasterId == masterId).FirstOrDefault();
         }
+
+        public ProcessResponse SaveDiamondTypeMaster(DaimondTypeMasterEntity request)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                request.IsDeleted = false;
+                context.daimondTypeMasterEntities.Add(request);
+                context.SaveChanges();
+                response.statusCode = 1;
+                response.statusMessage = "Success";
+            }
+            catch (Exception ex)
+            {
+                ex.Source = "Save Category";
+                _logService.LogError(ex);
+                response.statusCode = 0;
+                response.statusMessage = "Failed to save : " + ex.Message.ToString();
+            }
+
+            return response;
+        }
         public ProcessResponse SaveGoldMaster(GoldMasterEntity request)
         {
             ProcessResponse response = new ProcessResponse();

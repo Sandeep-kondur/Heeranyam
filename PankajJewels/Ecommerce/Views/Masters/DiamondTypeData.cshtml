@@ -1,0 +1,61 @@
+﻿@model Ecommerce.Models.Entity.DaimondTypeMasterEntity
+
+@{
+    Layout = "~/Views/Shared/_AdminMaster.cshtml";
+}
+
+<div class="sb2-2">
+    <div class="sb2-2-2">
+        <ul>
+            <li>
+                <a href="#"><i class="fa fa-home" aria-hidden="true"></i> Home</a>
+            </li>
+            <li class="active-bre">
+                <a href="#"> Add-Edit</a>
+            </li>
+        </ul>
+    </div>
+    <div class="sb2-2-3">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="box-inn-sp">
+                    <div class="inn-title">
+                        <div class="row">
+                            <h4>Diamond Type Master</h4>
+                            <p>Master Data management</p>
+                            <a href="~/Masters/DiamondType"><h5 class="pull-right">Back to list</h5></a>
+                        </div>
+
+                    </div>
+                    <div class="tab-inn">
+                        <form action="~/Masters/DiamondTypeData" method="post">
+                            @Html.HiddenFor(b => b.MasterId)
+                            <div class="row">
+                                <div class="input-field col s4">
+                                    @Html.TextBoxFor(a => a.TypeName, null, new { @class = "validate", @placeholder = "Type Name" })
+                                    @Html.ValidationMessageFor(b => b.TypeName, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s4">
+                                    @Html.TextBoxFor(a => a.TypeDescription, null, new { @class = "validate", @placeholder = "Type Description" })
+                                    @Html.ValidationMessageFor(b => b.TypeDescription, null, new { @class = "text-danger" })
+                                </div>
+                                <div class="input-field col s4">
+                                    @Html.TextBoxFor(a => a.PriceTag, null, new { @class = "validate", @placeholder = "Price Tag" })
+                                    @Html.ValidationMessageFor(b => b.PriceTag, null, new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <i class="waves-effect waves-light btn-large waves-input-wrapper" style=""><input type="submit" class="waves-button-input"></i>
+                                </div>
+                            </div>
+                            <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

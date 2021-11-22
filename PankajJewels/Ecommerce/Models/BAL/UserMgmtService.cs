@@ -763,6 +763,46 @@ namespace Ecommerce.Models.BAL
             }
             return response;
         }
+
+        public List<APIProductListDisplay> StockDetails(int userid, string url) {
+
+
+            var response = (from um in context.userMasters
+                           join cm in context.cartMasterEntities on um.UserId equals cm.CartUserId
+                           join cd in context.cartDetailsEntities on cm.CartId equals cd.CartId
+                           join prd in context.productMasterEntities on cd.ProductId equals prd.ProductId
+                           join cat in context.categoryMasterEntities on prd.CategoryId equals cat.CategoryId
+                           join subcat in context.subCategoryMasters on prd.SubCategoryId equals subcat.SubCategoryId
+                           join detcat in context.detailCategoryMasters on prd.DetailCategoryId equals detcat.DetailCategoryId
+                           where cm.CartUserId == userid && cm.IsDeleted == false && cd.IsDeleted == false && prd.Stock < cd.NumberOfItems
+
+                           select new APIProductListDisplay
+                           {
+                               CategoryId = prd.CategoryId,
+                               CategoryId_name = cat.CategoryName,
+                               DetailCategoryId = prd.DetailCategoryId,
+                               ProductId = prd.ProductId,
+                               DetailCategoryId_name = detcat.DetailCategoryName,
+                               DiscountApplicableId = prd.DiscountApplicableId,
+                               DiscountMasterId = prd.DiscountApplicableId,
+                               IsCustomizable = prd.IsCustomizable,
+                               IsSizeApplicable = prd.IsSizeApplicable,
+                               MaxDelivaryDays = prd.MaxDelivaryDays,
+                               PostedBy = prd.PostedBy,
+                               PostedOn = prd.PostedOn,
+                               ProductDescription = prd.ProductDescription,
+                               ProductTitle = prd.ProductTitle,
+                               SubCategoryId = prd.SubCategoryId,
+                               SubCategoryId_name = subcat.SubCategoryName,
+                               ProductMainImages_List = url + context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                               ActualPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.ActualPrice).FirstOrDefault(),
+                               SellingPrice = context.productDetailsEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false).Select(b => b.SellingPrice).FirstOrDefault(),
+                               IsInWishList = userid != 0 ? context.wishListEntities.Where(a => a.ProductId == prd.ProductId && a.IsDeleted == false && a.UserId == userid).FirstOrDefault() != null ? 1 : 0 : 0,
+                               Stock = prd.Stock
+                           }).ToList();
+
+            return response;
+        }
         public ProcessResponse AddToCart1(CartDetailsModel requst, int userId)
         {
             ProcessResponse response = new ProcessResponse();
@@ -799,6 +839,25 @@ namespace Ecommerce.Models.BAL
             
 
             return response;
+        }
+
+        public bool ProductSizeUpdate(int productid, int userid, int sizeid)
+        {
+            var response = (
+                           from
+                            crtDetail in context.cartDetailsEntities 
+                         join   cartM in context.cartMasterEntities on crtDetail.CartId  equals cartM.CartId  
+                join um in context.userMasters on cartM.CartUserId equals um.UserId  
+                           where um.UserId == userid  && crtDetail.ProductId == productid && cartM.IsDeleted==false
+                           select crtDetail).FirstOrDefault();
+            if (response!=null)
+            {
+                response.SizeId = sizeid;
+                context.SaveChanges();
+                return true;
+            }
+
+            return false;
         }
 
         public CartDetailsEntity IsProdcutInCart(int userid, int productid) 
@@ -1075,6 +1134,7 @@ namespace Ecommerce.Models.BAL
                                    GoldWeight = d.GoldWeight,
                                    SizeId = d.SizeId,
                                    SizeName = d.SizeName,
+                                   SizeMasterEntity= context.sizeMasterEntities.Where(x => x.SubCategoryId == pr.SubCategoryId).ToList(),
                                    AddedOn = d.AddedOn,
                                    GoldRate = d.GoldRate, MetalMasterId_Name = d.MetalMasterId_Name,
                                    MetalMasterId = d.MetalMasterId,
@@ -1381,7 +1441,46 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
+        public ProcessResponse APISaveAddress(AddressEntity ae) 
+        {
+            ProcessResponse result = new ProcessResponse();
+            try
+            {
 
+                context.addressEntities.Add(ae);
+                context.SaveChanges();
+
+                result.currentId = ae.Id;
+                result.statusCode = 1;
+                result.statusMessage = "Registration is Success";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return result;
+            }
+        }
+
+        public ProcessResponse APIUpdateAddress(AddressEntity ae)
+        {
+            ProcessResponse result = new ProcessResponse();
+            try
+            {
+                var ad = context.addressEntities.Where(a => a.IsDeleted == false && a.UserId == ae.UserId && a.AddressTypeId== ae.AddressTypeId).FirstOrDefault();
+                ae.Id = ad.Id;
+                context.Entry(ad).CurrentValues.SetValues(ae);
+                context.SaveChanges();
+
+                result.currentId = ae.Id;
+                result.statusCode = 1;
+                result.statusMessage = "update is Success";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return result;
+            }
+        }
         public ProcessResponse SaveAddress(AddressEntity userMaster)
         {
             ProcessResponse result = new ProcessResponse();

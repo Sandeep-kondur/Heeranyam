@@ -10,6 +10,10 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IUserMgmtService
     {
+        ProcessResponse APISaveAddress(AddressEntity ae);
+        ProcessResponse APIUpdateAddress(AddressEntity ae);
+        List<APIProductListDisplay> StockDetails(int userid, string url);
+        bool ProductSizeUpdate(int productid, int userid, int sizeid);
         ProcessResponse APIPostReview(UserReviewMaster userReviewMaster);
         ProcessResponse APIDeleteWishList(int id, int userid);
         ProcessResponse UpdateCODPayment(CODPaymentUpdateModel request);

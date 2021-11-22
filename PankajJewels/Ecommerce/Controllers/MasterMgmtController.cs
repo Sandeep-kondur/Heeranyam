@@ -470,6 +470,7 @@ namespace Ecommerce.Controllers
         }
         #endregion
 
+   
         #region Daimond Types Master
         [HttpPost]
         public IActionResult GetDaimondTypesMasters(PaginationRequest request)

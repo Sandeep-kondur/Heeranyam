@@ -205,6 +205,80 @@ namespace Ecommerce.Controllers
                 cartDetails = 
                 (myObject != null && myObject.CartDetails != null && myObject.CartDetails.Count > 0) == true ? myObject : new UserCartModel() });
         }
+        [HttpPost]
+        public IActionResult APISaveAddress(AddressEntity ae)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    ProcessResponse pr = _uService.APISaveAddress(ae);
+                    if (pr.statusCode == 1)
+                    {
+                        return StatusCode(200, new { status = 1, message = "Addressed Saved Suucessfully" });
+
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, message = "Failed Add Operation" });
+
+                    }
+                }
+                return StatusCode(200, new { status = 0, message = "Failed Add Operation" });
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, message = "Failed Add Operation" });
+                
+            }
+           
+
+
+        }
+
+        [HttpPost]
+        public IActionResult APIUpdateAddress(AddressEntity ae)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    ProcessResponse pr = _uService.APIUpdateAddress(ae);
+                    if (pr.statusCode == 1)
+                    {
+                        return StatusCode(200, new { status = 1, message = "Addressed Updated Suucessfully" });
+
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, message = "Failed Update Operation" });
+
+                    }
+                }
+                return StatusCode(200, new { status = 0, message = "Failed Update Operation" });
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, message = "Failed Update Operation" });
+
+            }
+
+
+
+        }
+        public IActionResult APIStockAvailable(int userid)
+        {
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+            List<APIProductListDisplay> productDetails =  _uService.StockDetails(userid, url);
+            if (productDetails.Count==0)
+            {
+                return StatusCode(200, new { status = 1, message = "Success" });
+
+            }
+            return StatusCode(200, new {status =0, message="No Products Available for Some Products", productDetails= (productDetails != null) ? productDetails: new List<APIProductListDisplay>()});
+        }
 
         [HttpPost]
         public IActionResult APIAddToWishlist(int userId, int productId, int detailId)
@@ -238,19 +312,25 @@ namespace Ecommerce.Controllers
                 int CartCount = _uService.GetUserCartCount(userid);
                 UserCartModel myObject = new UserCartModel();
                 myObject = _uService.GetMyCart(userid);
-                decimal bankChareges = 0;
-                decimal bankTax = 0;
-                foreach (var item in myObject.CartDetails)
-                {
-                    if (item.ProductImage != null &&! item.ProductImage.Contains(Request.Host.Value))
+                if (CartCount > 0 && myObject.CartDetails != null) {
+                    decimal bankChareges = 0;
+                    decimal bankTax = 0;
+                    foreach (var item in myObject.CartDetails)
                     {
-                        item.ProductImage = url + item.ProductImage;
+                        if (item.ProductImage != null && !item.ProductImage.Contains(Request.Host.Value))
+                        {
+                            item.ProductImage = url + item.ProductImage;
+                        }
+                        bankChareges = item.BankChareges + bankChareges;
+                        bankTax = item.BankTax + bankTax;
                     }
-                    bankChareges = item.BankChareges + bankChareges;
-                    bankTax = item.BankTax + bankTax;
+                    decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
+
+                    
+                    return StatusCode(200, new { status =1, message = "Success"  , cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue, bankTax = bankTax, bankChareges = bankChareges });
                 }
-                decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
-                return StatusCode(200, new { status = CartCount>=0?1:0, message =CartCount>=1? "Success":"There are no Cart Items", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue , bankTax= bankTax, bankChareges=bankChareges });
+                return StatusCode(200, new { status = 0, message = "There are no Cart Items" });
+
             }
             catch (Exception)
             {
@@ -561,6 +641,31 @@ namespace Ecommerce.Controllers
         }
 
 
+
+        [HttpPost]
+        public IActionResult APIProductSizeUpdate(int productid, int userid, int sizeid)
+        {
+          //  ProcessResponse response = new ProcessResponse();
+            try
+            {
+              bool  response = _uService.ProductSizeUpdate(productid, userid, sizeid);
+                if (response)
+                {
+                    return StatusCode(200, new { status = 1, Message = "Success", });
+                }
+                else
+                {
+                    return StatusCode(200, new { status = 0, Message = "Failed" });
+
+                }
+            }
+            catch (Exception ex)
+            { 
+                return StatusCode(200, new { status = 0, Message = "Failed"});
+
+            }
+            
+        }
         [HttpPost]
         public IActionResult APIDecrementFromCart(int productid, int userid)
         {
@@ -784,96 +889,34 @@ namespace Ecommerce.Controllers
 
         }
 
+        public IActionResult APISearchGeneric( int priceLowtoHigh,
+            int priceHightoLow , int priceMinRange, int priceMaxRange, int rating=1,int isLatest=0) 
+        {
 
+            //to be completed 
+            return StatusCode(200, new { status = 1, message = "Success" });
+        }
         public IActionResult APISearch(int userid,int cid = 0, int sid = 0, int did = 0, int pageNumber = 1,
           int pageSize = 10, string search = "", decimal price = 0, int metalid = 0,
           string gender = "", int discountid = 0, bool isFA = false)
         {
             string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
 
-            HomeProductsModels myObj = new HomeProductsModels();
-            List<SubCategoryMasterEntity> subCatDrop = new List<SubCategoryMasterEntity>();
-            List<DetailCategoryMasterEntity> detCatDrops = new List<DetailCategoryMasterEntity>();
-            List<CategoryMasterEntity> catDrops = new List<CategoryMasterEntity>();
+            APIHomeProductsModels myObj = new APIHomeProductsModels();
+ 
             PaginationRequest pr = new PaginationRequest();
             GenericRequest gr = new GenericRequest();
             gr.pageNumber = 1;
             gr.pageSize = 1000;
             pr.pageNumber = 1;
             pr.pageSize = 1000;
-            catDrops = _oServce.GetAllCategories(pr);
-            if (isFA)
-            {
-                string q1 = @"select pm.CategoryId, pm.ProductDescription, cat.CategoryName CategoryId_name, pm.DetailCategoryId, dcat.DetailCategoryName DetailCategoryId_name,
-                            pm.ProductId, pm.DiscountApplicableId, pm.DiscountApplicableId DiscountMasterId,
-                            pm.IsCustomizable, pm.IsSizeApplicable, pm.MaxDelivaryDays, pm.PostedBy, pm.PostedOn, pm.ProductTitle,
-                            pm.SubCategoryId, scat.SubCategoryName SubCategoryId_name,
-                            (select top(1) ImageUrl from ProductImages where ProductImages.ProductId = pm.ProductId) ProductMainImages_List,
-                            (select top(1) pd.ActualPrice from ProductDetails pd where pd.ProductId = pm.ProductId) ActualPrice,
-                            (select top(1) pd.SellingPrice from ProductDetails pd where pd.ProductId = pm.ProductId) SellingPrice
-                            from ProductMaster pm
-                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
-                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
-                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
-                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
-                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
-                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
-                            where pm.IsDeleted = 0 ";
-                string q2 = string.Empty;
-                if (price != -1)
-                {
-                    q2 = " and SellingPrice < " + price.ToString();
-                }
-                if (metalid > 0)
-                {
-                    q2 += " and mm.MasterId = " + metalid;
-                }
-                if (!string.IsNullOrEmpty(gender))
-                {
-                    q2 += " and pm.PrefferedGender = '" + gender + "'";
-                }
-                if (discountid > 0)
-                {
-                    q2 += " and pm.DiscountApplicableId = " + discountid;
-                }
-                int skipSize = pageNumber == 1 ? 0 : (pageNumber - 1) * pageSize;
-                string q3 = " order by pm.postedon desc offset " + skipSize + " rows fetch next " + pageSize + " rows only";
-                q1 = q1 + q2 + q3;
-                myObj.listProducts = _pService.GetProductsByFilter(q1);
-
-
-                string countQ = @"select count(pm.CategoryId) as cnt
-                            from ProductMaster pm
-                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
-                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
-                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
-                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
-                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
-                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
-                            where pm.IsDeleted = 0 ";
-                string countQF = countQ + " " + q2;
-                myObj.totalRecords = _pService.GetProductsByFilter_count(countQF);
-            }
-            else
-            {
+                
                 if (!string.IsNullOrEmpty(search))
                 {
-                    myObj.listProducts = _pService.APIGetProductsBySearch(cid, pageNumber, pageSize, search);
+                   myObj.listProducts = _pService.APIGetProductsBySearchforUser(userid,cid, pageNumber, pageSize, search);
                     myObj.totalRecords = _pService.GetProductsBySearch_count(cid, pageNumber, pageSize, search);
                 }
-                else if (cid > 0)
-                {
-                    myObj.listProducts = _pService.GetProductsByCatId(cid, pageNumber, pageSize, search);
-                  
-                    myObj.totalRecords = _pService.GetProductsByCatId_Count(cid, pageNumber, pageSize, search);
-
-                }
-                else if (did > 0)
-                {
-                    myObj.listProducts = _pService.GetProductsByDetId(did, pageNumber, pageSize, search);
-                    myObj.totalRecords = _pService.GetProductsByDetId_Count(did, pageNumber, pageSize, search);
-
-                }
+                
                 if (myObj.listProducts != null && myObj.listProducts.Count > 0)
                 {
                     foreach (var item in myObj.listProducts)
@@ -881,40 +924,9 @@ namespace Ecommerce.Controllers
                         item.ProductMainImages_List = url + item.ProductMainImages_List;
                     }
                 }
-            }
-            gr.Id = cid;
-            subCatDrop = _oServce.GetAllSubCategories(gr);
-            gr.Id = sid;
-            detCatDrops = _oServce.GetAllDetailCategories(gr);
-
-            //ViewBag.TotalCount = myObj.totalRecords;
-            //ViewBag.pageNumber = pageNumber;
-            //ViewBag.pageSize = pageSize;
-            //ViewBag.search = search;
-            //ViewBag.cid = cid;
-            //ViewBag.did = did;
-            //ViewBag.sid = sid;
-            //ViewBag.price = price;
-            //ViewBag.metalid = metalid;
-            //ViewBag.gender = gender;
-            //ViewBag.discountid = discountid;
-            //ViewBag.CartCount = _uService.GetUserCartCount(userid);
-
-            // for filters drop downs
-
-            List<MetalMasterEntity> metalDrop = _mService.GetMetalMaster(pr, "List");
-
-            StaticDropDowns staticDrops = new StaticDropDowns();
-            List<DiscountMasterEntity> discDrops = _mService.GetAllDiscounts(gr);
-
-            //myObj.detCatDrops = detCatDrops;
-            //myObj.subCateDrop = subCatDrop;
-            //myObj.catDrops = catDrops;
-            //myObj.staticDrops = staticDrops;
-            //myObj.metalDrop = metalDrop;
-            //myObj.discDrops = discDrops;
+            
             bool success = (myObj != null && myObj.listProducts != null && myObj.listProducts.Count > 0) == true;
-            return StatusCode (200, new { statusCode= success==true?1:0,Message=success==true?"Success": "There are no Products available",ProductDetails=success==true?myObj.listProducts : new List<ProductListDisplay>()});
+            return StatusCode (200, new { statusCode= success==true?1:0,Message=success==true?"Success": "There are no Products available",ProductDetails=success==true?myObj.listProducts : new List<APIProductListDisplay>()});
         }
 
         public IActionResult APICreateOrder(int userid)
@@ -1152,6 +1164,20 @@ namespace Ecommerce.Controllers
         }
 
 
+        public IActionResult APISizeMasterDetails(int productid) 
+        {
+            List<SizeMasterForDeailPage> result= _mService.GetSizesForDetailPage(productid);
+            if ((result != null && result.Count > 0))
+            {
+                return StatusCode(200, new { SizeDetails =result, status=1, message="Success"});
+
+            }
+            else
+            {
+                return StatusCode(200, new { SizeDetails = new List<SizeMasterForDeailPage>(), status =0, message="No Size Details"});
+
+            }
+        }
         public IActionResult APIAboutUS()
         {
             string abouthtml = @"< section  > <div  >

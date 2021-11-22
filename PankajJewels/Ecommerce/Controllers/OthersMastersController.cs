@@ -17,14 +17,16 @@ namespace Ecommerce.Controllers
     {
 
         public readonly IOtherMgmtService _oService;
+        public readonly IProductManagementService _pservice;
         private readonly IHostingEnvironment hostingEnvironment; public readonly IMasterDataMgmtService _mService;
         public OthersMastersController(
-            IOtherMgmtService oService, IMasterDataMgmtService mService,
+            IOtherMgmtService oService, IMasterDataMgmtService mService, IProductManagementService pService,
             IHostingEnvironment environment
             ) 
         {
             _oService = oService;
             _mService = mService;
+            _pservice = pService;
             hostingEnvironment = environment;
         }
         /// <summary>
@@ -858,9 +860,11 @@ namespace Ecommerce.Controllers
             BannerAdsDisplayModelBase obj = new BannerAdsDisplayModelBase();
              obj.myAds = _oService.GetAllBanners(page);
             List<BannerAdsDisplayModel> bannerAds = new List<BannerAdsDisplayModel>();
-            //obj.pageDrop = _oService.GetBannerPages();
-            //obj.sectionDrop = _oService.GetBannerSections();
-            return Json(new { status = 1, Message= "Success", BannerADs=obj.myAds }) ;
+             
+            var featured = _pservice.APIGetLatestProducts();
+            var hotDeals = _pservice.APIGetLatestProducts("HT");
+
+            return Json(new { status = 1, Message= "Success", BannerADs=obj.myAds ,featured=featured!=null?featured:new List<APIProductListDisplay>(), htodeals=hotDeals!=null ? hotDeals: new List<APIProductListDisplay>()}) ;
         }
 
         [HttpGet]
