@@ -499,6 +499,100 @@ namespace Ecommerce.Controllers
 
         #region API for Mobile Consumers
 
+
+        [HttpPost]
+        public IActionResult APISocialLoginOrSignUp(APIUserMasterModel request )
+        {
+            try
+            {
+                string imagepath = string.Empty;
+                if (ModelState.IsValid)
+                {
+                    bool isFine = true;
+                    var emailCheck = _uService.EmailAvailablityCheck(request.EmailId);
+                    if (emailCheck == false)
+                    {
+                        isFine = false;
+                    }
+                    var mobiblecheck = _uService.MobileAvailablityCheck(request.MobileNumber);
+                    if (mobiblecheck == false)
+                    {
+                        isFine = false;
+                    }
+                    if (isFine == false)
+                    {
+                        var loginCheck = _uService.LoginCheck(new LoginRequest() { emailid=request.EmailId,mobileNumber=request.MobileNumber}).Response;
+                        if (loginCheck.statusCode == 1)
+                        {
+                            // SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
+                            _uService.UpdateUserMaster(new APIUser() { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.DeviceId, EmailId = request.EmailId });
+                            if (!string.IsNullOrEmpty(loginCheck.userImageURL) && !loginCheck.userImageURL.Contains(Request.Host.Value))
+                            {
+                                loginCheck.userImageURL = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/UserImages/" + loginCheck.userImageURL;
+                            }
+                            return StatusCode(200, new { statusCode = 1, UserDetails = loginCheck, statusMessage = "Login Success" });
+                        }
+                    }
+                    else
+                    {
+                        UserMasterEntity um = new UserMasterEntity();
+                        request.CurrentStatus = "Active";
+                        request.IsDeleted = false;
+                        request.IsEmailVerified = true;
+                        request.RegisteredOn = DateTime.Now;
+                        if (Request.Form.Files != null && Request.Form.Files.Count > 0 && Request.Form.Files[0] != null)
+                        {
+                            um.ProfileImage = SaveProfilePicture("", request.UserName);
+                        }
+                        var usertypes = _uService.GetUserTypes().Where(a => a.TypeName == "Customer").FirstOrDefault();
+                        request.UserTypeId = usertypes.TypeId;
+                        CloneObjects.CopyPropertiesTo(request, um);
+                        var result = _uService.RegisterUser(um);
+                        if (result.statusCode == 1)
+                        {
+                            LoginResponse lr = new LoginResponse();
+                            lr.userId = result.currentId;
+                            lr.userName = request.UserName;
+                            lr.userTypeName = usertypes.TypeName;
+                            lr.emailId = request.EmailId;
+                            //SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", lr);
+                            AddressEntity ad = new AddressEntity();
+                            CloneObjects.CopyPropertiesTo(request, ad);
+                            ad.IsDeleted = false;
+                            ad.IsDeliverAddress = "Yes";
+                            ad.UserId = result.currentId;
+                            ad.AddressTypeId = 4;// default set to None
+                            var aa = _uService.SaveAddress(ad);
+                            var ps = _nService.SendRegistrationEmail(EmailTemplateModules.RegistrationEmail,
+                               request.EmailId, request.UserName, result.currentId);
+
+                            return Json(new { status = 1, message = result.statusMessage, Emailid = request.EmailId, UserId = result.currentId, UserName = request.UserName, Mobile = request.MobileNumber, profilePicUrl = um != null ? um.ProfileImage != null ? um.ProfileImage : "" : "" });// Ok(result);
+                        }
+                        if (result.statusCode == 0)
+                        {
+                            return StatusCode(200, new { status = 0, message = "Unable to complete registration now, please try after some time." });
+                        }
+                        else
+                        {
+                            //send email
+                        }
+                    }
+                }
+                request.countryList = _cService.GetAllCountryies();
+                request.stateList = _cService.GetAllStates((int)request.CountryId);
+                request.cityList = _cService.GetallCities((int)request.StateId);
+                request.addtypeList = _cService.GetAllAddressTypes();
+                //return Ok(request);
+                return StatusCode(200, new { status = 1, request = request, message = "Registration Success" });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(200, new { status = 0, Message = "Registration Failed" });
+            }
+        }
+
+
         [HttpPost]
         public IActionResult APILogin(  LoginRequest request)
         {
@@ -523,7 +617,7 @@ namespace Ecommerce.Controllers
                         var loginCheck = _uService.LoginCheck(request).Response;
                         if (loginCheck.statusCode == 1)
                         {
-                            SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
+                           // SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
                             _uService.UpdateUserMaster(new APIUser()  { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.deviceID, EmailId = request.emailid } );
                             if (!string.IsNullOrEmpty(loginCheck.userImageURL) &&!loginCheck.userImageURL.Contains(Request.Host.Value))
                             {

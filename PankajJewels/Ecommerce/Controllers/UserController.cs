@@ -303,6 +303,23 @@ namespace Ecommerce.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult APIAllOpenOrderDetails(int userid) {
+
+            List<POMasterModel> orderDetails = new List<POMasterModel>();
+            orderDetails = _ordService.GetAllOpenOrders(userid);
+            return StatusCode(200, new {status=1,message="success" , orderDetails });
+        }
+
+
+        [HttpGet]
+        public IActionResult APIOpenOrderDetails(int userid, int orderid)
+        {
+
+            List<POMasterModel> orderDetails = new List<POMasterModel>();
+            orderDetails = _ordService.APIOpenOrders(userid,orderid);
+            return StatusCode(200, new { status = 1, message = "success", orderDetails });
+        }
 
         // customer
         public IActionResult OpenOrders()
@@ -514,6 +531,29 @@ namespace Ecommerce.Controllers
             return View();
         }
 
+
+
+        public IActionResult APICancellOrder(int orderId)
+        {
+            ProcessResponse response = new ProcessResponse();
+            try
+            {
+                POMasterEntity request = new POMasterEntity();
+                request = _ordService.GetPoMasterbyId(orderId);
+                request.IsDeleted = true;
+                request.OrderStatus = "Cancelled";
+                response = _ordService.UpdatePOMasterStatus(request);
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed to Delete";
+                return Json(new { status = 0, message = "Failed Operation" });
+
+            }
+
+            return Json(new { status=1 , message="Cancelled Order",result = response });
+        }
         public IActionResult CancellOrder(int orderId)
         {
             ProcessResponse response = new ProcessResponse();

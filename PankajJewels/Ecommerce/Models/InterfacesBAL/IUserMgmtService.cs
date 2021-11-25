@@ -10,6 +10,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IUserMgmtService
     {
+        APIUser APIGetUserByID(int userid);
         ProcessResponse APISaveAddress(AddressEntity ae);
         ProcessResponse APIUpdateAddress(AddressEntity ae);
         List<APIProductListDisplay> StockDetails(int userid, string url);

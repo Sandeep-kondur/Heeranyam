@@ -211,6 +211,57 @@ namespace Ecommerce.Models.BAL
             }
         }
 
+
+
+        public APIUser APIGetUserByID(int userid)
+        {
+            UserMasterEntity result = new UserMasterEntity();
+
+            APIUser apiUser = new APIUser();
+
+            try
+            {
+                result = context.userMasters.Where(a => a.UserId ==userid && a.IsDeleted == false).FirstOrDefault();
+                apiUser = new APIUser()
+                {
+                    UserId = result.UserId,
+                    UserName = result.UserName,
+                    EmailId = result.EmailId,
+                    MobileNumber = result.MobileNumber,
+                    ProfilePicUrl = result.ProfileImage
+                };
+                var resultAddress = context.addressEntities.Where(x => x.UserId == result.UserId).FirstOrDefault();
+
+                if (resultAddress != null && resultAddress.AddressTypeId != 4)
+                {
+                    apiUser.AddressTypeId = resultAddress.AddressTypeId;
+                    apiUser.Address1 = resultAddress.Address1 != null ? resultAddress.Address1 : string.Empty;
+                    apiUser.Address2 = resultAddress.Address2 != null ? resultAddress.Address2 : string.Empty;
+                    apiUser.LandMark = resultAddress.LandMark != null ? resultAddress.LandMark : string.Empty;
+                    apiUser.ZipCode = resultAddress.ZipCode != null ? resultAddress.ZipCode : string.Empty;
+                    apiUser.IsDeliverAddress = resultAddress.IsDeliverAddress != null ? resultAddress.IsDeliverAddress : string.Empty;
+
+                    apiUser.CityName = context.cityMasterEntities.Where(x => x.Id == resultAddress.CityId).Select(a => a.CityName).FirstOrDefault();
+
+                }
+                else
+                {
+                    apiUser.AddressTypeId = resultAddress.AddressTypeId;
+                    apiUser.Address1 = string.Empty;
+                    apiUser.Address2 = string.Empty;
+                    apiUser.LandMark = string.Empty;
+                    apiUser.ZipCode = string.Empty;
+                    apiUser.CityName = string.Empty;
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return apiUser;
+        }
         public APIUser GetUserByEmail(string email)
         {
             UserMasterEntity result = new UserMasterEntity();

@@ -133,6 +133,12 @@ namespace Ecommerce.Models.ModelClasses
         public string DeviceId { get; set; }
         public string ProfilePicUrl  { get; set; }
         public string  Address { get; set; }
+
+        public int Facebook { get; set; }
+        public int Gmail { get; set; }
+
+        public string OauthToken { get; set; }
+
     }
     public class UserMasterModel
     {

@@ -28,8 +28,9 @@ namespace Ecommerce.Models.ModelClasses
         public int? DetailCategoryId { get; set; }
         public string DetailCategoryId_name { get; set; }
 
+
         public List<IFormFile> ProductMainImages { get; set; }
-        public string ProductMainImages_List { get; set; }
+        public List<string> ProductMainImages_List { get; set; }
 
         public List<APIProductDetailsModel> ProductDetails { get; set; }
 
@@ -38,6 +39,8 @@ namespace Ecommerce.Models.ModelClasses
         public decimal? DiscountAmount { get; set; }
         public string PrefferedGender { get; set; }
         public int Stock { get; set; }
+
+
     }
     public class PostProductModel
     {
@@ -97,17 +100,24 @@ namespace Ecommerce.Models.ModelClasses
         public List<SizeMasterEntity> SizeMasterEntity { get; set; }
 
         public DaimondsPerProductEntity DaimondsMain { get; set; }
-        public List<DaimondsPerPrdDetailsEntity> DaimondsDetail { get; set; }
+       // public List<DaimondsPerPrdDetailsEntity> DaimondsDetail { get; set; }
 
         public PerlPerProductEntity PerlMain { get; set; }
-        public List<PerlPerPrdDetailsEntity> PerlDetails { get; set; }
+        //public List<PerlPerPrdDetailsEntity> PerlDetails { get; set; }
         public List<IFormFile> ProductDetailImages { get; set; }
-        public string ProductDetailImages_List { get; set; }
+        public List<string> ProductDetailImages_List { get; set; }
         public SolitairePerProductEntity SolitaireMain { get; set; }
-        public List<SolitairePerPrdDetailsEntity> SolitaireDetails { get; set; }
+        //public List<SolitairePerPrdDetailsEntity> SolitaireDetails { get; set; }
         public SRubyPerProductEntity SRubyMain { get; set; }
-        public List<SRubyPerPrdDetailsEntity> SRubyDetails { get; set; }
+      //  public List<SRubyPerPrdDetailsEntity> SRubyDetails { get; set; }
         public decimal? MakingCharges { get; set; }
+
+        public List<PerlPerPrdDetailsEntity_Web> PerlDetails { get; set; }
+        public List<DaimondsPerPrdDetailsEntity_Web> DaimondsDetail { get; set; }
+        public List<SRubyPerPrdDetailsEntity_Web> SRubyDetails { get; set; }
+        public List<SolitairePerPrdDetailsEntity_Web> SolitaireDetails { get; set; }
+
+
 
     }
     public class ProductDetailsModel

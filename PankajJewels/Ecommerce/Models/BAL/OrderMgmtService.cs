@@ -23,6 +23,120 @@ namespace Ecommerce.Models.BAL
             _config = config;
         }
 
+        public List<POMasterModel> APIOpenOrders(int userId, int orderid,string source = "Self")
+        {
+            List<POMasterModel> myList = new List<POMasterModel>();
+            try
+            {
+                if (source == "Self")
+                {
+                    myList = context.pOMasterEntities.Where(a => a.UserId == userId && a.IsDeleted == false &&
+                    AppSettings.OpenOrderStatus.Contains(a.OrderStatus) && a.POId== orderid)
+                        .Select(b => new POMasterModel
+                        {
+                            CartId = b.CartId,
+                            UserId = b.UserId,
+                            CreatedOn = b.CreatedOn,
+                            CurrentStatus = b.CurrentStatus,
+                            InstrumentDetails = b.InstrumentDetails,
+                            IsDeleted = b.IsDeleted,
+                            OrderStatus = b.OrderStatus,
+                            PaidAmount = b.PaidAmount,
+                            PaidDate = b.PaidDate,
+                            PaymentMethod = b.PaymentMethod,
+                            POId = b.POId,
+                            PONumber = b.PONumber,
+                            RefundedAmount = b.RefundedAmount,
+                            RefundedOn = b.RefundedOn,
+                            TransactionId = b.TransactionId,
+                            OrderAmount = b.OrderAmount,
+                            BankCharges = b.BankCharges,
+                            BankTaxes = b.BankTaxes,
+                            Taxes = b.Taxes
+                        }).ToList();
+                }
+                else
+                {
+                    myList = (from b in context.pOMasterEntities
+                              join u in context.userMasters on b.UserId equals u.UserId
+                              join ad in context.addressEntities on u.UserId equals ad.UserId
+                              where ad.IsDeliverAddress == "Yes"
+                              join c in context.cityMasterEntities on ad.CityId equals c.Id
+                              join s in context.stateMasterEntities on ad.StateId equals s.Id
+                              where b.IsDeleted == false && AppSettings.OpenOrderStatus.Contains(b.OrderStatus)
+                              select new POMasterModel
+                              {
+
+
+                                  CartId = b.CartId,
+                                  UserId = b.UserId,
+                                  CreatedOn = b.CreatedOn,
+                                  CurrentStatus = b.CurrentStatus,
+                                  InstrumentDetails = b.InstrumentDetails,
+                                  IsDeleted = b.IsDeleted,
+                                  OrderStatus = b.OrderStatus,
+                                  PaidAmount = b.PaidAmount,
+                                  PaidDate = b.PaidDate,
+                                  PaymentMethod = b.PaymentMethod,
+                                  POId = b.POId,
+                                  PONumber = b.PONumber,
+                                  RefundedAmount = b.RefundedAmount,
+                                  RefundedOn = b.RefundedOn,
+                                  TransactionId = b.TransactionId,
+                                  OrderAmount = b.OrderAmount,
+                                  BankCharges = b.BankCharges,
+                                  BankTaxes = b.BankTaxes,
+                                  Taxes = b.Taxes,
+                                  UserAddress = ad.Address1 + ", " + c.CityName + "," + s.StateName + ", " + ad.ZipCode,
+                                  UserMobile = u.MobileNumber,
+                                  UserName = u.UserName
+                              }).ToList();
+                }
+                if (myList.Count > 0)
+                {
+                    for (int i = 0; i < myList.Count; i++)
+                    {
+                        int currentPOMId = myList[i].POId;
+                        List<PODetailsModel> pd = new List<PODetailsModel>();
+                        pd = context.pODetails.Where(a => a.POMasterId == currentPOMId &&
+                        a.IsDeleted == false)
+                            .Select(b => new PODetailsModel
+                            {
+                                AddedOn = b.AddedOn,
+                                CurrentStatus = b.CurrentStatus,
+                                IsDeleted = b.IsDeleted,
+                                DaimondPrice = b.DaimondPrice,
+                                Discount = b.Discount,
+                                GoldPrice = b.GoldPrice,
+                                GoldRate = b.GoldRate,
+                                GoldWeight = b.GoldWeight,
+                                GST = b.GST,
+                                MakingCharges = b.MakingCharges,
+                                MetalMasterId = b.MetalMasterId,
+                                MetalMasterId_Name = b.MetalMasterId_Name,
+                                NumberOfItems = b.NumberOfItems,
+                                OldPrice = b.OldPrice,
+                                PODetailId = b.PODetailId,
+                                ProductDetailId = b.ProductDetailId,
+                                ProductId = b.ProductId,
+                                SizeId = b.SizeId,
+                                SizeName = b.SizeName,
+                                TotalPrice = b.TotalPrice
+
+                            }).ToList();
+                        myList[i].poDetails = pd;
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return myList;
+        }
+
         public List<POMasterModel> GetAllOpenOrders(int userId, string source="Self")
         {
             List<POMasterModel> myList = new List<POMasterModel>();

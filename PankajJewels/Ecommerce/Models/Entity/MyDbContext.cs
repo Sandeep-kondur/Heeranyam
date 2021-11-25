@@ -80,10 +80,13 @@ namespace Ecommerce.Models.Entity
             modelBuilder.Entity<LoginTrack>().ToTable("LoginTrack");
             modelBuilder.Entity<ContactUs>().ToTable("ContactUs");
             modelBuilder.Entity<UserReviewMaster>().ToTable("UserReviewMaster");
+            modelBuilder.Entity<LoginTypeEntity>().ToTable("LoginType");
             modelBuilder.Entity<DaimondsPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<PerlPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SRubyPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SolPerPrdDisplayModel>().HasNoKey();
+
+
         }
 
         public DbSet<UserReviewMaster> UserReviewMasters { get; set; }
@@ -101,6 +104,8 @@ namespace Ecommerce.Models.Entity
         public DbSet<POMasterEntity> pOMasterEntities { get; set; }
         public DbSet<PODetailsEntity> pODetails { get; set; }
         public DbSet<UserMasterEntity> userMasters { get; set; }
+
+        public DbSet<LoginTypeEntity> logInTypes { get; set; }
         public DbSet<ResetPasswordEntity> resetPasswordEntities { get; set; }
         public DbSet<UserVerificationEntity> userVerificationEntities { get; set; }
         public DbSet<UserTypeMasterEnity> userTypeMasters { get; set; }

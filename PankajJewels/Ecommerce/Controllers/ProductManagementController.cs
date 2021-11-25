@@ -280,11 +280,20 @@ namespace Ecommerce.Controllers
             {
                 string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
                 var product = _pService.APIGetProductDetails(productid,userid);
-                if (!string.IsNullOrEmpty(product.ProductMainImages_List)&& !product.ProductMainImages_List.Contains(Request.Scheme))
+
+                List<string> lstProductImages = new List<string>();
+                if (product!=null &&product.ProductMainImages_List!=null)
                 {
-                    product.ProductMainImages_List = url + product.ProductMainImages_List;
+                    foreach (string item in product.ProductMainImages_List)
+                    {
+                        if (!string.IsNullOrEmpty(item) && !item.Contains(Request.Scheme))
+                        {
+                            lstProductImages.Add( url + item);
+                        }
+                    }
                 }
 
+                product.ProductMainImages_List = lstProductImages;
                 var reviews = _pService.GetProductReviews(productid, userid);
                 var wishlist = _pService.isInWishList(productid, userid);
                 return StatusCode(200, new { status=1, product, reviews=reviews != null?reviews.ToList():new List<UserReviewMaster>(), Message="Success" ,isInWishList= wishlist==1? wishlist:0 , rating=4});

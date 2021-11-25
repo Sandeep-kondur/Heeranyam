@@ -9,6 +9,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IOrderMgmtService
     {
+        List<POMasterModel> APIOpenOrders(int userId, int orderid, string source = "Self");
         List<POMasterModel> GetAllOpenOrders(int userId, string source = "Self");
         List<POMasterModel> GetAllClosedOrders(int userId, string source = "Self");
         List<POMasterModel> GetAllCancelledOrders(int userId, string source = "Self");

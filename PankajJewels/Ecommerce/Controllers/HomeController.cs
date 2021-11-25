@@ -215,7 +215,7 @@ namespace Ecommerce.Controllers
                     ProcessResponse pr = _uService.APISaveAddress(ae);
                     if (pr.statusCode == 1)
                     {
-                        return StatusCode(200, new { status = 1, message = "Addressed Saved Suucessfully" });
+                        return StatusCode(200, new { status = 1, message = "Addressed Saved Successfully" });
 
                     }
                     else
@@ -247,7 +247,7 @@ namespace Ecommerce.Controllers
                     ProcessResponse pr = _uService.APIUpdateAddress(ae);
                     if (pr.statusCode == 1)
                     {
-                        return StatusCode(200, new { status = 1, message = "Addressed Updated Suucessfully" });
+                        return StatusCode(200, new { status = 1, message = "Addressed Updated Successfully" });
 
                     }
                     else
@@ -326,8 +326,9 @@ namespace Ecommerce.Controllers
                     }
                     decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
 
+                    var address = _uService.APIGetUserByID(userid);
                     
-                    return StatusCode(200, new { status =1, message = "Success"  , cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue, bankTax = bankTax, bankChareges = bankChareges });
+                    return StatusCode(200, new { status =1, message = "Success"  , cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue, bankTax = bankTax, bankChareges = bankChareges , address });
                 }
                 return StatusCode(200, new { status = 0, message = "There are no Cart Items" });
 
@@ -436,7 +437,7 @@ namespace Ecommerce.Controllers
                 // Create these action method
 
                 UserCartModel myObject = new UserCartModel();
-                myObject = SessionHelper.GetObjectFromJson<UserCartModel>(HttpContext.Session, "currentOrder");
+                myObject = _uService.GetMyCart(userid); //SessionHelper.GetObjectFromJson<UserCartModel>(HttpContext.Session, "currentOrder");
                 // update cart as paid 
                 try
                 {
@@ -890,11 +891,134 @@ namespace Ecommerce.Controllers
         }
 
         public IActionResult APISearchGeneric( int priceLowtoHigh,
-            int priceHightoLow , int priceMinRange, int priceMaxRange, int rating=1,int isLatest=0) 
+            int priceHightoLow , int priceMinRange, int priceMaxRange, int metalid, int discountid, string gender,  int pageNumber = 1,
+            int pageSize = 10, int rating = 1, int isLatest=0) 
         {
+            
+            HomeProductsModels myObj = new HomeProductsModels();
+            List<SubCategoryMasterEntity> subCatDrop = new List<SubCategoryMasterEntity>();
+            List<DetailCategoryMasterEntity> detCatDrops = new List<DetailCategoryMasterEntity>();
+            List<CategoryMasterEntity> catDrops = new List<CategoryMasterEntity>();
+            PaginationRequest pr = new PaginationRequest();
+            GenericRequest gr = new GenericRequest();
+            gr.pageNumber = 1;
+            gr.pageSize = 1000;
+            pr.pageNumber = 1;
+            pr.pageSize = 1000;
+            catDrops = _oServce.GetAllCategories(pr);
+             
+            {
+                string q1 = @"select pm.CategoryId, pm.ProductDescription, cat.CategoryName CategoryId_name, pm.DetailCategoryId, dcat.DetailCategoryName DetailCategoryId_name,
+                            pm.ProductId, pm.DiscountApplicableId, pm.DiscountApplicableId DiscountMasterId,
+                            pm.IsCustomizable, pm.IsSizeApplicable, pm.MaxDelivaryDays, pm.PostedBy, pm.PostedOn, pm.ProductTitle,
+                            pm.SubCategoryId, scat.SubCategoryName SubCategoryId_name,
+                            (select top(1) ImageUrl from ProductImages where ProductImages.ProductId = pm.ProductId) ProductMainImages_List,
+                            (select top(1) pd.ActualPrice from ProductDetails pd where pd.ProductId = pm.ProductId) ActualPrice,
+                            (select top(1) pd.SellingPrice from ProductDetails pd where pd.ProductId = pm.ProductId) SellingPrice
+                            from ProductMaster pm
+                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
+                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
+                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
+                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
+                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
+                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
+                            join UserReviewMaster ur on pm.ProductId = ur.ProductId
+                            where pm.IsDeleted = 0 ";
+                string q2 = string.Empty;
+                if (priceMaxRange != -1)
+                {
+                    q2 = " and SellingPrice < " + priceMaxRange.ToString();
+                }
 
+                if (priceMinRange != -1)
+                {
+                    q2 = " and SellingPrice > " + priceMinRange.ToString();
+                }
+                if (metalid > 0)
+                {
+                    q2 += " and mm.MasterId = " + metalid;
+                }
+                if (!string.IsNullOrEmpty(gender))
+                {
+                    q2 += " and pm.PrefferedGender = '" + gender + "'";
+                }
+                if (discountid > 0)
+                {
+                    q2 += " and pm.DiscountApplicableId = " + discountid;
+                }
+                string q3 = string.Empty;
+
+                int skipSize = pageNumber == 1 ? 0 : (pageNumber - 1) * pageSize;
+                if (priceLowtoHigh==1)
+                {
+                    q3 = "order by pm.sellingprice asec  " ;
+                }
+                if (rating==1)
+                {
+                    q3 = q3 != string.Empty ? "order by ur.rating desc  " : " , ur.rating desc";
+                }
+                 if(isLatest==1)
+                {
+                    
+                      q3=   q3!=string.Empty? "order by pm.PostedOn desc  ": " , pm.PostedOn desc";
+                }
+                 if (priceHightoLow==1)
+                {
+
+                    q3 = q3 != string.Empty ? "order by pm.sellingprice desc  " : " , pm.sellingprice desc  ";
+                }
+                if(priceHightoLow==0&&isLatest==0&&priceLowtoHigh==0)
+                {
+
+                    q3 = q3 != string.Empty ? " order by pm.postedon desc offset " : " ,pm.postedon desc offset ";
+
+
+                }
+                q3 = q3+ skipSize + " rows fetch next " + pageSize + " rows only";
+                
+                q1 = q1 + q2 + q3;
+                myObj.listProducts = _pService.GetProductsByFilter(q1);
+
+
+                string countQ = @"select count(pm.CategoryId) as cnt
+                            from ProductMaster pm
+                            join CategoryMaster cat on pm.CategoryId = cat.CategoryId
+                            join SubCategoryMaster scat on pm.SubCategoryId = scat.SubCategoryId
+                            join DetailCategoryMaster dcat on pm.DetailCategoryId = dcat.DetailCategoryId
+                            join ProductDetails pdet on pm.ProductId = pdet.ProductId
+                            join MetalMaster mm on pdet.metalmasterid = mm.MasterId
+                            join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
+                            where pm.IsDeleted = 0 ";
+                string countQF = countQ + " " + q2;
+                myObj.totalRecords = _pService.GetProductsByFilter_count(countQF);
+            }
+             
+            subCatDrop = _oServce.GetAllSubCategories(gr);
+            detCatDrops = _oServce.GetAllDetailCategories(gr);
+
+            List<MetalMasterEntity> metalDrop = _mService.GetMetalMaster(pr, "List");
+
+            StaticDropDowns staticDrops = new StaticDropDowns();
+            List<DiscountMasterEntity> discDrops = _mService.GetAllDiscounts(gr);
+
+            myObj.detCatDrops = detCatDrops;
+            myObj.subCateDrop = subCatDrop;
+            myObj.catDrops = catDrops;
+            myObj.staticDrops = staticDrops;
+            myObj.metalDrop = metalDrop;
+            myObj.discDrops = discDrops;
             //to be completed 
-            return StatusCode(200, new { status = 1, message = "Success" });
+            if (myObj != null && myObj.listProducts!=null && myObj.listProducts.Count>0)
+            {
+                return StatusCode(200, new { status = 1, message = "Success", ProductList = myObj.listProducts });
+
+            }
+            else
+            {
+                return StatusCode(200, new { status = 0, message = "No Records found"});
+
+            }
+          
         }
         public IActionResult APISearch(int userid,int cid = 0, int sid = 0, int did = 0, int pageNumber = 1,
           int pageSize = 10, string search = "", decimal price = 0, int metalid = 0,

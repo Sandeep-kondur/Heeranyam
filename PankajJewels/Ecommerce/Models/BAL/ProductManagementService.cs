@@ -508,7 +508,7 @@ namespace Ecommerce.Models.BAL
                                 ProductTitle = prd.ProductTitle,
                                 SubCategoryId = prd.SubCategoryId,
                                 SubCategoryId_name = subcat.SubCategoryName,
-                                ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                ProductMainImages_List = context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == prd.ProductId).Select(b => b.ImageUrl).ToList(),
                                 Stock=prd.Stock
 
                             }).FirstOrDefault();
@@ -543,7 +543,7 @@ namespace Ecommerce.Models.BAL
                                    PerlDetails = null,
                                    PerlMain = context.perlPerProductEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).FirstOrDefault(),
                                    ProductCode = pd.ProductCode,
-                                   ProductDetailImages_List = context.productDetailImagesEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).Select(b => b.ImageUrl).FirstOrDefault(),
+                                   ProductDetailImages_List = context.productDetailImagesEntities.Where(a => a.ProductDetailId == pd.ProductDetailId).Select(b => b.ImageUrl).ToList(),
                                    ProductWeight = pd.ProductWeight,
                                    ProductWeightMeasurement = pd.ProductWeightMeasurement,
                                    ProductWeightMeasurement_Name = pwMe.MeasurementName,
@@ -567,38 +567,128 @@ namespace Ecommerce.Models.BAL
                             if (details[i].DaimondsMain != null)
                             {
                                 int cId = details[i].DaimondsMain.DPPId;
-                                details[i].DaimondsDetail = context.daimondsPerPrdDetailsEntities.Where(a => a.DPPId == cId).ToList();
+                                
+                               // details[i].DaimondsDetail = context.daimondsPerPrdDetailsEntities.Where(a => a.DPPId == cId).ToList();
+
+                                details[i].DaimondsDetail = (from b in context.daimondsPerPrdDetailsEntities
+                                                             join c in context.daimondClarityMasterEntities on b.ClarityId equals c.ClarityId
+                                                             join col in context.daimondColorMasterEntities on b.ColorId equals col.ColorId
+                                                             join set in context.daimondSettingMasterEntities on b.SettingTypeId equals set.MasterId
+                                                             join sh in context.daimondShapeMasterEntities on b.ShapeId equals sh.MasterId
+                                                             join dt in context.daimondTypeMasterEntities on b.DaimondTypeId equals dt.MasterId
+                                                             where b.IsDeleted == false && b.DPPId == cId
+                                                             select new DaimondsPerPrdDetailsEntity_Web
+                                                             {
+                                                                 ClarityId = b.ClarityId,
+                                                                 ClarityId_Name = c.ClarityName,
+                                                                 ColorId = b.ColorId,
+                                                                 ColorId_Name = col.ColorName,
+                                                                 DaimondTypeId = b.DaimondTypeId,
+                                                                 DPPDId = b.DPPDId,
+                                                                 DPPId = b.DPPId,
+                                                                 IsDeleted = b.IsDeleted,
+                                                                 NoofDaimonds = b.NoofDaimonds,
+                                                                 SettingTypeId = b.SettingTypeId,
+                                                                 SettingTypeId_Name = set.SettingName,
+                                                                 ShapeId = b.ShapeId,
+                                                                 ShapeId_Name = sh.ShapeName,
+                                                                 TotalWaight = b.TotalWaight,
+                                                                 DaimondTypeId_Name = dt.TypeName
+                                                             }).ToList();
                             }
                             else
                             {
-                                details[i].DaimondsDetail = new List<DaimondsPerPrdDetailsEntity>();
+                                details[i].DaimondsDetail = new List<DaimondsPerPrdDetailsEntity_Web>();
                             }
                             if (details[i].SolitaireMain != null)
                             {
                                 int cId = details[i].SolitaireMain.SPPId;
-                                details[i].SolitaireDetails = context.solitairePerPrdDetailsEntities.Where(a => a.SPPId == cId).ToList();
+                              //  details[i].SolitaireDetails = context.solitairePerPrdDetailsEntities.Where(a => a.SPPId == cId).ToList();
+                                details[i].SolitaireDetails = (from s in context.solitairePerPrdDetailsEntities
+                                                               join c in context.certificateMasterEntities on s.CertificationId equals c.MasterId
+                                                               join sh in context.daimondShapeMasterEntities on s.ShapeId equals sh.MasterId
+                                                               join f in context.fluorescenceMasterEntities on s.FluorescenceId equals f.MasterId
+                                                               join sy in context.symmetryMasterEntities on s.Symmetry equals sy.MasterId
+                                                               join cl in context.daimondClarityMasterEntities on s.ClarityId equals cl.ClarityId
+                                                               join col in context.daimondColorMasterEntities on s.ColorId equals col.ColorId
+                                                               where s.IsDeleted == false && s.SPPId == cId
+                                                               select new SolitairePerPrdDetailsEntity_Web
+                                                               {
+                                                                   IsDeleted = s.IsDeleted,
+                                                                   CertificationId = s.CertificationId,
+                                                                   CertificationId_Name = c.CertifycateName,
+                                                                   ClarityId = s.ClarityId,
+                                                                   ClarityId_Nme = cl.ClarityName,
+                                                                   ColorId = s.ColorId,
+                                                                   ColorId_Name = col.ColorName,
+                                                                   FluorescenceId = s.FluorescenceId,
+                                                                   FluorescenceId_Name = f.FluorescenceName,
+                                                                   NoofSolitaire = s.NoofSolitaire,
+                                                                   ShapeId = s.ShapeId,
+                                                                   ShapeId_Name = sh.ShapeName,
+                                                                   SPPDId = s.SPPDId,
+                                                                   SPPId = s.SPPId,
+                                                                   Symmetry = s.Symmetry,
+                                                                   Symmetry_Name = sy.SymmetryName,
+                                                                   TotalWaight = s.TotalWaight
+
+                                                               }).ToList();
                             }
                             else
                             {
-                                details[i].SolitaireDetails = new List<SolitairePerPrdDetailsEntity>();
+                                details[i].SolitaireDetails = new List<SolitairePerPrdDetailsEntity_Web>();
                             }
                             if (details[i].PerlMain != null)
                             {
                                 int cId = details[i].PerlMain.PPPId;
-                                details[i].PerlDetails = context.perlPerPrdDetailsEntities.Where(a => a.PPPId == cId).ToList();
+                               // details[i].PerlDetails = context.perlPerPrdDetailsEntities.Where(a => a.PPPId == cId).ToList();
+                                details[i].PerlDetails = (from p in context.perlPerPrdDetailsEntities
+                                                          join s in context.daimondSettingMasterEntities on p.SettingId equals s.MasterId
+                                                          join sh in context.daimondShapeMasterEntities on p.ShapeId equals sh.MasterId
+                                                          where p.IsDeleted == false && p.PPPId == cId
+                                                          select new PerlPerPrdDetailsEntity_Web
+                                                          {
+                                                              PPPId = p.PPPId,
+                                                              IsDeleted = p.IsDeleted,
+                                                              NoofStones = p.NoofStones,
+                                                              PPPDId = p.PPPDId,
+                                                              SettingId = p.SettingId,
+                                                              SettingId_Name = s.SettingName,
+                                                              ShapeId = p.ShapeId,
+                                                              ShapeId_Name = sh.ShapeName,
+                                                              Size = p.Size
+                                                          }).ToList();
+
                             }
                             else
                             {
-                                details[i].PerlDetails = new List<PerlPerPrdDetailsEntity>();
+                                details[i].PerlDetails = new List<PerlPerPrdDetailsEntity_Web>();
                             }
                             if (details[i].SRubyMain != null)
                             {
                                 int cId = details[i].SRubyMain.SRPPId;
-                                details[i].SRubyDetails = context.sRubyPerPrdDetailsEntities.Where(a => a.SRPPId == cId).ToList();
+                              //  details[i].SRubyDetails = context.sRubyPerPrdDetailsEntities.Where(a => a.SRPPId == cId).ToList();
+
+                                details[i].SRubyDetails = (from s in context.sRubyPerPrdDetailsEntities
+                                                           join set in context.daimondSettingMasterEntities on s.SettingId equals set.MasterId
+                                                           join sh in context.daimondShapeMasterEntities on s.ShapeId equals sh.MasterId
+                                                           where s.IsDeleted == false && s.SRPPId == cId
+                                                           select new SRubyPerPrdDetailsEntity_Web
+                                                           {
+                                                               SRPPId = s.SRPPId,
+                                                               IsDeleted = s.IsDeleted,
+                                                               NoofStones = s.NoofStones,
+                                                               SettingId = s.SettingId,
+                                                               SettingId_Name = set.SettingName,
+                                                               ShapeId = s.ShapeId,
+                                                               ShapeId_Name = sh.ShapeName,
+                                                               Size = s.Size,
+                                                               SRPPDId = s.SRPPDId
+                                                           }).ToList();
                             }
                             else
                             {
-                                details[i].SRubyDetails = new List<SRubyPerPrdDetailsEntity>();
+                                details[i].SRubyDetails = new List<SRubyPerPrdDetailsEntity_Web>();
                             }
                         }
                     }
