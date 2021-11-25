@@ -56,6 +56,7 @@ namespace Ecommerce.Models.ModelClasses
         public bool? IsEmailVerified { get; set; }
         public bool? IsDeleted { get; set; }
         public int Id { get; set; }
+        public int AddressId { get; set; }
         public int? AddressTypeId { get; set; }
         
         public string LocationStreet { get; set; }
@@ -134,11 +135,9 @@ namespace Ecommerce.Models.ModelClasses
         public string ProfilePicUrl  { get; set; }
         public string  Address { get; set; }
 
-        public int Facebook { get; set; }
-        public int Gmail { get; set; }
-
-        public string OauthToken { get; set; }
-
+        public int IsSocialLogin { get; set; }
+        public int LogInType { get; set; }
+        public string LogInTypeCode { get; set; }
     }
     public class UserMasterModel
     {

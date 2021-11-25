@@ -40,12 +40,12 @@ namespace Ecommerce.Models.Entity
         public string TermsAndConditions { get; set; }
         public string DeviceId { get; set; }
 
-        public string ProfileImage { get; set; }
+        public string? ProfileImage { get; set; }
 
         public string Address { get; set; }
         public int isSocialLogin { get; set; }
 
-        public string loginType { get; set; }
+        public int loginType { get; set; }
 
 
     }

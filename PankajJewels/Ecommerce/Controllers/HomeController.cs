@@ -327,8 +327,8 @@ namespace Ecommerce.Controllers
                     decimal totalvalue = (decimal)myObject.CartDetails.Sum(b => b.TotalPrice);
 
                     var address = _uService.APIGetUserByID(userid);
-                    
-                    return StatusCode(200, new { status =1, message = "Success"  , cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue, bankTax = bankTax, bankChareges = bankChareges , address });
+
+                    return StatusCode(200, new { status = 1, message = "Success", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue, bankTax = bankTax, bankChareges = bankChareges, address = address != null? new { address.Id ,address.AddressTypeId,address.IsDeliverAddress,address.Address1,address.Address2, address.LandMark  }:new object() });
                 }
                 return StatusCode(200, new { status = 0, message = "There are no Cart Items" });
 
@@ -1406,6 +1406,13 @@ namespace Ecommerce.Controllers
             }
         }
 
+        [HttpGet]
+        public IActionResult APIGetAddress(int userid) 
+        {
+          var addressList=  _uService.APIGetAddressbyId(userid);
+            return StatusCode(200, new { statusCode = 1, statusMessage = "Success"  , 
+                addressList = addressList !=null? addressList: new List<AddressModel>()});
+        }
         [HttpGet]
         public IActionResult APIGetMenu()
         {

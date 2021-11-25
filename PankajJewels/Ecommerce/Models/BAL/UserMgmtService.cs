@@ -91,6 +91,33 @@ namespace Ecommerce.Models.BAL
             return result;
         }
 
+
+        public int GetLoginType(string code) 
+        {
+            return context.logInTypes.Where(x => x.LoginTypeName == code).Select(x => x.LogInTypeID).FirstOrDefault();
+        }
+        public ProcessResponse SocialRegisterUser(UserMasterEntity userMaster)
+        {
+            ProcessResponse result = new ProcessResponse();
+            try
+            {
+                userMaster.PWord = PasswordEncryption.Encrypt(userMaster.PWord);
+                userMaster.isSocialLogin = 1;
+                context.userMasters.Add(userMaster);
+                context.SaveChanges();
+
+                result.currentId = userMaster.UserId;
+
+                result.statusCode = 1;
+                result.statusMessage = "Registration is Success";
+                result.emailId = userMaster.EmailId;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return result;
+            }
+        }
         public ProcessResponse RegisterUser(UserMasterEntity userMaster)
         {
             ProcessResponse result = new ProcessResponse();
@@ -230,10 +257,11 @@ namespace Ecommerce.Models.BAL
                     MobileNumber = result.MobileNumber,
                     ProfilePicUrl = result.ProfileImage
                 };
-                var resultAddress = context.addressEntities.Where(x => x.UserId == result.UserId).FirstOrDefault();
+                var resultAddress = context.addressEntities.Where(x => x.UserId == result.UserId &&x.IsDeliverAddress=="YES").FirstOrDefault();
 
                 if (resultAddress != null && resultAddress.AddressTypeId != 4)
                 {
+                    apiUser.AddressId = resultAddress.Id;
                     apiUser.AddressTypeId = resultAddress.AddressTypeId;
                     apiUser.Address1 = resultAddress.Address1 != null ? resultAddress.Address1 : string.Empty;
                     apiUser.Address2 = resultAddress.Address2 != null ? resultAddress.Address2 : string.Empty;
@@ -246,6 +274,7 @@ namespace Ecommerce.Models.BAL
                 }
                 else
                 {
+                    apiUser.AddressId = 0;
                     apiUser.AddressTypeId = resultAddress.AddressTypeId;
                     apiUser.Address1 = string.Empty;
                     apiUser.Address2 = string.Empty;
@@ -385,7 +414,73 @@ namespace Ecommerce.Models.BAL
             return response;
         }
 
+        public ApiResponse<LoginResponse> SocialLoginCheck(LoginRequest request)
+        {
+            LoginResponse response = new LoginResponse();
+            try
+            {
+                var obj = (from um in context.userMasters
+                           join ut in context.userTypeMasters on um.UserTypeId equals ut.TypeId into utTemp
+                           from utype in utTemp.DefaultIfEmpty()
+                           where um.EmailId == request.emailid &&
+                           um.IsDeleted == false && um.isSocialLogin==1
+                           select new
+                           {
+                               um.EmailId,
+                               um.UserId,
+                               um.UserName,
+                               utype.TypeName,
+                               um.PWord,
+                               um.IsEmailVerified,
+                               um.CurrentStatus,
+                               um.ProfileImage
+                           }).FirstOrDefault();
 
+                if (obj == null)
+                {
+                    response.statusCode = 0;
+                    response.statusMessage = "Emailid / Mobile number not registered";
+                }
+                else
+                {
+                    string pw = PasswordEncryption.Encrypt(request.pword);
+                    if (!obj.PWord.Equals(pw))
+                    {
+                        response.statusCode = 0;
+                        response.statusMessage = "Passowrd mismatch";
+                    }
+                    else if (obj.IsEmailVerified == false)
+                    {
+                        response.statusCode = 0;
+                        response.statusMessage = "Account not verified";
+                    }
+                    else
+                    {
+                        LoginTrack lt = new LoginTrack();
+                        lt.IsDeleted = false;
+                        lt.LoginTime = DateTime.Now;
+                        lt.UserId = obj.UserId;
+                        lt.UserName = obj.UserName;
+                        context.loginTracks.Add(lt);
+                        context.SaveChanges();
+                        response.statusCode = 1;
+                        response.statusMessage = "Login success";
+                        response.userId = obj.UserId;
+                        response.userName = obj.UserName;
+                        response.userTypeName = obj.TypeName;
+                        response.emailId = obj.EmailId;
+                        response.userImageURL = obj.ProfileImage != null ? obj.ProfileImage : "";
+                    }
+                }
+                return Transform.ConvertResultToApiResonse(response);
+            }
+            catch (Exception ex)
+            {
+                response.statusCode = 0;
+                response.statusMessage = "Failed to login";
+                return Transform.ConvertResultToApiResonse(response);
+            }
+        }
         public ApiResponse< LoginResponse> LoginCheck(LoginRequest request)
         {
             LoginResponse response = new LoginResponse();
@@ -1499,8 +1594,16 @@ namespace Ecommerce.Models.BAL
             {
 
                 context.addressEntities.Add(ae);
+                ae.IsDeleted = false;
                 context.SaveChanges();
 
+                if (ae.IsDeliverAddress.ToUpper()=="YES")
+                {
+                    var updateIsDeliveryOption = context.addressEntities.Where(x => x.UserId == ae.UserId && x.Id != ae.Id).ToList();//.ForEach(x => x.IsDeliverAddress = "NO");
+                    updateIsDeliveryOption.ForEach(x => x.IsDeliverAddress = "NO");
+                    context.SaveChanges();
+
+                }
                 result.currentId = ae.Id;
                 result.statusCode = 1;
                 result.statusMessage = "Registration is Success";
@@ -1595,6 +1698,29 @@ namespace Ecommerce.Models.BAL
                           StateId_Name = st.StateName
                       }).ToList();
             return myList;
+        }
+
+        public List<AddressModel> APIGetAddressbyId(int id)
+        {
+
+            return context.addressEntities.Where(a => a.UserId == id && a.IsDeleted==false)
+                .Select(b => new AddressModel
+                {
+                    UserId = b.UserId.GetValueOrDefault(),
+                    Address1 = b.Address1,
+                    Address2 = b.Address2,
+                    AddressTypeId = b.AddressTypeId,
+                    CityId = b.CityId!=null?b.CityId:0,
+                    CountryId = b.CountryId != null ? b.CountryId : 0,
+                    Id = b.Id,
+                    LandMark = b.LandMark,
+                    LocationStreet = b.LocationStreet != null ? b.LocationStreet : string.Empty,
+                    StateId = b.StateId != null ? b.StateId : 0,
+                    ZipCode = b.ZipCode != null ? b.ZipCode : string.Empty,
+                    IsDeliverAddress = b.IsDeliverAddress != null ? b.IsDeliverAddress : string.Empty
+
+                })
+                .ToList();
         }
         public AddressModel GetAddressbyId(int id)
         {

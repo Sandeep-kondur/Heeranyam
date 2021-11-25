@@ -506,7 +506,7 @@ namespace Ecommerce.Controllers
             try
             {
                 string imagepath = string.Empty;
-                if (ModelState.IsValid)
+               // if (ModelState.IsValid)
                 {
                     bool isFine = true;
                     var emailCheck = _uService.EmailAvailablityCheck(request.EmailId);
@@ -514,14 +514,20 @@ namespace Ecommerce.Controllers
                     {
                         isFine = false;
                     }
+                     
+                    if (!string.IsNullOrEmpty(request.MobileNumber))
+                    {
+
                     var mobiblecheck = _uService.MobileAvailablityCheck(request.MobileNumber);
                     if (mobiblecheck == false)
                     {
                         isFine = false;
                     }
+                    }
+
                     if (isFine == false)
                     {
-                        var loginCheck = _uService.LoginCheck(new LoginRequest() { emailid=request.EmailId,mobileNumber=request.MobileNumber}).Response;
+                        var loginCheck = _uService.SocialLoginCheck(new LoginRequest() { emailid=request.EmailId,mobileNumber=request.MobileNumber!=null?request.MobileNumber:string.Empty,pword=request.PWord}).Response;
                         if (loginCheck.statusCode == 1)
                         {
                             // SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
@@ -531,6 +537,11 @@ namespace Ecommerce.Controllers
                                 loginCheck.userImageURL = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/UserImages/" + loginCheck.userImageURL;
                             }
                             return StatusCode(200, new { statusCode = 1, UserDetails = loginCheck, statusMessage = "Login Success" });
+                        }
+                        else
+                        {
+                            return StatusCode(200, new { statusCode = 0, statusMessage = "Login Failure" });
+
                         }
                     }
                     else
@@ -547,7 +558,10 @@ namespace Ecommerce.Controllers
                         var usertypes = _uService.GetUserTypes().Where(a => a.TypeName == "Customer").FirstOrDefault();
                         request.UserTypeId = usertypes.TypeId;
                         CloneObjects.CopyPropertiesTo(request, um);
-                        var result = _uService.RegisterUser(um);
+                        int logintypeid= _uService.GetLoginType(request.LogInTypeCode);
+                        um.loginType = logintypeid;
+                        um.MobileNumber = um.MobileNumber==null? string.Empty:um.MobileNumber;
+                        var result = _uService.SocialRegisterUser(um);
                         if (result.statusCode == 1)
                         {
                             LoginResponse lr = new LoginResponse();

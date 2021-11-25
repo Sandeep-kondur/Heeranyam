@@ -10,6 +10,10 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IUserMgmtService
     {
+        List<AddressModel> APIGetAddressbyId(int id);
+        int GetLoginType(string code);
+        ProcessResponse SocialRegisterUser(UserMasterEntity userMaster);
+        ApiResponse<LoginResponse> SocialLoginCheck(LoginRequest request);
         APIUser APIGetUserByID(int userid);
         ProcessResponse APISaveAddress(AddressEntity ae);
         ProcessResponse APIUpdateAddress(AddressEntity ae);
