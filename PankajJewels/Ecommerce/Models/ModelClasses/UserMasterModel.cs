@@ -138,6 +138,10 @@ namespace Ecommerce.Models.ModelClasses
         public int IsSocialLogin { get; set; }
         public int LogInType { get; set; }
         public string LogInTypeCode { get; set; }
+
+        public string token { get; set; }
+
+        public string authID { get; set; }
     }
     public class UserMasterModel
     {

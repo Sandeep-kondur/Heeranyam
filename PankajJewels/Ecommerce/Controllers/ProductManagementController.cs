@@ -25,7 +25,7 @@ namespace Ecommerce.Controllers
         private readonly IOtherMgmtService _oService;
         private readonly IProductManagementService _pService;
         private readonly IHostingEnvironment hostingEnvironment;
-        public ProductManagementController (ILogger<UserMgmtController> logger,
+        public ProductManagementController(ILogger<UserMgmtController> logger,
             INotificationService nService,
             IMasterDataMgmtService mService,
             IOtherMgmtService oService,
@@ -47,7 +47,7 @@ namespace Ecommerce.Controllers
             ProcessResponse pResponse = new ProcessResponse();
             try
             {
-                
+
                 if (request != null)
                 {
                     ProductMasterEntity pMaster = new ProductMasterEntity();
@@ -59,11 +59,11 @@ namespace Ecommerce.Controllers
                     pMaster.LastModifiedBy = pMaster.PostedBy;
                     pMaster.LastModifiedOn = DateTime.Now;
                     pResponse = _pService.SaveProductMaster(pMaster);
-                    if(pResponse.statusCode == 1)
+                    if (pResponse.statusCode == 1)
                     {
-                        if(request.ProductDetails.Count > 0)
+                        if (request.ProductDetails.Count > 0)
                         {
-                            foreach(var d in request.ProductDetails)
+                            foreach (var d in request.ProductDetails)
                             {
                                 ProductDetailsEntity pd = new ProductDetailsEntity();
                                 CloneObjects.CopyPropertiesTo(d, pd);
@@ -71,7 +71,7 @@ namespace Ecommerce.Controllers
                                 pd.IsActive = true;
                                 pd.ProductId = pResponse.currentId;
                                 var dResponse = _pService.SaveProductDetail(pd);
-                                if(dResponse.statusCode == 1)
+                                if (dResponse.statusCode == 1)
                                 {
                                     decimal daimondRate = 0;
                                     if (d.DaimondsMain != null)
@@ -81,7 +81,7 @@ namespace Ecommerce.Controllers
                                         daimondMain.ProductDetailId = dResponse.currentId;
                                         daimondMain.IsDeleted = false;
                                         var dMResponse = _pService.SaveDaimondsMain(daimondMain);
-                                        if(d.DaimondsDetail.Count > 0)
+                                        if (d.DaimondsDetail.Count > 0)
                                         {
                                             foreach (var dd in d.DaimondsDetail)
                                             {
@@ -90,21 +90,21 @@ namespace Ecommerce.Controllers
                                                 dPP.DPPId = dMResponse.currentId;
                                                 dPP.IsDeleted = false;
                                                 _pService.SaveDaimondsDetails(dPP);
-                                                decimal dmPrice = (decimal)_pService.GetDaimondRate((int) dPP.DaimondTypeId);
-                                                daimondRate  += (decimal) dd.TotalWaight * dmPrice;
+                                                decimal dmPrice = (decimal)_pService.GetDaimondRate((int)dPP.DaimondTypeId);
+                                                daimondRate += (decimal)dd.TotalWaight * dmPrice;
                                             }
                                         }
                                     }
-                                    if(d.PerlMain != null)
+                                    if (d.PerlMain != null)
                                     {
                                         PerlPerProductEntity perlMain = new PerlPerProductEntity();
                                         CloneObjects.CopyPropertiesTo(d.PerlMain, perlMain);
                                         perlMain.ProductDetailId = dResponse.currentId;
                                         perlMain.IsDeleted = false;
                                         var pmResponse = _pService.SavePerlMain(perlMain);
-                                        if(d.PerlDetails.Count > 0)
+                                        if (d.PerlDetails.Count > 0)
                                         {
-                                            foreach(var perlDetails in d.PerlDetails)
+                                            foreach (var perlDetails in d.PerlDetails)
                                             {
                                                 PerlPerPrdDetailsEntity pDetails = new PerlPerPrdDetailsEntity();
                                                 CloneObjects.CopyPropertiesTo(perlDetails, pDetails);
@@ -117,7 +117,7 @@ namespace Ecommerce.Controllers
                                     if (d.SolitaireMain != null)
                                     {
                                         SolitairePerProductEntity solMain = new SolitairePerProductEntity();
-                                        CloneObjects.CopyPropertiesTo(d.SolitaireMain,solMain );
+                                        CloneObjects.CopyPropertiesTo(d.SolitaireMain, solMain);
                                         solMain.ProductDetailId = dResponse.currentId;
                                         solMain.IsDeleted = false;
                                         var pmResponse = _pService.SaveSolitaireMain(solMain);
@@ -156,7 +156,7 @@ namespace Ecommerce.Controllers
                                     // saving images
                                     if (d.ProductDetailImages != null)
                                     {
-                                        foreach(FormFile file in d.ProductDetailImages)
+                                        foreach (FormFile file in d.ProductDetailImages)
                                         {
                                             var fileNameUploaded = Path.GetFileName(file.FileName);
                                             if (fileNameUploaded != null)
@@ -179,12 +179,12 @@ namespace Ecommerce.Controllers
                                                 _pService.SaveDetailImages(detimages);
                                             }
                                         }
-                                       
-                                       
+
+
                                     }
 
                                     //calculate price 
-                                   
+
                                     decimal goldWeight = (decimal)d.ProductWeight;
                                     decimal goldOriginalRate = _pService.GetGoldTodayRate();
                                     decimal goldKaratPercentatge = _pService.GetMetalTypeRate((int)d.MetalMasterId);
@@ -195,9 +195,9 @@ namespace Ecommerce.Controllers
                                     pm.DaimondRate = daimondRate;
 
                                     pm.GoldRate = goldRate;
-                                    pm.GST = (decimal) _pService.GetGSTRate() * goldRate / 100;
+                                    pm.GST = (decimal)_pService.GetGSTRate() * goldRate / 100;
                                     pm.MakingCharges = goldRate * 10 / 100;
-                                    pm.discount = (decimal) _pService.GetDisocuntRate((int)request.DiscountApplicableId) * pm.MakingCharges / 100;
+                                    pm.discount = (decimal)_pService.GetDisocuntRate((int)request.DiscountApplicableId) * pm.MakingCharges / 100;
                                     pm.totalAmount = (daimondRate + goldRate + pm.MakingCharges + pm.GST) - pm.discount;
                                     pm.oldAmount = daimondRate + goldRate + pm.GST + pm.MakingCharges;
 
@@ -274,21 +274,21 @@ namespace Ecommerce.Controllers
 
 
         [HttpGet]
-        public IActionResult APIGetProductDetails( int productid,int userid)
+        public IActionResult APIGetProductDetails(int productid, int userid)
         {
             try
             {
                 string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
-                var product = _pService.APIGetProductDetails(productid,userid);
+                var product = _pService.APIGetProductDetails(productid, userid);
 
                 List<string> lstProductImages = new List<string>();
-                if (product!=null &&product.ProductMainImages_List!=null)
+                if (product != null && product.ProductMainImages_List != null)
                 {
                     foreach (string item in product.ProductMainImages_List)
                     {
                         if (!string.IsNullOrEmpty(item) && !item.Contains(Request.Scheme))
                         {
-                            lstProductImages.Add( url + item);
+                            lstProductImages.Add(url + item);
                         }
                     }
                 }
@@ -296,22 +296,41 @@ namespace Ecommerce.Controllers
                 product.ProductMainImages_List = lstProductImages;
                 var reviews = _pService.GetProductReviews(productid, userid);
                 var wishlist = _pService.isInWishList(productid, userid);
-                return StatusCode(200, new { status=1, product, reviews=reviews != null?reviews.ToList():new List<UserReviewMaster>(), Message="Success" ,isInWishList= wishlist==1? wishlist:0 , rating=4});
+                return StatusCode(200, new
+                {
+                    status = 1,
+                    product,
+                    reviews = reviews != null ? reviews.ToList() : new List<UserReviewMaster>()
+                {
+                    new UserReviewMaster
+                {
+                    ProductId=0,
+                    rating=0,
+                    ReviewId=0,
+                    UserId=userid,
+                    FeedbackImageUrl=string.Empty,
+                    FeedbackMessage=string.Empty
+                }
+                },
+                    Message = "Success",
+                    isInWishList = wishlist == 1 ? wishlist : 0,
+                    rating = 4
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(200, new { status=0, message="Failure"});
+                return StatusCode(200, new { status = 0, message = "Failure" });
             }
         }
         [HttpPost]
-        public IActionResult APIGetProductsByCatId([FromForm] ProductDetailsRequest request ) 
+        public IActionResult APIGetProductsByCatId([FromForm] ProductDetailsRequest request)
         {
             try
             {
                 string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
-                  var response = _pService.APIGetProductsByCatId(request,url,request.UserID);
+                var response = _pService.APIGetProductsByCatId(request, url, request.UserID);
 
-                if (response!=null && response.Count >= 1)
+                if (response != null && response.Count >= 1)
                 {
                     foreach (var item in response)
                     {
@@ -335,7 +354,7 @@ namespace Ecommerce.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(200, new { status = 0, message = "Failure"});
+                return StatusCode(200, new { status = 0, message = "Failure" });
             }
         }
 
@@ -351,7 +370,7 @@ namespace Ecommerce.Controllers
             {
                 return Ok(ex);
             }
-        }   
+        }
 
         [HttpPost]
         public IActionResult GetGoldRate(GenericRequest request)
@@ -383,7 +402,7 @@ namespace Ecommerce.Controllers
 
         public PriceBreakUpModel CalculatePrice(int prid)
         {
-             
+
 
             //calculate price 
             PostProductModel_Web product = _pService.GetProductDetails_Web(prid);
@@ -411,14 +430,14 @@ namespace Ecommerce.Controllers
 
                 pm.GoldRate = goldRate;
                 pm.GST = (decimal)product.GST[0].GSTTaxValue * goldRate / 100;
-                pm.MakingCharges =(decimal) product.ProductDetails[0].MakingCharges;
+                pm.MakingCharges = (decimal)product.ProductDetails[0].MakingCharges;
                 pm.discount = (decimal)product.DiscountAmount * pm.MakingCharges / 100;
                 pm.totalAmount = (daimondRate + goldRate + pm.MakingCharges + pm.GST) - pm.discount;
                 pm.oldAmount = daimondRate + goldRate + pm.GST + pm.MakingCharges;
                 product.priceBreakup = pm;
 
             }
-            
+
             return pm;
 
         }

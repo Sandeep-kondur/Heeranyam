@@ -163,6 +163,7 @@ namespace Ecommerce.Controllers
                     var usertypes = _uService.GetUserTypes().Where(a => a.TypeName == "Customer").FirstOrDefault();
                     request.UserTypeId = usertypes.TypeId;
                     CloneObjects.CopyPropertiesTo(request, um);
+                    um.authID = string.Empty;
                     var result = _uService.RegisterUser(um);
                     if (result.statusCode == 1)
                     {
@@ -527,7 +528,7 @@ namespace Ecommerce.Controllers
 
                     if (isFine == false)
                     {
-                        var loginCheck = _uService.SocialLoginCheck(new LoginRequest() { emailid=request.EmailId,mobileNumber=request.MobileNumber!=null?request.MobileNumber:string.Empty,pword=request.PWord}).Response;
+                        var loginCheck = _uService.SocialLoginCheck(new LoginRequest() { emailid=request.EmailId,mobileNumber=request.MobileNumber!=null?request.MobileNumber:string.Empty,pword=request.token}).Response;
                         if (loginCheck.statusCode == 1)
                         {
                             // SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
@@ -561,6 +562,8 @@ namespace Ecommerce.Controllers
                         int logintypeid= _uService.GetLoginType(request.LogInTypeCode);
                         um.loginType = logintypeid;
                         um.MobileNumber = um.MobileNumber==null? string.Empty:um.MobileNumber;
+                        um.PWord = request.token;
+                        um.authID = request.authID;
                         var result = _uService.SocialRegisterUser(um);
                         if (result.statusCode == 1)
                         {
@@ -817,6 +820,7 @@ namespace Ecommerce.Controllers
                         var usertypes = _uService.GetUserTypes().Where(a => a.TypeName == "Customer").FirstOrDefault();
                         request.UserTypeId = usertypes.TypeId;
                         CloneObjects.CopyPropertiesTo(request, um);
+                        um.authID = string.Empty;
                         var result = _uService.RegisterUser(um);
                         if (result.statusCode == 1)
                         {

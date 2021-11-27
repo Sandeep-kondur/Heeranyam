@@ -47,6 +47,8 @@ namespace Ecommerce.Models.Entity
 
         public int loginType { get; set; }
 
+        public string authID { get; set; }
+
 
     }
 }
