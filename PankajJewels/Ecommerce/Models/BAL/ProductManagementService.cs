@@ -598,29 +598,7 @@ namespace Ecommerce.Models.BAL
                             }
                             else
                             {
-                                details[i].DaimondsDetail = new List<DaimondsPerPrdDetailsEntity_Web>()
-                                {
-
-                                    new DaimondsPerPrdDetailsEntity_Web(){
-
-                                                 ClarityId = 0,
-                                                                 ClarityId_Name = string.Empty,
-                                                                 ColorId = 0,
-                                                                 ColorId_Name = string.Empty,
-                                                                 DaimondTypeId =0,
-                                                                 DPPDId =0,
-                                                                 DPPId = 0,
-                                                                 IsDeleted = false,
-                                                                 NoofDaimonds = 0,
-                                                                 SettingTypeId =0,
-                                                                 SettingTypeId_Name = string.Empty,
-                                                                 ShapeId =0,
-                                                                 ShapeId_Name = string.Empty,
-                                                                 TotalWaight = 0,
-                                                                 DaimondTypeId_Name = string.Empty
-                                    }
-
-                                };
+                                details[i].DaimondsDetail = new List<DaimondsPerPrdDetailsEntity_Web>();
                             }
                             if (details[i].SolitaireMain != null)
                             {
@@ -658,29 +636,7 @@ namespace Ecommerce.Models.BAL
                             }
                             else
                             {
-                                details[i].SolitaireDetails = new List<SolitairePerPrdDetailsEntity_Web>()
-                                {  new SolitairePerPrdDetailsEntity_Web()
-                                    {
-                                        IsDeleted = false,
-                                        CertificationId = 0,
-                                        CertificationId_Name = string.Empty,
-                                        ClarityId =0,
-                                        ClarityId_Nme =  string.Empty,
-                                        ColorId =0,
-                                        ColorId_Name =  string.Empty,
-                                        FluorescenceId = 0,
-                                        FluorescenceId_Name =  string.Empty,
-                                        NoofSolitaire = 0,
-                                        ShapeId = 0,
-                                        ShapeId_Name =  string.Empty,
-                                        SPPDId = 0,
-                                        SPPId = 0,
-                                        Symmetry = 0,
-                                        Symmetry_Name = string.Empty,
-                                        TotalWaight =0
-
-                                    } 
-                                };
+                                details[i].SolitaireDetails = new List<SolitairePerPrdDetailsEntity_Web>();
                             }
                             if (details[i].PerlMain != null)
                             {
@@ -706,21 +662,7 @@ namespace Ecommerce.Models.BAL
                             }
                             else
                             {
-                                details[i].PerlDetails = new List<PerlPerPrdDetailsEntity_Web>() { 
-                                new PerlPerPrdDetailsEntity_Web()
-                                {
-                                     PPPId = 0,
-                                                              IsDeleted = false,
-                                                              NoofStones = 0,
-                                                              PPPDId = 0,
-                                                              SettingId = 0,
-                                                              SettingId_Name = string.Empty,
-                                                              ShapeId = 0,
-                                                              ShapeId_Name = string.Empty,
-                                                              Size = 0
-
-                                }
-                                };
+                                details[i].PerlDetails = new List<PerlPerPrdDetailsEntity_Web>();
                             }
                             if (details[i].SRubyMain != null)
                             {
@@ -746,21 +688,7 @@ namespace Ecommerce.Models.BAL
                             }
                             else
                             {
-                                details[i].SRubyDetails = new List<SRubyPerPrdDetailsEntity_Web>()
-                                { 
-                                new SRubyPerPrdDetailsEntity_Web()
-                                {
-                                                               SRPPId = 0,
-                                                               IsDeleted = false,
-                                                               NoofStones = 0,
-                                                               SettingId = 0,
-                                                               SettingId_Name = string.Empty,
-                                                               ShapeId = 0,
-                                                               ShapeId_Name = string.Empty,
-                                                               Size = string.Empty,
-                                                               SRPPDId = 0
-                                }
-                                };
+                                details[i].SRubyDetails = new List<SRubyPerPrdDetailsEntity_Web>();
                             }
                         }
                     }

@@ -280,20 +280,25 @@ namespace Ecommerce.Controllers
             {
                 string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
                 var product = _pService.APIGetProductDetails(productid, userid);
-
+               List< ImageList> imgLst = new  List<ImageList>(); 
                 List<string> lstProductImages = new List<string>();
                 if (product != null && product.ProductMainImages_List != null)
                 {
+                    int id_Count = 1;
                     foreach (string item in product.ProductMainImages_List)
                     {
+
                         if (!string.IsNullOrEmpty(item) && !item.Contains(Request.Scheme))
                         {
                             lstProductImages.Add(url + item);
+                            imgLst.Add(new ImageList() { Imageid = id_Count + 1, ImageUrl = url + item });
                         }
+                        id_Count= id_Count+1;
                     }
                 }
 
-                product.ProductMainImages_List = lstProductImages;
+                product.ProductMainImages_List = new List<string>() ;// lstProductImages;
+                product.ProductImages_List = imgLst;
                 var reviews = _pService.GetProductReviews(productid, userid);
                 var wishlist = _pService.isInWishList(productid, userid);
                 return StatusCode(200, new

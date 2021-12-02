@@ -6,6 +6,7 @@ using Ecommerce.Models.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Razorpay.Api;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,6 +70,42 @@ namespace Ecommerce.Controllers
 
         #region API End Points
 
+        [HttpGet]
+        public IActionResult APISearchOptions()
+        {
+            HomeProductsModels myObj = new HomeProductsModels();
+            List<SubCategoryMasterEntity> subCatDrop = new List<SubCategoryMasterEntity>();
+            List<DetailCategoryMasterEntity> detCatDrops = new List<DetailCategoryMasterEntity>();
+            List<CategoryMasterEntity> catDrops = new List<CategoryMasterEntity>();
+            PaginationRequest pr = new PaginationRequest();
+            GenericRequest gr = new GenericRequest();
+            gr.pageNumber = 1;
+            gr.pageSize = 1000;
+            pr.pageNumber = 1;
+            pr.pageSize = 1000;
+            catDrops = _oServce.GetAllCategories(pr);
+            
+            gr.Id = 0;
+            subCatDrop = _oServce.GetAllSubCategories(gr);
+            gr.Id = 0;
+            detCatDrops = _oServce.GetAllDetailCategories(gr);
+
+            // for filters drop downs
+
+            List<MetalMasterEntity> metalDrop = _mService.GetMetalMaster(pr, "List");
+
+            StaticDropDowns staticDrops = new StaticDropDowns();
+            List<DiscountMasterEntity> discDrops = _mService.GetAllDiscounts(gr);
+
+            myObj.detCatDrops = detCatDrops;
+            myObj.subCateDrop = subCatDrop;
+            myObj.catDrops = catDrops;
+            myObj.staticDrops = staticDrops;
+            myObj.metalDrop = metalDrop;
+            myObj.discDrops = discDrops;
+            return StatusCode(200, new { myObj, status = 1, message = "Success" });
+
+        }
         [HttpGet]
         public IActionResult APIListing(int userId,int cid = 0, int sid = 0, int did = 0, int pageNumber = 1,
            int pageSize = 10, string search = "", decimal price = 0, int metalid = 0,
@@ -357,6 +394,24 @@ namespace Ecommerce.Controllers
             return StatusCode(200, new { status = 1, Message = "Success", result = response });
         }
 
+        [HttpPost]
+        public IActionResult APIRefund(int userid, string paymentId )
+        {
+            //initialize the SDK client
+
+            string rKey = _config.GetValue<string>("OtherConfig:RazorKey");
+            string rSecret = _config.GetValue<string>("OtherConfig:RazorSecret");
+            RazorpayClient client = new RazorpayClient(rKey, rSecret);
+           //  payment to be refunded, payment must be a captured payment
+           Payment payment = client.Payment.Fetch(paymentId);
+            //Full Refund
+            Refund refund = payment.Refund();
+            //Partial Refund
+            //Dictionary<string, object> data = new Dictionary<string, object>();data.Add("amount", "500100");Refund refund = payment.Refund(data);
+
+            return StatusCode(200, new { status = 1, Message = "Success" });
+
+        }
 
         [HttpPost]
         public IActionResult APIDeleteFromCart(int productid, int userid)
@@ -527,7 +582,7 @@ namespace Ecommerce.Controllers
                 }
 
                  
-                return  APIPaymentSuccess(userid);
+                return  APIPaymentSuccess(userid, orderId);
             }
             else
             {
@@ -541,12 +596,26 @@ namespace Ecommerce.Controllers
             
             return StatusCode(500, new { status=0, message="Payment Failed"});
         }
-        public IActionResult APIPaymentSuccess(int userid)
+        public IActionResult APIPaymentSuccess(int userid, string orderId)
         {
-
+            string serverKey = _config.GetValue<string>("FCMConfig:ServerKey");
+            string senderID = _config.GetValue<string>("FCMConfig:SenderID");
+            var userInfo=_uService.APIGetUserByID(userid);
+         
+           FCM notifyUser= new FCM(serverKey, senderID, userInfo.DeviceId) ;
+            notifyUser.SendNotification("Order Confirmed ","Successfully Placed the order "+orderId + " will notify further updates","Order Confirmation");
             return StatusCode(200, new { status = 1, message = "Payment Success" });
         }
 
+        public void NotifyUser(int userid, string orderId) 
+        {
+            string serverKey = _config.GetValue<string>("FCMConfig:ServerKey");
+            string senderID = _config.GetValue<string>("FCMConfig:SenderID");
+            var userInfo = _uService.APIGetUserByID(userid);
+
+            FCM notifyUser = new FCM(serverKey, senderID, userInfo.DeviceId);
+            notifyUser.SendNotification("Order Confirmed ", "Successfully Placed the order " + orderId + " will notify further updates", "Order Confirmation");
+        }
         [HttpPost]
         public IActionResult APIProductIncrementAddToCart(int userId, int productId, int detailId, int numberOfItems = 1)
         {
@@ -2345,6 +2414,7 @@ namespace Ecommerce.Controllers
                 }
 
                 SessionHelper.SetObjectAsJson(HttpContext.Session, "currentOrder", null);
+                NotifyUser(loginCheckResponse.userId, orderId);
                 return RedirectToAction("PaymentSuccess");
             }
             else

@@ -495,8 +495,16 @@ namespace Ecommerce.Controllers
             }
             ViewBag.LoggedUser = loginCheckResponse;
             BannerAdsDisplayModelBase obj = new BannerAdsDisplayModelBase();
-            
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value;
             obj.myAds = _oService.GetAllBanners(page);
+
+            foreach (var item in obj.myAds)
+            {
+                if (!string.IsNullOrEmpty(item.BannerWebSite))
+                {
+                    item.BannerWebSite = url + item.BannerWebSite + item.BannerUrl;
+                }
+            }
             obj.pageDrop = _oService.GetBannerPages();
             obj.sectionDrop = _oService.GetBannerSections();
             ViewBag.Page = page;
@@ -860,7 +868,15 @@ namespace Ecommerce.Controllers
             BannerAdsDisplayModelBase obj = new BannerAdsDisplayModelBase();
              obj.myAds = _oService.GetAllBanners(page);
             List<BannerAdsDisplayModel> bannerAds = new List<BannerAdsDisplayModel>();
-             
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value;
+            foreach (var item in obj.myAds)
+            {
+                if (!string.IsNullOrEmpty(item.BannerWebSite))
+                {
+                    item.BannerWebSite = url + item.BannerWebSite + item.BannerUrl;
+                }
+            }
+
             var featured = _pservice.APIGetLatestProducts();
             var hotDeals = _pservice.APIGetLatestProducts("HT");
 
@@ -873,6 +889,14 @@ namespace Ecommerce.Controllers
 
             BannerAdsDisplayModelBase obj = new BannerAdsDisplayModelBase();
             obj.myAds = _oService.GetAllBanners(menuId);
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value;
+            foreach (var item in obj.myAds)
+            {
+                if (!string.IsNullOrEmpty(item.BannerWebSite))
+                {
+                    item.BannerWebSite = url + item.BannerWebSite + item.BannerUrl;
+                }
+            }
             List<BannerAdsDisplayModel> bannerAds = new List<BannerAdsDisplayModel>();
 
             return Json(new { status = 1, Message = "Success", BannerADs = obj.myAds });

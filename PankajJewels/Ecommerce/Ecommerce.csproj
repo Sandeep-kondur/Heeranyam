@@ -24,6 +24,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+    <PackageReference Include="Nancy" Version="2.0.0" />
     <PackageReference Include="Razorpay" Version="3.0.0" />
     <PackageReference Include="RestSharp" Version="106.11.7" />
   </ItemGroup>
@@ -32,9 +33,7 @@
     <Folder Include="wwwroot\ReviewImages\" />
     <Folder Include="wwwroot\ProductImages\" />
     <Folder Include="wwwroot\UserImages\" />
-    <Folder Include="wwwroot\WebApp\assets\img" />
     <Folder Include="wwwroot\WebApp\assets\img\slider" />
-    <Folder Include="wwwroot\WebApp\assets\img\banner" />
     <Folder Include="wwwroot\WebApp\assets\img\home" />
 
   </ItemGroup>

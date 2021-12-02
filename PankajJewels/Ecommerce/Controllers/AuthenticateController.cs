@@ -611,31 +611,24 @@ namespace Ecommerce.Controllers
 
 
         [HttpPost]
-        public IActionResult APILogin(  LoginRequest request)
+        public IActionResult APILogin(APIUserMasterModel request)
         {
             try
             {
-                LoginResponse loginCheckResponse = new LoginResponse();
-                loginCheckResponse = SessionHelper.GetObjectFromJson<LoginResponse>(HttpContext.Session, "loggedUser");
-                if (loginCheckResponse == null)
-                {
-                    loginCheckResponse = new LoginResponse();
-                    loginCheckResponse.userId = 0;
-                    loginCheckResponse.userName = "NA";
-                }
-                if (string.IsNullOrEmpty(request.emailid) || string.IsNullOrEmpty(request.pword))
+        
+                if (string.IsNullOrEmpty(request.EmailId ) || string.IsNullOrEmpty(request.PWord))
                 {
                     return StatusCode(200, new { statusCode = 0, statusMessage = "Fill Mandatory Fields" });
                 }
                 else
                 {
-                    if (ModelState.IsValid)
+                    if (request.EmailId != null && request.PWord != null && request.DeviceId != null )
                     {
-                        var loginCheck = _uService.LoginCheck(request).Response;
+                        var loginCheck = _uService.LoginCheck(new LoginRequest() { emailid= request.EmailId!=null?request.EmailId:string.Empty, pword=request.PWord , deviceID=request.token }).Response;
                         if (loginCheck.statusCode == 1)
                         {
                            // SessionHelper.SetObjectAsJson(HttpContext.Session, "loggedUser", loginCheck);
-                            _uService.UpdateUserMaster(new APIUser()  { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.deviceID, EmailId = request.emailid } );
+                            _uService.UpdateUserMaster(new APIUser()  { UserName = loginCheck.userName, UserId = loginCheck.userId, DeviceId = request.DeviceId, EmailId = request.EmailId } );
                             if (!string.IsNullOrEmpty(loginCheck.userImageURL) &&!loginCheck.userImageURL.Contains(Request.Host.Value))
                             {
                                 loginCheck.userImageURL = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/UserImages/" + loginCheck.userImageURL;

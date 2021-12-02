@@ -31,7 +31,7 @@ namespace Ecommerce.Models.ModelClasses
 
         public List<IFormFile> ProductMainImages { get; set; }
         public List<string> ProductMainImages_List { get; set; }
-
+        public List<ImageList> ProductImages_List { get; set; }
         public List<APIProductDetailsModel> ProductDetails { get; set; }
 
         public WishListEntity WishList { get; set; }
@@ -41,6 +41,11 @@ namespace Ecommerce.Models.ModelClasses
         public int Stock { get; set; }
 
 
+    }
+   public class ImageList
+    {
+        public int Imageid { get; set; }
+        public string ImageUrl { get; set; }
     }
     public class PostProductModel
     {

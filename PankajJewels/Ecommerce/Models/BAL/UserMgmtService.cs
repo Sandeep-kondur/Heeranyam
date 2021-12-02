@@ -207,11 +207,11 @@ namespace Ecommerce.Models.BAL
                 {
                     uma.ProfileImage = request.ProfilePicUrl;
                 }
-                //if (!String.IsNullOrEmpty(request.APIUserMasterModel.DeviceId) 
-                //    && request.APIUserMasterModel.DeviceId.ToUpper()!=uma.DeviceId.ToUpper())
-                //{
-                //    uma.DeviceId = request.APIUserMasterModel.DeviceId;
-                //}
+                if (!String.IsNullOrEmpty(request.DeviceId)
+                    && request.DeviceId.ToUpper() != uma.DeviceId.ToUpper())
+                {
+                    uma.DeviceId = request.DeviceId;
+                }
 
                 //if (!String.IsNullOrEmpty(request.Address)
                 //    && request.Address.ToUpper() != uma.Address.ToUpper())
@@ -255,7 +255,8 @@ namespace Ecommerce.Models.BAL
                     UserName = result.UserName,
                     EmailId = result.EmailId,
                     MobileNumber = result.MobileNumber,
-                    ProfilePicUrl = result.ProfileImage
+                    ProfilePicUrl = result.ProfileImage,
+                    DeviceId=result.DeviceId
                 };
                 var resultAddress = context.addressEntities.Where(x => x.UserId == result.UserId &&x.IsDeliverAddress=="YES").FirstOrDefault();
 
