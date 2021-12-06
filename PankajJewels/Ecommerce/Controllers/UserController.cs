@@ -313,6 +313,17 @@ namespace Ecommerce.Controllers
 
 
         [HttpGet]
+        public IActionResult APIAllOrderDetails(int userid)
+        {
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+
+            List<APIPOMasterModel> orderDetails = new List<APIPOMasterModel>();
+            orderDetails = _ordService.APIGetAllOrders(userid,url);
+            return StatusCode(200, new { status = 1, message = "success", orderDetails });
+        }
+
+
+        [HttpGet]
         public IActionResult APIOpenOrderDetails(int userid, int orderid)
         {
 
@@ -339,6 +350,8 @@ namespace Ecommerce.Controllers
 
             return View(myList);
         }
+
+
         public IActionResult ClosedOrders()
         {
             LoginResponse loginCheckResponse = new LoginResponse();
@@ -554,6 +567,8 @@ namespace Ecommerce.Controllers
 
             return Json(new { status=1 , message="Cancelled Order",result = response });
         }
+
+        
         public IActionResult CancellOrder(int orderId)
         {
             ProcessResponse response = new ProcessResponse();

@@ -395,7 +395,7 @@ namespace Ecommerce.Controllers
         }
 
         [HttpPost]
-        public IActionResult APIRefund(int userid, string paymentId )
+        public IActionResult APIRefund(int userid, string orderId,string paymentId )
         {
             //initialize the SDK client
 
@@ -406,10 +406,27 @@ namespace Ecommerce.Controllers
            Payment payment = client.Payment.Fetch(paymentId);
             //Full Refund
             Refund refund = payment.Refund();
-            //Partial Refund
-            //Dictionary<string, object> data = new Dictionary<string, object>();data.Add("amount", "500100");Refund refund = payment.Refund(data);
+            RazorRefundEntity refundEntity = new RazorRefundEntity();
+            refundEntity.Refund_id = refund.Attributes["id"];
+            refundEntity.amount_refunded = refund.Attributes["amount"];
+            refundEntity.refund_status = refund.Attributes["status"];
+            refundEntity.speed_processed = refund.Attributes["speed_processed"];
+            refundEntity.Payment_id = refund.Attributes["payment_id"];
+            refundEntity.entity = refund.Attributes["entity"];
+           // refundEntity.notes = refund.Attributes["notes"];
+            refundEntity.currency= refund.Attributes["currency"];
+            refundEntity.speed_requested = refund.Attributes["speed_requested"];
 
-            return StatusCode(200, new { status = 1, Message = "Success" });
+            refundEntity.created_at = refund.Attributes["created_at"];
+
+
+         var responseRefund=   _ordService.SaveRefund(refundEntity);
+            if (responseRefund.statusCode==1)
+            {
+                return StatusCode(200, new { status = 1, Message = "Success" });
+
+            }
+            return StatusCode(200, new { status = 0, Message = "Failed" });
 
         }
 
@@ -1465,7 +1482,7 @@ namespace Ecommerce.Controllers
                 return StatusCode(200, new
                 {
                     status = 1,
-                    message = "Success Ma",
+                    message = "Success",
                     notify = "Thank you " + request.Name + " for contacting us"
                 });
             }

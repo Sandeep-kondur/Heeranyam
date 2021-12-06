@@ -39,7 +39,7 @@ namespace Ecommerce.Models.ModelClasses
 
         [Key] 
         public string Name { get; set; }
-        public string PhoneNumber { get; set; }
+        public string MobileNumber { get; set; }
 
         public string Emailid { get; set; }
 

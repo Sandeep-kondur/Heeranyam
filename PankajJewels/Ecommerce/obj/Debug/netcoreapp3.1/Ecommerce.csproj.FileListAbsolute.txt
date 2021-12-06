@@ -1406,6 +1406,6 @@ C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Debug\netcoreapp3.1
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Debug\netcoreapp3.1\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Debug\netcoreapp3.1\Razor\Views\Masters\DiamondType.cshtml.g.cs
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Debug\netcoreapp3.1\Razor\Views\Masters\DiamondTypeData.cshtml.g.cs
-C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Debug\netcoreapp3.1\Ecommerce.csproj.AssemblyReference.cache
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Debug\netcoreapp3.1\Microsoft.Extensions.PlatformAbstractions.dll
 C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\bin\Debug\netcoreapp3.1\Nancy.dll
+C:\Users\User\Downloads\Heeranyam\PankajJewels\Ecommerce\obj\Debug\netcoreapp3.1\Ecommerce.csproj.AssemblyReference.cache

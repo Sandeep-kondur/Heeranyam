@@ -81,6 +81,7 @@ namespace Ecommerce.Models.Entity
             modelBuilder.Entity<ContactUs>().ToTable("ContactUs");
             modelBuilder.Entity<UserReviewMaster>().ToTable("UserReviewMaster");
             modelBuilder.Entity<LoginTypeEntity>().ToTable("LoginType");
+            modelBuilder.Entity<RazorRefundEntity>().ToTable("RazorRefund");
             modelBuilder.Entity<DaimondsPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<PerlPerPrdDisplayModel>().HasNoKey();
             modelBuilder.Entity<SRubyPerPrdDisplayModel>().HasNoKey();
@@ -89,6 +90,7 @@ namespace Ecommerce.Models.Entity
 
         }
 
+        public DbSet<RazorRefundEntity> RazorRefundEntities { get; set; }
         public DbSet<UserReviewMaster> UserReviewMasters { get; set; }
         public DbSet<ContactUs> contactUs { get; set; }
         public DbSet<LoginTrack> loginTracks { get; set; }
