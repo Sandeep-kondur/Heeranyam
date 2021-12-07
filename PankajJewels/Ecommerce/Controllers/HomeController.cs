@@ -428,7 +428,7 @@ namespace Ecommerce.Controllers
 
                     var address = _uService.APIGetUserByID(userid);
 
-                    return StatusCode(200, new { status = 1, message = "Success", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue, bankTax = bankTax, bankChareges = bankChareges, address = address != null? new { address.AddressId ,address.AddressTypeId,address.IsDeliverAddress,address.Address1,address.Address2, address.LandMark , address.ZipCode }:new object() });
+                    return StatusCode(200, new { status = 1, message = "Success", cartDetails = myObject, cartcount = CartCount, totalAMount = totalvalue, bankTax = String.Format("{0:0.00}", bankTax), bankChareges = String.Format("{0:0.00}", bankChareges)  , address = address != null? new { address.AddressId ,address.AddressTypeId,address.IsDeliverAddress,address.Address1,address.Address2, address.LandMark , address.ZipCode }:new object() });
                 }
                 return StatusCode(200, new { status = 0, message = "There are no Cart Items" });
 
@@ -1224,7 +1224,7 @@ namespace Ecommerce.Controllers
             string transactionId = randomObj.Next(10000000, 100000000).ToString();
             Razorpay.Api.RazorpayClient client = new Razorpay.Api.RazorpayClient(rKey, rSecret);
             Dictionary<string, object> options = new Dictionary<string, object>();
-            int toPayAmount = (int)((myObject.CartDetails.Sum(b => b.TotalPrice) + myObject.CartDetails.Sum(b => b.BankTax) + myObject.CartDetails.Sum(b => b.BankChareges)) * 100);
+            int toPayAmount = (int)myObject.CartDetails.Sum(b => b.TotalPrice);// (int)((myObject.CartDetails.Sum(b => b.TotalPrice) + myObject.CartDetails.Sum(b => b.BankTax) + myObject.CartDetails.Sum(b => b.BankChareges)) * 100);
             options.Add("amount", toPayAmount);
             options.Add("receipt", transactionId);
             options.Add("currency", "INR");
@@ -1236,7 +1236,7 @@ namespace Ecommerce.Controllers
             {
                 orderId = orderResponse.Attributes["id"],
                 address = myObject.CustomerAddress,
-                amount = 1,//toPayAmount,
+                amount = toPayAmount,
                 contactNumber = myObject.CustomerMobile,
                 currency = "INR",
                 description = "Purchase of items",

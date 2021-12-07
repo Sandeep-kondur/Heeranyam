@@ -52,7 +52,7 @@ namespace Ecommerce.Models.ModelClasses
         public bool? IsDeleted { get; set; }
         public List<PODetailsModel> poDetails { get; set; }
         public List<APIPODetailsModel> APIpoDetails { get; set; }
-
+        public AddressModel Address { get; set; }
         public string UserName { get; set; }
         public string UserMobile { get; set; }
         public string UserAddress { get; set; }

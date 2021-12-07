@@ -1628,7 +1628,7 @@ namespace Ecommerce.Models.BAL
             {
                 var ad = context.addressEntities.Where(a => a.Id == ae.Id   && a.UserId == ae.UserId).FirstOrDefault();
                 ad.IsDeleted = true;
-                context.Entry(ad).CurrentValues.SetValues(ae);
+                //context.Entry(ad).CurrentValues.SetValues(ae);
                 context.SaveChanges();
 
                 result.currentId = ae.Id;
@@ -1648,9 +1648,15 @@ namespace Ecommerce.Models.BAL
             {
                 var ad = context.addressEntities.Where(a => a.Id==ae.Id  && a.IsDeleted == false && a.UserId == ae.UserId ).FirstOrDefault();
                 ad.IsDeliverAddress = "YES";
-                context.Entry(ad).CurrentValues.SetValues(ae);
+              //  context.Entry(ad).CurrentValues.SetValues(ae);
                 context.SaveChanges();
+                if (ae.IsDeliverAddress.ToUpper() == "YES")
+                {
+                    var updateIsDeliveryOption = context.addressEntities.Where(x => x.UserId == ae.UserId && x.Id != ae.Id).ToList();//.ForEach(x => x.IsDeliverAddress = "NO");
+                    updateIsDeliveryOption.ForEach(x => x.IsDeliverAddress = "NO");
+                    context.SaveChanges();
 
+                }
                 result.currentId = ae.Id;
                 result.statusCode = 1;
                 result.statusMessage = "update is Success";
@@ -1669,6 +1675,10 @@ namespace Ecommerce.Models.BAL
             {
                 var ad = context.addressEntities.Where(a => a.IsDeleted == false && a.UserId == ae.UserId && a.AddressTypeId== ae.AddressTypeId).FirstOrDefault();
                 ae.Id = ad.Id;
+                if (ae.IsDeleted==null)
+                {
+                    ae.IsDeleted = ad.IsDeleted;
+                }
                 context.Entry(ad).CurrentValues.SetValues(ae);
                 context.SaveChanges();
 

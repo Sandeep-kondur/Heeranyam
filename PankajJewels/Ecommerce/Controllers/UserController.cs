@@ -4,6 +4,7 @@ using Ecommerce.Models.InterfacesBAL;
 using Ecommerce.Models.ModelClasses;
 using Ecommerce.Models.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +20,8 @@ namespace Ecommerce.Controllers
         private readonly ICommonService _cService;
         private readonly IProductManagementService _pService;
         private readonly INotificationService _nService;
-        public UserController(IMasterDataMgmtService mService,
+        private readonly IConfiguration _config;
+        public UserController(IMasterDataMgmtService mService, IConfiguration config,
             IOrderMgmtService ordService, IUserMgmtService uService, ICommonService cService, IProductManagementService pService,
             INotificationService nService)
         {
@@ -28,7 +30,8 @@ namespace Ecommerce.Controllers
             _uService = uService;
             _cService = cService;
             _pService = pService;
-            _nService = nService; 
+            _nService = nService;
+            _config = config;
         }
         public IActionResult Index()
         {
@@ -327,8 +330,10 @@ namespace Ecommerce.Controllers
         public IActionResult APIOpenOrderDetails(int userid, int orderid)
         {
 
-            List<POMasterModel> orderDetails = new List<POMasterModel>();
-            orderDetails = _ordService.APIOpenOrders(userid,orderid);
+            List<APIPOMasterModel> orderDetails = new List<APIPOMasterModel>();
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+            orderDetails = _ordService.APIOpenOrders(userid,orderid,url);
+
             return StatusCode(200, new { status = 1, message = "success", orderDetails });
         }
 
@@ -544,9 +549,18 @@ namespace Ecommerce.Controllers
             return View();
         }
 
+        public void NotifyUser(int userid, string orderId) { 
+                    string serverKey = _config.GetValue<string>("FCMConfig:ServerKey");
+            string senderID = _config.GetValue<string>("FCMConfig:SenderID");
+            var userInfo=_uService.APIGetUserByID(userid);
+         
+           FCM notifyUser= new FCM(serverKey, senderID, userInfo.DeviceId) ;
+            notifyUser.SendNotification("Order Cancelled ","Successfully Cancelled the order "+orderId + " will notify further updates","Order Cancellation");
+         //   return StatusCode(200, new { status = 1, message = "Payment Success" });
+        }
+        
 
-
-        public IActionResult APICancellOrder(int orderId)
+        public IActionResult APICancellOrder(int userid, int orderId)
         {
             ProcessResponse response = new ProcessResponse();
             try
@@ -556,6 +570,8 @@ namespace Ecommerce.Controllers
                 request.IsDeleted = true;
                 request.OrderStatus = "Cancelled";
                 response = _ordService.UpdatePOMasterStatus(request);
+
+                NotifyUser(userid, request.InstrumentDetails);
             }
             catch (Exception ex)
             {
