@@ -275,6 +275,69 @@ namespace Ecommerce.Controllers
         }
 
         [HttpPost]
+        public IActionResult APIDeleteAddress(AddressEntity ae)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    ProcessResponse pr = _uService.APIUpdateAddressSetDeliver(ae);
+                    if (pr.statusCode == 1)
+                    {
+                        return StatusCode(200, new { status = 1, message = "Address Deleted Successfully" });
+
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, message = "Failed Delete Operation" });
+
+                    }
+                }
+                return StatusCode(200, new { status = 0, message = "Failed Delete Operation" });
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, message = "Failed Delete Operation" });
+
+            }
+
+
+
+        }
+        [HttpPost]
+        public IActionResult APIDeliveryAddress(AddressEntity ae)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    ProcessResponse pr = _uService.APIUpdateAddressSetDeliver(ae);
+                    if (pr.statusCode == 1)
+                    {
+                        return StatusCode(200, new { status = 1, message = "Address Updated Successfully" });
+
+                    }
+                    else
+                    {
+                        return StatusCode(200, new { status = 0, message = "Failed Update Operation" });
+
+                    }
+                }
+                return StatusCode(200, new { status = 0, message = "Failed Update Operation" });
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(200, new { status = 0, message = "Failed Update Operation" });
+
+            }
+
+
+
+        }
+
+        [HttpPost]
         public IActionResult APIUpdateAddress(AddressEntity ae)
         {
             try
@@ -284,7 +347,7 @@ namespace Ecommerce.Controllers
                     ProcessResponse pr = _uService.APIUpdateAddress(ae);
                     if (pr.statusCode == 1)
                     {
-                        return StatusCode(200, new { status = 1, message = "Addressed Updated Successfully" });
+                        return StatusCode(200, new { status = 1, message = "Address Updated Successfully" });
 
                     }
                     else
@@ -1173,7 +1236,7 @@ namespace Ecommerce.Controllers
             {
                 orderId = orderResponse.Attributes["id"],
                 address = myObject.CustomerAddress,
-                amount = toPayAmount,
+                amount = 1,//toPayAmount,
                 contactNumber = myObject.CustomerMobile,
                 currency = "INR",
                 description = "Purchase of items",

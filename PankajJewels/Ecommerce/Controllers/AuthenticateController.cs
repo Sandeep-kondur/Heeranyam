@@ -539,6 +539,16 @@ namespace Ecommerce.Controllers
                             }
                             return StatusCode(200, new { statusCode = 1, UserDetails = loginCheck, statusMessage = "Login Success" });
                         }
+                        else if (request!=null && request.token!=null)
+                        {
+                            //update user token
+                            _uService.UpdateUserMaster(new APIUser() { UserName = loginCheck.userName, UserId = loginCheck.userId, PWord=request.token,  DeviceId = request.DeviceId, EmailId = request.EmailId });
+                            if (!string.IsNullOrEmpty(loginCheck.userImageURL) && !loginCheck.userImageURL.Contains(Request.Host.Value))
+                            {
+                                loginCheck.userImageURL = HttpContext.Request.Scheme + "://" + HttpContext.Request.Host.Value + @"/UserImages/" + loginCheck.userImageURL;
+                            }
+                            return StatusCode(200, new { statusCode = 1, UserDetails = loginCheck, statusMessage = "Login Success" });
+                        }
                         else
                         {
                             return StatusCode(200, new { statusCode = 0, statusMessage = "Login Failure" });

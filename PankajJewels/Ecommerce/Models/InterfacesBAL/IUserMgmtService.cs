@@ -10,6 +10,8 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IUserMgmtService
     {
+        ProcessResponse APIDeleteAddress(AddressEntity ae);
+        ProcessResponse APIUpdateAddressSetDeliver(AddressEntity ae);
         List<AddressModel> APIGetAddressbyId(int id);
         int GetLoginType(string code);
         ProcessResponse SocialRegisterUser(UserMasterEntity userMaster);

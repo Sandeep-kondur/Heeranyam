@@ -203,14 +203,19 @@ namespace Ecommerce.Models.BAL
                 {
                     uma.MobileNumber = request.MobileNumber;
                 }
-                if (!String.IsNullOrEmpty(request.ProfilePicUrl))
+                if (!string.IsNullOrEmpty(request.ProfilePicUrl))
                 {
                     uma.ProfileImage = request.ProfilePicUrl;
                 }
-                if (!String.IsNullOrEmpty(request.DeviceId)
+                if (!string.IsNullOrEmpty(request.DeviceId)
                     && request.DeviceId.ToUpper() != uma.DeviceId.ToUpper())
                 {
                     uma.DeviceId = request.DeviceId;
+                }
+                if (!string.IsNullOrEmpty(request.PWord)
+                    && request.PWord.ToUpper() != uma.PWord.ToUpper())
+                {
+                    uma.PWord = request.PWord;
                 }
 
                 //if (!String.IsNullOrEmpty(request.Address)
@@ -1608,6 +1613,47 @@ namespace Ecommerce.Models.BAL
                 result.currentId = ae.Id;
                 result.statusCode = 1;
                 result.statusMessage = "Registration is Success";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return result;
+            }
+        }
+
+        public ProcessResponse APIDeleteAddress(AddressEntity ae)
+        {
+            ProcessResponse result = new ProcessResponse();
+            try
+            {
+                var ad = context.addressEntities.Where(a => a.Id == ae.Id   && a.UserId == ae.UserId).FirstOrDefault();
+                ad.IsDeleted = true;
+                context.Entry(ad).CurrentValues.SetValues(ae);
+                context.SaveChanges();
+
+                result.currentId = ae.Id;
+                result.statusCode = 1;
+                result.statusMessage = "update is Success";
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return result;
+            }
+        }
+        public ProcessResponse APIUpdateAddressSetDeliver(AddressEntity ae)
+        {
+            ProcessResponse result = new ProcessResponse();
+            try
+            {
+                var ad = context.addressEntities.Where(a => a.Id==ae.Id  && a.IsDeleted == false && a.UserId == ae.UserId ).FirstOrDefault();
+                ad.IsDeliverAddress = "YES";
+                context.Entry(ad).CurrentValues.SetValues(ae);
+                context.SaveChanges();
+
+                result.currentId = ae.Id;
+                result.statusCode = 1;
+                result.statusMessage = "update is Success";
                 return result;
             }
             catch (Exception ex)
