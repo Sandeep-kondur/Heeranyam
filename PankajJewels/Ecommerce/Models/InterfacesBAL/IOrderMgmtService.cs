@@ -9,7 +9,7 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IOrderMgmtService
     {
-
+        List<APIPOMasterModel> APIGetRefundOrders(int userId, string url, string source = "Self");
         List<APIPOMasterModel> APIOpenOrders(int userId, int orderid, string url,string source = "Self");
         ProcessResponse SaveRefund(RazorRefundEntity request);
         List<APIPOMasterModel> APIGetAllOrders(int userId, string url,string source = "Self");

@@ -281,7 +281,7 @@ namespace Ecommerce.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    ProcessResponse pr = _uService.APIUpdateAddressSetDeliver(ae);
+                    ProcessResponse pr = _uService.APIDeleteAddress(ae);
                     if (pr.statusCode == 1)
                     {
                         return StatusCode(200, new { status = 1, message = "Address Deleted Successfully" });

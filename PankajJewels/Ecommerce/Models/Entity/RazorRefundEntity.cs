@@ -21,12 +21,12 @@ namespace Ecommerce.Models.Entity
         public string invoice_id { get; set; }
 
 
-        public string international { get; set; }
+        public bool international { get; set; }
         public string method { get; set; }
-        public string amount_refunded { get; set; }
+        public int amount_refunded { get; set; }
         public string refund_status { get; set; }
 
-        public string captured { get; set; }
+        public bool captured { get; set; }
         public string notes { get; set; }
         public string description { get; set; }
         public string card_id { get; set; }
@@ -43,7 +43,7 @@ namespace Ecommerce.Models.Entity
 
         public int created_at { get; set; }
         public int POID { get; set; }
-        public int IsDeleted { get; set; }
+        public bool IsDeleted { get; set; }
 
 
 

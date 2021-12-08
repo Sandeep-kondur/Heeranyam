@@ -40,6 +40,155 @@ namespace Ecommerce.Models.BAL
             }
             return result;
         }
+
+
+        public List<APIPOMasterModel> APIGetRefundOrders(int userId, string url, string source = "Self")
+        {
+
+            List<APIPOMasterModel> myList = new List<APIPOMasterModel>();
+            try
+            {
+                if (source == "Self")
+                {
+                    myList = (from b in context.pOMasterEntities
+                              join rfn in context.RazorRefundEntities on b.InstrumentDetails equals rfn.order_id
+                              join u in context.userMasters on b.UserId equals u.UserId
+
+
+                              where b.UserId == userId && b.IsDeleted == false &&
+                   AppSettings.OpenOrderStatus.Contains(b.OrderStatus)
+                              select new APIPOMasterModel
+                              {
+                                  CartId = b.CartId,
+                                  UserId = b.UserId,
+                                  CreatedOn = b.CreatedOn,
+                                  CurrentStatus = b.CurrentStatus,
+                                  InstrumentDetails = b.InstrumentDetails,
+                                  IsDeleted = b.IsDeleted,
+                                  OrderStatus = b.OrderStatus,
+                                  PaidAmount = b.PaidAmount,
+                                  PaidDate = b.PaidDate,
+                                  PaymentMethod = b.PaymentMethod,
+                                  POId = b.POId,
+                                  PONumber = b.PONumber,
+                                  RefundedAmount = b.RefundedAmount,
+                                  RefundedOn = b.RefundedOn,
+                                  TransactionId = b.TransactionId,
+                                  OrderAmount = b.OrderAmount,
+                                  BankCharges = b.BankCharges,
+                                  BankTaxes = b.BankTaxes,
+                                  Taxes = b.Taxes,
+                                  // UserAddress = ad.Address1 + ", " + c.CityName + "," + s.StateName + ", " + ad.ZipCode,
+                                  UserMobile = u.MobileNumber,
+                                  UserName = u.UserName,
+
+                                  Address = context.addressEntities.Where(a => a.UserId == userId && a.IsDeleted == false && a.IsDeliverAddress == "YES")
+                      .Select(b => new AddressModel
+                      {
+                          UserId = b.UserId.GetValueOrDefault(),
+                          Address1 = b.Address1,
+                          Address2 = b.Address2,
+                          AddressTypeId = b.AddressTypeId,
+                          CityId = b.CityId != null ? b.CityId : 0,
+                          CountryId = b.CountryId != null ? b.CountryId : 0,
+                          Id = b.Id,
+                          LandMark = b.LandMark,
+                          LocationStreet = b.LocationStreet != null ? b.LocationStreet : string.Empty,
+                          StateId = b.StateId != null ? b.StateId : 0,
+                          ZipCode = b.ZipCode != null ? b.ZipCode : string.Empty,
+                          IsDeliverAddress = b.IsDeliverAddress != null ? b.IsDeliverAddress : string.Empty
+
+                      })
+                      .FirstOrDefault()
+                              }).ToList();
+                }
+                else
+                {
+                    myList = (from b in context.pOMasterEntities
+                              join rfn in context.RazorRefundEntities on b.InstrumentDetails equals rfn.order_id
+                              join u in context.userMasters on b.UserId equals u.UserId
+                              join ad in context.addressEntities on u.UserId equals ad.UserId
+                              where ad.IsDeliverAddress == "Yes"
+                              join c in context.cityMasterEntities on ad.CityId equals c.Id
+                              join s in context.stateMasterEntities on ad.StateId equals s.Id
+                              where b.IsDeleted == false && AppSettings.OpenOrderStatus.Contains(b.OrderStatus)
+                              select new APIPOMasterModel
+                              {
+
+
+                                  CartId = b.CartId,
+                                  UserId = b.UserId,
+                                  CreatedOn = b.CreatedOn,
+                                  CurrentStatus = b.CurrentStatus,
+                                  InstrumentDetails = b.InstrumentDetails,
+                                  IsDeleted = b.IsDeleted,
+                                  OrderStatus = b.OrderStatus,
+                                  PaidAmount = b.PaidAmount,
+                                  PaidDate = b.PaidDate,
+                                  PaymentMethod = b.PaymentMethod,
+                                  POId = b.POId,
+                                  PONumber = b.PONumber,
+                                  RefundedAmount = b.RefundedAmount,
+                                  RefundedOn = b.RefundedOn,
+                                  TransactionId = b.TransactionId,
+                                  OrderAmount = b.OrderAmount,
+                                  BankCharges = b.BankCharges,
+                                  BankTaxes = b.BankTaxes,
+                                  Taxes = b.Taxes,
+                                  UserAddress = ad.Address1 + ", " + c.CityName + "," + s.StateName + ", " + ad.ZipCode,
+                                  UserMobile = u.MobileNumber,
+                                  UserName = u.UserName
+                              }).ToList();
+                }
+                if (myList.Count > 0)
+                {
+                    for (int i = 0; i < myList.Count; i++)
+                    {
+                        int currentPOMId = myList[i].POId;
+                        List<APIPODetailsModel> pd = new List<APIPODetailsModel>();
+                        var result = (from poD in context.pODetails
+                                      join pdt in context.productMasterEntities on poD.ProductId equals pdt.ProductId
+                                      where poD.POMasterId == currentPOMId && poD.IsDeleted == false
+                                      select new APIPODetailsModel
+                                      {
+                                          AddedOn = poD.AddedOn,
+                                          CurrentStatus = poD.CurrentStatus,
+                                          IsDeleted = poD.IsDeleted,
+                                          DaimondPrice = poD.DaimondPrice,
+                                          Discount = poD.Discount,
+                                          GoldPrice = poD.GoldPrice,
+                                          GoldRate = poD.GoldRate,
+                                          GoldWeight = poD.GoldWeight,
+                                          GST = poD.GST,
+                                          MakingCharges = poD.MakingCharges,
+                                          MetalMasterId = poD.MetalMasterId,
+                                          MetalMasterId_Name = poD.MetalMasterId_Name,
+                                          NumberOfItems = poD.NumberOfItems,
+                                          OldPrice = poD.OldPrice,
+                                          PODetailId = poD.PODetailId,
+                                          ProductDetailId = poD.ProductDetailId,
+                                          ProductId = poD.ProductId,
+                                          SizeId = poD.SizeId,
+                                          SizeName = poD.SizeName,
+                                          TotalPrice = poD.TotalPrice,
+                                          ProductName = pdt.ProductTitle,
+                                          ImageURL = url + context.productImagesEntities.Where(a => a.IsDeleted == false && a.ProductId == pdt.ProductId).Select(b => b.ImageUrl).FirstOrDefault()
+
+                                      }).ToList();
+                        myList[i].APIpoDetails = result;
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return myList;
+
+        }
+
         public List<APIPOMasterModel> APIOpenOrders(int userId, int orderid,string url,string source = "Self")
         {
 
@@ -310,6 +459,11 @@ namespace Ecommerce.Models.BAL
             {
                 
                 {
+                 var   po = context.pOMasterEntities.Where(a => a.InstrumentDetails == request.order_id).FirstOrDefault();
+                    if (po!=null)
+                    {
+                        request.POID = po.POId;
+                    }
                     context.RazorRefundEntities.Add(request);
                     context.SaveChanges();
                 }

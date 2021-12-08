@@ -1650,7 +1650,7 @@ namespace Ecommerce.Models.BAL
                 ad.IsDeliverAddress = "YES";
               //  context.Entry(ad).CurrentValues.SetValues(ae);
                 context.SaveChanges();
-                if (ae.IsDeliverAddress.ToUpper() == "YES")
+                if (ad.IsDeliverAddress.ToUpper() == "YES")
                 {
                     var updateIsDeliveryOption = context.addressEntities.Where(x => x.UserId == ae.UserId && x.Id != ae.Id).ToList();//.ForEach(x => x.IsDeliverAddress = "NO");
                     updateIsDeliveryOption.ForEach(x => x.IsDeliverAddress = "NO");

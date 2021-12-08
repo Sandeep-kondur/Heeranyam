@@ -325,6 +325,17 @@ namespace Ecommerce.Controllers
             return StatusCode(200, new { status = 1, message = "success", orderDetails });
         }
 
+        [HttpGet]
+        public IActionResult APIRefundOrders(int userid, int orderid)
+        {
+
+            List<APIPOMasterModel> orderDetails = new List<APIPOMasterModel>();
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
+            orderDetails = _ordService.APIGetRefundOrders(userid, url);
+
+            return StatusCode(200, new { status = 1, message = "success", orderDetails });
+        }
+
 
         [HttpGet]
         public IActionResult APIOpenOrderDetails(int userid, int orderid)
