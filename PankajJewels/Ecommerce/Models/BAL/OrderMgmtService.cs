@@ -200,7 +200,7 @@ namespace Ecommerce.Models.BAL
                     myList =  (from b in context.pOMasterEntities join u in context.userMasters on b.UserId equals u.UserId
                  
                              
-                               where                b.UserId == userId && b.IsDeleted == false &&
+                               where                b.UserId == userId && b.IsDeleted == false && b.POId==orderid &&
                     AppSettings.OpenOrderStatus.Contains(b.OrderStatus)
                                select new APIPOMasterModel
                                {
