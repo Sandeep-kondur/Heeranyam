@@ -218,6 +218,40 @@ namespace Ecommerce.Controllers
             return View();
         }
 
+
+        [HttpPost]
+        public IActionResult APIForgotPassword(string emailid)
+        {
+                ProcessResponse ps = new ProcessResponse();
+
+            if (ModelState.IsValid)
+            {
+                ps = _uService.InitiateResetPassword(emailid);
+
+
+                if (ps.statusCode == 1)
+                {
+                    var userData = _uService.GetAllUsers("All").Where(a => a.UserId == ps.currentId).FirstOrDefault();
+                    var res = _nService.SendResetPasswordEmail(EmailTemplateModules.ResetPassword,
+                        ps.statusMessage, emailid, userData.UserName, userData.UserId);
+                    ps.statusMessage = "Passcode sent to your Email ID";
+                    ps.statusCode = 1;
+                }
+                else
+                {
+                    return StatusCode(200, new { status = 0, message = ps.statusMessage });
+
+                }
+
+            }
+            else
+            {
+                return StatusCode(200, new { status = 0, message = "Failed" });
+
+            }
+            return StatusCode(200, new { status = 1, message = ps.statusMessage });
+
+        }
         [HttpPost]
         public IActionResult ForgotPassword(LoginRequestForPWChange reqest)
         {
@@ -574,6 +608,7 @@ namespace Ecommerce.Controllers
                         um.MobileNumber = um.MobileNumber==null? string.Empty:um.MobileNumber;
                         um.PWord = request.token;
                         um.authID = request.authID;
+                        um.isSocialLogin = 1;
                         var result = _uService.SocialRegisterUser(um);
                         if (result.statusCode == 1)
                         {
@@ -824,6 +859,7 @@ namespace Ecommerce.Controllers
                         request.UserTypeId = usertypes.TypeId;
                         CloneObjects.CopyPropertiesTo(request, um);
                         um.authID = string.Empty;
+                        um.isSocialLogin = 0;
                         var result = _uService.RegisterUser(um);
                         if (result.statusCode == 1)
                         {

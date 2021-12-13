@@ -188,6 +188,23 @@ namespace Ecommerce.Models.BAL
             return myList;
 
         }
+        public List<POFollowUpEntity> APIGetUserOrders(int userid) {
+                            List<POFollowUpEntity> lstpf = new List<POFollowUpEntity>();
+
+
+            lstpf = (from pf in context.pOFollowUpEntities
+                     where pf.FollowUpBy == userid && pf.IsDeleted == false
+                     select pf
+
+                     ).ToList();
+
+            if (lstpf!=null)
+            {
+                return lstpf;
+            }
+            return new List<POFollowUpEntity>();
+        
+        }
 
         public List<APIPOMasterModel> APIOpenOrders(int userId, int orderid,string url,string source = "Self")
         {

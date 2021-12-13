@@ -337,6 +337,26 @@ namespace Ecommerce.Controllers
         }
 
 
+
+
+        [HttpGet]
+        public IActionResult APIUserOrderNotifications(int userid, int orderid)
+        {
+
+            List<POFollowUpEntity> notificationDetails = new List<POFollowUpEntity>();
+            notificationDetails = _ordService.APIGetUserOrders(userid);
+            if (notificationDetails != null && notificationDetails.Count>0)
+            {
+                return StatusCode(200, new { status = 1, message = "success", notificationDetails });
+
+            }
+            else
+            {
+                return StatusCode(200, new { status = 0, message = "There are no Orders", notificationDetails = new List<POFollowUpEntity>() });
+            }
+
+
+        }
         [HttpGet]
         public IActionResult APIOpenOrderDetails(int userid, int orderid)
         {

@@ -747,7 +747,7 @@ namespace Ecommerce.Models.BAL
             {
                 
                 var um = context.userMasters.Where(a => a.EmailId == emailId && a.IsDeleted == false && a.CurrentStatus == "Active").FirstOrDefault();
-                if (um != null)
+                if (um != null && um.isSocialLogin==0)
                 {
                     string key = RandomGenerator.RandomString(8,false);
                     key = key + um.UserId.ToString();
@@ -765,6 +765,12 @@ namespace Ecommerce.Models.BAL
                     ps.statusMessage = key;
                     ps.statusCode = 1;
                     ps.currentId = um.UserId;
+                } 
+                else if(um!=null && um.isSocialLogin==1)
+                {
+                    ps.statusCode = 0;
+                    ps.statusMessage = "Password can not be reset as your login from Gmail/Facebook";
+                    ps.currentId = 0;
                 }
                 else
                 {
