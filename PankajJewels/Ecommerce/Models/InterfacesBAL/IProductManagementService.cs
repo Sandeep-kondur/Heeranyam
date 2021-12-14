@@ -10,6 +10,9 @@ namespace Ecommerce.Models.InterfacesBAL
 {
     public interface IProductManagementService
     {
+        List<APIProductListDisplay> APIGetProductsByDetId(int userid, string url, int did = 0, int pageNumber = 1, int pageSize = 10, string serach = "");
+        List<APIProductListDisplay> APISearchGetProductsByCatId(int userid, string url, int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "");
+        List<APIProductListDisplay> APIGetProductsBySearch(int userid,string url, int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "");
         List<APIProductListDisplay> APIGetProductsBySearchforUser(int userid, int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "");
         List<ProductListDisplay> APIGetProductsBySearch(int cid = 0, int pageNumber = 1, int pageSize = 10, string search = "");
         APIPostProductModel APIGetProductDetails(int productId,int userid);

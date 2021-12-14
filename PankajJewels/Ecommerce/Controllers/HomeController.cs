@@ -111,9 +111,9 @@ namespace Ecommerce.Controllers
            int pageSize = 10, string search = "", decimal price = 0, int metalid = 0,
            string gender = "", int discountid = 0, bool isFA = false)
         {
-            
 
-            HomeProductsModels myObj = new HomeProductsModels();
+            HomeProductsModels myObj1 = new HomeProductsModels();
+            APIHomeProductsModels myObj = new APIHomeProductsModels();
             List<SubCategoryMasterEntity> subCatDrop = new List<SubCategoryMasterEntity>();
             List<DetailCategoryMasterEntity> detCatDrops = new List<DetailCategoryMasterEntity>();
             List<CategoryMasterEntity> catDrops = new List<CategoryMasterEntity>();
@@ -123,6 +123,7 @@ namespace Ecommerce.Controllers
             gr.pageSize = 1000;
             pr.pageNumber = 1;
             pr.pageSize = 1000;
+            string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
             catDrops = _oServce.GetAllCategories(pr);
             if (isFA)
             {
@@ -161,7 +162,7 @@ namespace Ecommerce.Controllers
                 int skipSize = pageNumber == 1 ? 0 : (pageNumber - 1) * pageSize;
                 string q3 = " order by pm.postedon desc offset " + skipSize + " rows fetch next " + pageSize + " rows only";
                 q1 = q1 + q2 + q3;
-                myObj.listProducts = _pService.GetProductsByFilter(q1);
+                myObj1.listProducts = _pService.GetProductsByFilter(q1);
 
 
                 string countQ = @"select count(pm.CategoryId) as cnt
@@ -174,24 +175,42 @@ namespace Ecommerce.Controllers
                             join DiscountMaster dm on pm.DiscountApplicableId = dm.dmasterid 
                             where pm.IsDeleted = 0 ";
                 string countQF = countQ + " " + q2;
-                myObj.totalRecords = _pService.GetProductsByFilter_count(countQF);
+                myObj1.totalRecords = _pService.GetProductsByFilter_count(countQF);
+
+                if (myObj1!=null && myObj1.listProducts!=null && myObj1.listProducts.Count>0)
+                {
+
+
+                    if (myObj1.listProducts != null && myObj1.listProducts.Count > 0)
+                    {
+                        foreach (var item in myObj1.listProducts)
+                        {
+                            item.ProductMainImages_List = url + item.ProductMainImages_List;
+                        }
+                    }
+                    return StatusCode(200, new { myObj1, status = 1, message = "Success" });
+
+                }
+
+                return StatusCode(200, new {  status = 0, message = "No Records Found" });
+
             }
             else
             {
                 if (!string.IsNullOrEmpty(search))
                 {
-                    myObj.listProducts = _pService.GetProductsBySearch(cid, pageNumber, pageSize, search);
+                    myObj.listProducts = _pService.APIGetProductsBySearch(userId,url,cid, pageNumber, pageSize, search);
                     myObj.totalRecords = _pService.GetProductsBySearch_count(cid, pageNumber, pageSize, search);
                 }
                 else if (cid > 0)
                 {
-                    myObj.listProducts = _pService.GetProductsByCatId(cid, pageNumber, pageSize, search);
+                    myObj.listProducts = _pService.APISearchGetProductsByCatId(userId,url, cid, pageNumber, pageSize, search);
                     myObj.totalRecords = _pService.GetProductsByCatId_Count(cid, pageNumber, pageSize, search);
 
                 }
                 else if (did > 0)
                 {
-                    myObj.listProducts = _pService.GetProductsByDetId(did, pageNumber, pageSize, search);
+                    myObj.listProducts = _pService.APIGetProductsByDetId(userId, url,did, pageNumber, pageSize, search);
                     myObj.totalRecords = _pService.GetProductsByDetId_Count(did, pageNumber, pageSize, search);
 
                 }
@@ -200,19 +219,6 @@ namespace Ecommerce.Controllers
             subCatDrop = _oServce.GetAllSubCategories(gr);
             gr.Id = sid;
             detCatDrops = _oServce.GetAllDetailCategories(gr);
-
-            ViewBag.TotalCount = myObj.totalRecords;
-            ViewBag.pageNumber = pageNumber;
-            ViewBag.pageSize = pageSize;
-            ViewBag.search = search;
-            ViewBag.cid = cid;
-            ViewBag.did = did;
-            ViewBag.sid = sid;
-            ViewBag.price = price;
-            ViewBag.metalid = metalid;
-            ViewBag.gender = gender;
-            ViewBag.discountid = discountid;
-            ViewBag.CartCount = _uService.GetUserCartCount(userId);
 
             // for filters drop downs
 

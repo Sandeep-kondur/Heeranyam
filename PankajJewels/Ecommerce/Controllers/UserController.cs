@@ -322,7 +322,17 @@ namespace Ecommerce.Controllers
 
             List<APIPOMasterModel> orderDetails = new List<APIPOMasterModel>();
             orderDetails = _ordService.APIGetAllOrders(userid,url);
-            return StatusCode(200, new { status = 1, message = "success", orderDetails });
+
+            if (orderDetails!=null && orderDetails.Count>0)
+            {
+                return StatusCode(200, new { status = 1, message = "success", orderDetails });
+
+            }
+            else
+            {
+                return StatusCode(200, new { status = 0, message = "There are no details ", orderDetails = new List<APIPOMasterModel>() });
+
+            }
         }
 
         [HttpGet]
@@ -333,7 +343,16 @@ namespace Ecommerce.Controllers
             string url = HttpContext.Request.Scheme + @"://" + HttpContext.Request.Host.Value + @"/ProductImages/";
             orderDetails = _ordService.APIGetRefundOrders(userid, url);
 
-            return StatusCode(200, new { status = 1, message = "success", orderDetails });
+            if (orderDetails != null && orderDetails.Count > 0)
+            {
+                return StatusCode(200, new { status = 1, message = "success", orderDetails });
+
+            }
+            else
+            {
+                return StatusCode(200, new { status = 0, message = "There are no details ", orderDetails = new List<APIPOMasterModel>() });
+
+            }
         }
 
 
