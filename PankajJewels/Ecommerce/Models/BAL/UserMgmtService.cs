@@ -305,10 +305,26 @@ namespace Ecommerce.Models.BAL
              
             try
             {
-                result = context.userMasters.Where(a => a.EmailId == email || a.MobileNumber == email && a.IsDeleted == false).FirstOrDefault();
+                result = (from um in context.userMasters
+                          join ut in context.userTypeMasters on um.UserTypeId equals ut.TypeId into utTemp
+                          from utype in utTemp.DefaultIfEmpty()
+                          where um.EmailId == email &&
+                          um.IsDeleted == false
+                          select new UserMasterEntity { 
+                              UserId=um.UserId,
+                              UserName=um.UserName,
+                              UserTypeId=um.UserTypeId,
+                              EmailId=um.EmailId,
+                              ProfileImage=um.ProfileImage!=null?um.ProfileImage:"",
+                              MobileNumber=um.MobileNumber!=null?um.MobileNumber:"",
+                              DeviceId=um.DeviceId!=null?um.DeviceId:""
+
+
+                          }).FirstOrDefault();
+               // result = context.userMasters.Where(a => a.EmailId == email  && a.IsDeleted == false).FirstOrDefault();
                 apiUser = new APIUser()
                 { UserId= result.UserId,UserName=result.UserName,EmailId=result.EmailId,
-                    MobileNumber= result.MobileNumber,ProfilePicUrl=result.ProfileImage};
+                    MobileNumber= result.MobileNumber,ProfilePicUrl=result.ProfileImage,DeviceId=result.DeviceId};
                 var resultAddress = context.addressEntities.Where(x => x.UserId == result.UserId).FirstOrDefault();
 
                 if (resultAddress != null && resultAddress.AddressTypeId!=4)
